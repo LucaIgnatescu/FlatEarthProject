@@ -4,4 +4,4 @@ dist-ssr
 *.local
 node_modules
 venv
-__pycachce__
+__pycache__
