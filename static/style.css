@@ -1,0 +1,152 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Outline&family=Londrina+Outline&display=swap');
+
+body{
+  position: absolute;
+  margin:0;
+}
+
+.sidebar {
+  height: 100%;
+  width: 0px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 600px;
+  color: white;
+  padding: 0;
+
+  font-size: 15px;
+  display: block;
+  transition: 0.5s;
+  /* cursor: pointer; */
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0px;
+  right: 25px;
+  font-size: 36px;
+}
+.closebtn:hover {
+  transition: 0.15s;
+  transform:scale(1.5,1.5);
+  -webkit-transform:scale(1.3,1.3);
+  -moz-transform:scale(1.3,1.3);
+  cursor: pointer;
+
+  }
+
+.buttonContrainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+
+#LogoBtn{
+  color:white;
+  margin:0;
+  font-size: 55px;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  left: 5px;
+  transition: 0.15s;
+  position: absolute;
+}
+#LogoBtn:hover{
+  font-size: 80px;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  left: 3px;
+  position: absolute;
+  cursor: pointer;
+}
+
+
+
+
+/* TOTAL ERROR */
+.totalError{
+  /* font: 14px/1 "Courier New", monospace; */
+  /* font-family: 'Londrina Outline'; */
+  border-color: coral;
+  font-size: 20px;
+  margin-top: 0;
+  display: block;
+  text-shadow: 0 0 10px gold,0 0 20px firebrick,0 0 40px pink,0 0 80px red;;
+
+  filter: saturate(60%);
+  
+  color: white;
+
+
+  /* color: lightgreen;
+  text-shadow: 0 0 10px greenyellow,0 0 20px darkgreen,0 0 40px darkcyan, 0 0 80px green;; */
+
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+}
+
+
+.btn-group-left{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+
+.btn-group-left button {
+  cursor: pointer; /* Pointer/hand icon */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.btn-group-right{
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}
+
+.btn-group-right button {
+  cursor: pointer; /* Pointer/hand icon */
+  display: block; /* Make the buttons appear below each other */
+}
+
+
+/* #solveBtn{
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}
+#switchBtn{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+#resetCamera{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+} */
+
+
+
+
+
+/* 2d */
+.pos{
+
+  position: fixed;
+  top: 0px;
+  
+  /* font-size: 20px; */
+  color: white;
+}
+h1{
+  margin-top: 0;
+}
