@@ -1,8 +1,10 @@
 # Hosting
 
 This project is hosted on Fly.io
-
-Monitoring: https://fly.io/apps/flat-earth-challenge/monitoring
+- Landing: https://flat-earth-challenge.fly.dev/
+- Planar Earth version: https://flat-earth-challenge.fly.dev/plane
+- Globe Earth version: https://flat-earth-challenge.fly.dev/globe
+- Monitoring: https://fly.io/apps/flat-earth-challenge/monitoring
 
 # Local Installation
 
