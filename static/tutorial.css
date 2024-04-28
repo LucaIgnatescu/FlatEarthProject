@@ -13,6 +13,17 @@ h1{
 	color: white;
 	text-align: center;
 }
+.totalError{
+
+	border-color: coral;
+	font-size: 20px;
+	margin-top: 0;
+	display: block;
+	text-shadow: 0 0 10px gold,0 0 20px firebrick,0 0 40px pink,0 0 80px red;;
+	filter: saturate(60%);
+	color: white;
+	cursor: pointer;
+ }	
 .container {
 	height: 100vh;
 	position: relative;
@@ -72,3 +83,12 @@ p {
 	font-size: xx-large;
 	color: white;
 }
+
+.pos{
+
+	position: fixed;
+	top: 15%;
+	left: 2%;
+	/* font-size: 20px; */
+	color: white;
+ }

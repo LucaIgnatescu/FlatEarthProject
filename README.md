@@ -1,4 +1,10 @@
-# Installation
+# Hosting
+
+This project is hosted on Fly.io
+
+Monitoring: https://fly.io/apps/flat-earth-challenge/monitoring
+
+# Local Installation
 
 ```bash
 # Create a virtual environment

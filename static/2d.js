@@ -343,6 +343,7 @@ function getDistance(currIdx){
 
 
 
+
 ////////////// CURVES //////////
 
 let base = new THREE.Vector3();
@@ -433,7 +434,8 @@ document.addEventListener("pointermove", event => {
     if (!isDragging){
         var intersects = raycaster.intersectObjects(cities);
 
-        if (raycaster.intersectObjects(cities).length>0){
+      //   if (raycaster.intersectObjects(cities).length>0){
+			if (intersects.length>0){
             for (let i = 0; i<cities.length;i++){if (cities[i]==intersects[0].object) {dragIdx = i; break }} // save the label to drag
             if ( !frame) getDistance(dragIdx);
             drawCurves(dragIdx)
