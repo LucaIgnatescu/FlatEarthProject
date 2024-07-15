@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Texture } from "three";
+import { CityRealCoords } from "./coordinates";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -86,8 +87,22 @@ export function makeTextSprite(message: string, parameters: Parameters | undefin
   // spriteMaterial.depthTest = false;
 
   return (
-    <sprite scale={[5, 2, 300.0]}>
+    <sprite scale={[10, 4, 600.0]}>
       <spriteMaterial map={texture} depthTest={false} />
     </sprite>
   );
+}
+
+export function SphericalDistance(x: CityRealCoords, y: CityRealCoords) {
+  const EarthR = 6371e3;
+  const φ1 = x.lat * Math.PI / 180;
+  const φ2 = y.lat * Math.PI / 180;
+  const Δφ = (y.lat - x.lat) * Math.PI / 180;
+  const Δλ = (y.lon - x.lon) * Math.PI / 180;
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = EarthR * c; // in metres
+  return Math.round(d / 10) / 100;
 }

@@ -3,7 +3,8 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { ConeGeometry, Mesh, Points, TextureLoader, Vector3 } from "three";
 import { makeTextSprite } from "../utils";
-import { cities as truePosition } from "../coordinates"; // NOTE: This used to be an array in the original implementation
+import { CityName, cities as truePosition } from "../coordinates"; // NOTE: This used to be an array in the original implementation
+import { CityContextProvider, useCityContext } from "../state";
 
 const EARTH_RADIUS = 80;
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
@@ -11,22 +12,20 @@ const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
   return (
-    <Canvas gl={{ antialias: true }} className="bg-black">
-      <PerspectiveCamera makeDefault position={[10, 10, 0]} />
-      <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} />
-      <ambientLight color={0xffffff} intensity={2} />
-      <Earth />
-      <EarthWireframe />
-      <Stars />
-      <Cities />
-    </Canvas>
+    <CityContextProvider>
+      <Canvas gl={{ antialias: true }} className="bg-black">
+        <PerspectiveCamera makeDefault position={[10, 10, 0]} />
+        <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} />
+        <ambientLight color={0xffffff} intensity={2} />
+        <Earth />
+        <EarthWireframe />
+        <Stars />
+        <Cities />
+      </Canvas>
+      <CheckContext />
+    </CityContextProvider>
   );
 }
-
-type PlaneContext = {
-  cities: Mesh[]
-};
-
 
 function Earth() {
   const texture = useLoader(TextureLoader, '../../static/img/disk.png');
@@ -76,7 +75,7 @@ function Stars() {
     for (let i = 0; i < 50000; i++) {
       const x = (Math.random() - 0.5) * 1000;
       const y = (Math.random() - 0.5) * 1000;
-      const z = (Math.random() - 0.5) * 1000;;
+      const z = (Math.random() - 0.5) * 1000;
       if (x * x + y * y + z * z > 120000) vertices.push(x, y, z);
     }
     return vertices;
@@ -96,13 +95,20 @@ function Stars() {
   );
 }
 
-function City({ i, cityName }: { i: number, cityName: keyof typeof truePosition }) {
+function City({ i, cityName }: { i: number, cityName: CityName }) {
   const height = 0.4, nTriangles = 6;
-  const ref = useRef<ConeGeometry>(null!);
+  const coneRef = useRef<ConeGeometry>(null!);
+  const meshRef = useRef<Mesh>(null!);
+  const { updateCities } = useCityContext();
 
   useEffect(() => {
-    ref.current.translate(0, height / 2, 0);
-  }, [ref])
+    coneRef.current.translate(0, height / 2, 0);
+  }, []);
+
+  useEffect(() => {
+    updateCities(cityName, meshRef.current);
+  }, [cityName, updateCities]);
+
 
   const spriteArguments = {
     fontsize: 60,
@@ -112,11 +118,11 @@ function City({ i, cityName }: { i: number, cityName: keyof typeof truePosition 
 
   const { lat, lon } = truePosition[cityName];
   return (
-    <mesh position={[lat / 3, 0, lon / 3]}>
-      <coneGeometry args={[height, height, nTriangles]} ref={ref} />
+    <mesh position={[lat / 3, 0, lon / 3]} ref={meshRef}>
+      <coneGeometry args={[height, height, nTriangles]} ref={coneRef} />
       <meshBasicMaterial color={"#DE1738"} />
       <lineSegments>
-        <edgesGeometry args={[ref.current]} />
+        <edgesGeometry args={[coneRef.current]} />
         <lineBasicMaterial color={"black"} />
       </lineSegments>
       {makeTextSprite(String.fromCharCode(65 + i), spriteArguments)}
@@ -124,12 +130,20 @@ function City({ i, cityName }: { i: number, cityName: keyof typeof truePosition 
   )
 }
 
+
 function Cities() {
   return (
     Object.entries(Object.keys(truePosition))
-      .map(([i, cityName]) => <City i={+i} cityName={cityName as keyof typeof truePosition} key={cityName} />)
+      .map(([i, cityName]) => <City i={+i} cityName={cityName as CityName} key={cityName} />)
   );
 }
 
+function CheckContext() {
+  const { citiesRef } = useCityContext();
+
+  return <button className="absolute top-20 left-20 bg-white" onClick={() => console.log(citiesRef.current)}>
+    Print
+  </button>
+}
 
 

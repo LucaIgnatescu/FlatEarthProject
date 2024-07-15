@@ -3,6 +3,7 @@ import { MapControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/contro
 import { atlanta, beijing, cape, delhi, easter, florence, goiania, hobart } from './coordinates.js'
 
 
+const EARTHR = 
 
 
 

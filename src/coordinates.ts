@@ -62,3 +62,9 @@ export const cities = {
     lon: 30.523333
   }
 };
+
+export type CityName = keyof typeof cities;
+export type CityRealCoords = {
+  lat: number;
+  lon: number;
+}
