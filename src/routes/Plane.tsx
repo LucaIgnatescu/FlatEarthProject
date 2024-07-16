@@ -1,7 +1,7 @@
 import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef } from "react";
-import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, Raycaster, TextureLoader, Vector3 } from "three";
+import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, Raycaster, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { TextSprite } from "../utils";
 import { CityName, cities as truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { CityContextProvider, useCityContext } from "../state";
@@ -163,28 +163,39 @@ function Cities() {
   );
 }
 
-function Curve({ base, dest }: { base: Vector3, dest: Vector3 }) {
-  const pts = [];
-  for (let i = 0; i <= 12; i++) {
-    const p = new Vector3().lerpVectors(base, dest, i / 12);
-    pts.push(p);
-  }
-  const curve = new CatmullRomCurve3(pts);
+function Curve({ dest }: { dest: Vector3 }) {
+  const ref = useRef<Mesh>(null!);
+  const { hoveredCityRef } = useCityContext();
+  useFrame(() => {
+    const pts = [];
+    const base = hoveredCityRef.current?.mesh.position;
+    if (base === undefined) {
+      ref.current.visible = false;
+      return;
+    }
+    ref.current.visible = true;
+    for (let i = 0; i <= 1; i++) {
+      const p = new Vector3().lerpVectors(base, dest, i / 1);
+      pts.push(p);
+    }
+    const curve = new CatmullRomCurve3(pts);
+    ref.current.geometry.dispose();
+    ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
+  });
 
   const green = 0x3acabb; // TODO: Check distance
   return (
-    <mesh>
-      <tubeGeometry args={[curve, 64, 0.05, 50, false]} />
+    <mesh ref={ref}>
       <meshBasicMaterial color={green} />
     </mesh>
   );
 }
 
 function Curves() {
-  const { draggingPosition, citiesRef } = useCityContext();
-  if (draggingPosition === null) return;
+  const { citiesRef } = useCityContext();
+
   const positions = Object.values(citiesRef.current).map(mesh => mesh.position).filter(position => position !== undefined);
-  return positions.map((dest, i) => <Curve base={new Vector3(...Object.values(draggingPosition))} dest={dest} key={i} />) // FIX: key
+  return positions.map((dest, i) => <Curve dest={dest} key={i} />) // FIX: key
 }
 
 

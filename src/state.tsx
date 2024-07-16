@@ -17,7 +17,6 @@ type CitiesState = {
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
-  draggingPosition: { x: number, y: number, z: number } | null;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
@@ -37,7 +36,6 @@ export function CityContextProvider({ children }: { children: React.ReactNode })
   const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const [draggingPosition, setDraggingPosition] = useState<{ x: number, y: number, z: number } | null>(null);
 
   const updateCities = (name: CityName, city: Mesh) => {
     citiesRef.current[name] = city;
@@ -46,7 +44,6 @@ export function CityContextProvider({ children }: { children: React.ReactNode })
   const updateHoveredCity = (name: CityName | null) => {
     if (name === null) {
       hoveredCityRef.current = null;
-      setDraggingPosition(null);
       return;
     }
 
@@ -61,12 +58,11 @@ export function CityContextProvider({ children }: { children: React.ReactNode })
     if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
 
     hoveredCityRef.current.mesh.position.set(x, y, z);
-    setDraggingPosition({ x, y, z });
   }
 
 
   return (
-    <CityContext.Provider value={{ citiesRef, hoveredCityRef, isDragging, draggingPosition, setIsDragging, updateCities, updateHoveredCity, moveHoveredCity }}>
+    <CityContext.Provider value={{ citiesRef, hoveredCityRef, isDragging, setIsDragging, updateCities, updateHoveredCity, moveHoveredCity }}>
       {children}
     </CityContext.Provider>
   )
