@@ -3,10 +3,6 @@ import { MapControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/contro
 import { atlanta, beijing, cape, delhi, easter, florence, goiania, hobart } from './coordinates.js'
 
 
-const EARTHR = 
-
-
-
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
@@ -125,7 +121,7 @@ function genStars() {
 	for (let i = 0; i < 50000; i++) {
 		const x = (Math.random() - 0.5) * 1000;
 		const y = (Math.random() - 0.5) * 1000;
-		const z = (Math.random() - 0.5) * 1000;;
+		const z = (Math.random() - 0.5) * 1000;
 		if (x * x + y * y + z * z > 120000) starVerticies.push(x, y, z);
 	}
 

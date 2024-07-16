@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Texture } from "three";
+import { Object3D, Texture } from "three";
 import { CityRealCoords } from "./coordinates";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -28,21 +28,19 @@ type Parameters = {
   backgroundColor?: Color,
 }
 
-export function makeTextSprite(message: string, parameters: Parameters | undefined) {
+export function TextSprite({ message, parameters }: { message: string, parameters: Parameters | undefined }) {
   if (parameters === undefined) parameters = {};
 
-  const fontface = parameters.fontface ?? "Arial";
-
-  const fontsize = parameters.fontsize ?? 25;
-
-  const borderThickness = parameters.borderThickness ?? 4;
-
-  const borderColor = parameters.borderColor ?? { r: 0, g: 0, b: 0, a: 1.0 };
-
-  const backgroundColor = parameters.backgroundColor ?? { r: 255, g: 255, b: 255, a: 1.0 };
-
   const texture = useMemo(() => {
+    const fontface = parameters.fontface ?? "Arial";
 
+    const fontsize = parameters.fontsize ?? 25;
+
+    const borderThickness = parameters.borderThickness ?? 4;
+
+    const borderColor = parameters.borderColor ?? { r: 0, g: 0, b: 0, a: 1.0 };
+
+    const backgroundColor = parameters.backgroundColor ?? { r: 255, g: 255, b: 255, a: 1.0 };
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
@@ -87,7 +85,7 @@ export function makeTextSprite(message: string, parameters: Parameters | undefin
   // spriteMaterial.depthTest = false;
 
   return (
-    <sprite scale={[10, 4, 600.0]}>
+    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()}>
       <spriteMaterial map={texture} depthTest={false} />
     </sprite>
   );
@@ -105,4 +103,10 @@ export function SphericalDistance(x: CityRealCoords, y: CityRealCoords) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = EarthR * c; // in metres
   return Math.round(d / 10) / 100;
+}
+
+export function PlanarDistance(p1: Object3D, p2: Object3D) {
+  return Math.round(
+    Math.sqrt((p1.position.x - p2.position.x) ** 2 + (p1.position.z - p2.position.z) ** 2)
+  );
 }
