@@ -34,21 +34,17 @@ function Controls() {
 
 function Earth() {
   const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
-  const { setHoveredPosition, citiesRef, setIsDragging, isDragging, hoveredCity } = useCityContext();
+  const { moveHoveredCity, setIsDragging, isDragging, hoveredCityRef } = useCityContext();
 
   const dragCity = (event: ThreeEvent<PointerEvent>) => {
-    if (!isDragging || !hoveredCity) return;
+    if (!isDragging || !hoveredCityRef.current) return;
     const earthIntersection = event.intersections.find(
       (intersection) => ((intersection.object as Mesh).geometry instanceof CircleGeometry)
     );
     if (earthIntersection === undefined) throw new Error("Didn't intersect earth");
     const { x, z } = earthIntersection.point;
-
-    const hoveredMesh = citiesRef.current[hoveredCity];
-    if (hoveredMesh === undefined) return;
-    hoveredMesh.position.set(x, hoveredMesh.position.y, z);
-
-    setHoveredPosition(new Vector3(x, hoveredMesh.position.y, z));
+    const { y } = hoveredCityRef.current.mesh.position;
+    moveHoveredCity(x, y, z);
   }
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
@@ -121,7 +117,7 @@ const City = memo(function({ i, cityName }: { i: number, cityName: CityName }) {
   const height = 0.4, nTriangles = 6;
   const coneRef = useRef<ConeGeometry>(null!);
   const meshRef = useRef<Mesh>(null!);
-  const { citiesRef, updateCities, setHoveredCity, hoveredCity, setIsDragging, isDragging, setHoveredPosition } = useCityContext();
+  const { hoveredCityRef, updateHoveredCity, updateCities, setIsDragging, isDragging } = useCityContext();
   useEffect(() => {
     coneRef.current.translate(0, height / 2, 0);
   }, []);
@@ -131,9 +127,8 @@ const City = memo(function({ i, cityName }: { i: number, cityName: CityName }) {
   }, [cityName, updateCities]);
 
   const onHover = () => {
-    if (cityName !== hoveredCity && isDragging === false) {
-      setHoveredCity(cityName);
-      setHoveredPosition(citiesRef.current[cityName]?.position ?? null);
+    if (cityName !== hoveredCityRef.current?.name && isDragging === false) {
+      updateHoveredCity(cityName);
     }
   }
   const spriteArguments = {
@@ -150,8 +145,7 @@ const City = memo(function({ i, cityName }: { i: number, cityName: CityName }) {
       onPointerDown={() => setIsDragging(true)} // NOTE: Check sprite effects for bugs
       onPointerLeave={() => {
         if (isDragging) return;
-        setHoveredPosition(null);
-        setHoveredCity(null);
+        updateHoveredCity(null);
       }}
     >
       <coneGeometry args={[height, height, nTriangles]} ref={coneRef} />
@@ -170,14 +164,13 @@ function Cities() {
 }
 
 function Curve({ base, dest }: { base: Vector3, dest: Vector3 }) {
-  const curve = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i <= 12; i++) {
-      const p = new Vector3().lerpVectors(base, dest, i / 12);
-      pts.push(p);
-    }
-    return new CatmullRomCurve3(pts);
-  }, [base, dest]) // TODO: Optimize 2d vectors as just one line
+  const pts = [];
+  for (let i = 0; i <= 12; i++) {
+    const p = new Vector3().lerpVectors(base, dest, i / 12);
+    pts.push(p);
+  }
+  const curve = new CatmullRomCurve3(pts);
+
   const green = 0x3acabb; // TODO: Check distance
   return (
     <mesh>
@@ -188,10 +181,10 @@ function Curve({ base, dest }: { base: Vector3, dest: Vector3 }) {
 }
 
 function Curves() {
-  const { hoveredPosition, citiesRef } = useCityContext();
-  if (hoveredPosition === null) return;
+  const { draggingPosition, citiesRef } = useCityContext();
+  if (draggingPosition === null) return;
   const positions = Object.values(citiesRef.current).map(mesh => mesh.position).filter(position => position !== undefined);
-  return positions.map((dest, i) => <Curve base={hoveredPosition} dest={dest} key={i} />) // FIX: key
+  return positions.map((dest, i) => <Curve base={new Vector3(...Object.values(draggingPosition))} dest={dest} key={i} />) // FIX: key
 }
 
 

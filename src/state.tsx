@@ -6,16 +6,25 @@ type CityTable = {
   [key in CityName]?: Mesh;
 };
 
+
+type HoveredCityInfo = {
+  name: CityName;
+  mesh: Mesh;
+}
+
+
 type CitiesState = {
   citiesRef: MutableRefObject<CityTable>;
-  hoveredCity: CityName | null;
-  hoveredPosition: Vector3 | null;
+  hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
+  draggingPosition: { x: number, y: number, z: number } | null;
   updateCities: (name: CityName, city: Mesh) => void;
-  setHoveredCity: (city: CityName | null) => void;
+  updateHoveredCity: (name: CityName | null) => void;
+  moveHoveredCity: (x: number, y: number, z: number) => void;
   setIsDragging: (isDragging: boolean) => void;
-  setHoveredPosition: (newPosition: Vector3 | null) => void;
 }
+
+
 
 const CityContext = createContext<CitiesState>(null!);
 
@@ -25,16 +34,39 @@ const CityContext = createContext<CitiesState>(null!);
 
 export function CityContextProvider({ children }: { children: React.ReactNode }) { // TODO: Refactor for everything to be a ref; Very slow
   const citiesRef = useRef<CityTable>({});
-  const [hoveredCity, setHoveredCity] = useState<CityName | null>(null);
+  const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [hoveredPosition, setHoveredPosition] = useState<Vector3 | null>(null);
+
+  const [draggingPosition, setDraggingPosition] = useState<{ x: number, y: number, z: number } | null>(null);
+
   const updateCities = (name: CityName, city: Mesh) => {
     citiesRef.current[name] = city;
   };
+
+  const updateHoveredCity = (name: CityName | null) => {
+    if (name === null) {
+      hoveredCityRef.current = null;
+      setDraggingPosition(null);
+      return;
+    }
+
+    const mesh = citiesRef.current[name];
+    if (mesh === undefined) throw new Error("invalid city name");
+    hoveredCityRef.current = { name, mesh };
+    const { x, y, z } = mesh.position;
+    moveHoveredCity(x, y, z);
+  }
+
+  const moveHoveredCity = (x: number, y: number, z: number) => {
+    if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
+
+    hoveredCityRef.current.mesh.position.set(x, y, z);
+    setDraggingPosition({ x, y, z });
+  }
+
+
   return (
-    <CityContext.Provider value={
-      { citiesRef, hoveredCity, setHoveredCity, updateCities, isDragging, setIsDragging, hoveredPosition, setHoveredPosition }
-    }>
+    <CityContext.Provider value={{ citiesRef, hoveredCityRef, isDragging, draggingPosition, setIsDragging, updateCities, updateHoveredCity, moveHoveredCity }}>
       {children}
     </CityContext.Provider>
   )
