@@ -1,40 +1,91 @@
 import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { memo, useEffect, useMemo, useRef } from "react";
-import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, Raycaster, TextureLoader, TubeGeometry, Vector3 } from "three";
-import { TextSprite } from "../utils";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, TextureLoader, TubeGeometry, Vector3 } from "three";
+import { TextSprite, totalDistance } from "../utils";
 import { CityName, cities as truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { CityContextProvider, useCityContext } from "../state";
+import { getRealDistances, RenderContextProvider, UIContextProvider, useRenderContext, useUIContext, useUpdateContext } from "../state";
+import { UIWrapper } from "../ui";
+import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
+import { normalize } from "three/src/math/MathUtils.js";
 
 const EARTH_RADIUS = 80;
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
-
 export default function Plane() {
   return (
-    <CityContextProvider>
-      <Canvas gl={{ antialias: true }} className="bg-black">
-        <PerspectiveCamera makeDefault position={[10, 10, 0]} />
-        <Controls />
-        <ambientLight color={0xffffff} intensity={2} />
-        <Cities />
-        <Earth />
-        <EarthWireframe />
-        <Stars />
-        <Curves />
-      </Canvas>
-    </CityContextProvider>
-  );
+    <RenderContextProvider>
+      <UIContextProvider>
+        <Canvas gl={{ antialias: true }} className="bg-black">
+          <PerspectiveCamera makeDefault position={[10, 10, 0]} />
+          <Controls />
+          <ambientLight color={0xffffff} intensity={2} />
+          <Cities />
+          <Earth />
+          <EarthWireframe />
+          <Stars />
+          <Curves />
+        </Canvas>
+
+        <UIWrapper />
+      </UIContextProvider>
+    </RenderContextProvider>
+  ); // TODO: Look into refactoring structure
 }
 
+// const MemoizedCanvas = memo(function() {
+//   return (
+//     <Canvas gl={{ antialias: true }} className="bg-black">
+//       <PerspectiveCamera makeDefault position={[10, 10, 0]} />
+//       <Controls />
+//       <ambientLight color={0xffffff} intensity={2} />
+//       <Cities />
+//       <Earth />
+//       <EarthWireframe />
+//       <Stars />
+//       <Curves />
+//     </Canvas>
+//   );
+// });
+
+// function CanvasWrapper() {
+//   const [currDistances, setCurrDistances] = useState<Distances>({});
+//   const { citiesRef } = useRenderContext();
+//   const [, startTransition] = useTransition();
+//
+//   const updateCurrDistances = useCallback(() => {
+//     startTransition(() => {
+//       const currDistaces: Distances = {};
+//       for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
+//         for (const [cityName2, cityMesh2] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
+//           const distance = PlanarDistance(cityMesh1, cityMesh2);
+//           if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
+//           if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
+//           currDistaces[cityName1][cityName2] = distance;
+//           currDistaces[cityName2][cityName1] = distance;
+//         }
+//       }
+//       setCurrDistances(currDistaces);
+//     })
+//   }, [citiesRef]);
+//   return (
+//     <>
+//       <MemoizedCanvas updateCurrDistances={updateCurrDistances} />
+//       <UIWrapper currDistances={currDistances} />
+//     </>
+//   );
+// }
+//
+//
 function Controls() {
-  const { isDragging } = useCityContext();
+  const { isDragging } = useRenderContext();
   return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} />
 }
 
 function Earth() {
+  const { updateCurrDistances } = useUpdateContext();
   const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
-  const { moveHoveredCity, setIsDragging, isDragging, hoveredCityRef } = useCityContext();
+  const { moveHoveredCity, setIsDragging, isDragging, hoveredCityRef } = useRenderContext();
 
   const dragCity = (event: ThreeEvent<PointerEvent>) => {
     if (!isDragging || !hoveredCityRef.current) return;
@@ -45,7 +96,9 @@ function Earth() {
     const { x, z } = earthIntersection.point;
     const { y } = hoveredCityRef.current.mesh.position;
     moveHoveredCity(x, y, z);
+    updateCurrDistances();
   }
+  useEffect(() => updateCurrDistances(), [updateCurrDistances]);
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={() => setIsDragging(false)}
@@ -112,12 +165,11 @@ function Stars() {
   );
 }
 
-const City = memo(function({ i, cityName }: { i: number, cityName: CityName }) {
-  console.log("rendering");
+const City = function({ i, cityName }: { i: number, cityName: CityName }) {
   const height = 0.4, nTriangles = 6;
   const coneRef = useRef<ConeGeometry>(null!);
   const meshRef = useRef<Mesh>(null!);
-  const { hoveredCityRef, updateHoveredCity, updateCities, setIsDragging, isDragging } = useCityContext();
+  const { hoveredCityRef, updateHoveredCity, updateCities, setIsDragging, isDragging } = useRenderContext();
   useEffect(() => {
     coneRef.current.translate(0, height / 2, 0);
   }, []);
@@ -153,7 +205,7 @@ const City = memo(function({ i, cityName }: { i: number, cityName: CityName }) {
       <TextSprite message={String.fromCharCode(65 + i)} parameters={spriteArguments} />
     </mesh>
   )
-});
+}
 
 
 function Cities() {
@@ -163,9 +215,10 @@ function Cities() {
   );
 }
 
-function Curve({ dest }: { dest: Vector3 }) {
+const Curve = memo(function({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
+  console.log("rerendering");
   const ref = useRef<Mesh>(null!);
-  const { hoveredCityRef } = useCityContext();
+  const { hoveredCityRef } = useRenderContext();
   useFrame(() => {
     const pts = [];
     const base = hoveredCityRef.current?.mesh.position;
@@ -183,20 +236,39 @@ function Curve({ dest }: { dest: Vector3 }) {
     ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
   });
 
-  const green = 0x3acabb; // TODO: Check distance
+  const color = isCorrect ? 0x3acabb : 0xff8400;
   return (
     <mesh ref={ref}>
-      <meshBasicMaterial color={green} />
+      <meshBasicMaterial color={color} />
     </mesh>
   );
-}
+});
 
 function Curves() {
-  const { citiesRef } = useCityContext();
+  const { citiesRef, hoveredCityRef } = useRenderContext();
+  const { currDistances } = useUIContext();
 
-  const positions = Object.values(citiesRef.current).map(mesh => mesh.position).filter(position => position !== undefined);
-  return positions.map((dest, i) => <Curve dest={dest} key={i} />) // FIX: key
+  const THRESH = 1;
+
+  if (hoveredCityRef.current === null) return null;
+
+  const cities = citiesRef.current;
+  const hoveredCity = hoveredCityRef.current.name;
+  const realDistances = getRealDistances();
+  const totalCurrent = totalDistance(currDistances);
+  const totalReal = totalDistance(realDistances);
+
+  const curves = [];
+  for (const cityName of Object.keys(cities) as CityName[]) {
+    if (cities[cityName]?.position === undefined) continue;
+    const d = Math.abs(currDistances[hoveredCity][cityName] / totalCurrent - realDistances[hoveredCity][cityName] / totalReal);
+    if (cityName === 'kiev')
+      console.log(d);
+    curves.push(<Curve dest={cities[cityName].position} key={cityName} isCorrect={(d < THRESH)} />)
+  }
+
+
+  return <>{curves}</>;
+
 }
-
-
 

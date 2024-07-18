@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Object3D, Texture } from "three";
-import { CityRealCoords } from "./coordinates";
+import { CityName, CityRealCoords } from "./coordinates";
+import { Distances } from "./state";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -91,6 +92,7 @@ export function TextSprite({ message, parameters }: { message: string, parameter
   );
 }
 
+
 export function SphericalDistance(x: CityRealCoords, y: CityRealCoords) {
   const EarthR = 6371e3;
   const φ1 = x.lat * Math.PI / 180;
@@ -109,4 +111,15 @@ export function PlanarDistance(p1: Object3D, p2: Object3D) {
   return Math.round(
     Math.sqrt((p1.position.x - p2.position.x) ** 2 + (p1.position.z - p2.position.z) ** 2)
   );
+}
+
+export function totalDistance(distances: Distances) {
+  const SHRINKFACTOR = 1000; // NOTE: make distances larger so computations are less vulnerable to floating point error
+  let totalSum = 0;
+  for (const city1 of Object.keys(distances) as CityName[]) {
+    for (const city2 of Object.keys(distances[city1]) as CityName[]) {
+      totalSum += distances[city1][city2]
+    }
+  }
+  return totalSum / SHRINKFACTOR;
 }
