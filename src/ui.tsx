@@ -1,7 +1,6 @@
 import { CityName } from "./coordinates";
-import { Distances, getRealDistances, useRenderContext, useUIContext } from "./state";
-import { totalDistance, useDistanceInfo } from "./utils";
-
+import { useRenderContext } from "./state";
+import { useDistanceInfo } from "./utils";
 
 export function UIWrapper() {
   return (

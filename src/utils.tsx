@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Object3D, Texture } from "three";
-import { CityName, CityRealCoords } from "./coordinates";
-import { Distances, getRealDistances, useUIContext } from "./state";
+import { CityName, CityRealCoords, truePositions } from "./coordinates";
+import { Distances, useUIContext } from "./state";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -130,4 +130,25 @@ export function useDistanceInfo() {
   const totalCurr = totalDistance(currDistances);
   const totalReal = totalDistance(realDistances);
   return { realDistances, currDistances, totalCurr, totalReal };
+}
+
+
+const realDistances: Distances = {};
+
+export function getRealDistances(): Distances {
+  if (Object.keys(realDistances).length === 0) {
+    for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
+      for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
+        const distance = SphericalDistance(cityMesh1, cityMesh2);
+        if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
+        if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
+        realDistances[cityName1][cityName2] = distance;
+        realDistances[cityName2][cityName1] = distance;
+      }
+    }
+  }
+
+  return realDistances;
+
+
 }

@@ -2,9 +2,9 @@ import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, TextureLoader, TubeGeometry, Vector3 } from "three";
-import { TextSprite, totalDistance } from "../utils";
-import { CityName, cities as truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { getRealDistances, RenderContextProvider, UIContextProvider, useRenderContext, useUIContext, useUpdateContext } from "../state";
+import { TextSprite, totalDistance, getRealDistances } from "../utils";
+import { CityName, truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
+import { RenderContextProvider, UIContextProvider, useRenderContext, useUIContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
 
 const EARTH_RADIUS = 80;

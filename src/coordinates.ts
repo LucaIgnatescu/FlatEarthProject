@@ -6,7 +6,7 @@
 */
 
 
-export const cities = {
+export const truePositions = {
   atlanta: {
     lat: 33.753746,
     lon: -84.386330
@@ -63,7 +63,7 @@ export const cities = {
   }
 };
 
-export type CityName = keyof typeof cities;
+export type CityName = keyof typeof truePositions;
 export type CityRealCoords = {
   lat: number;
   lon: number;
