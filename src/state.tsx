@@ -1,7 +1,13 @@
-import { createContext, memo, MutableRefObject, useCallback, useContext, useRef, useState } from "react";
+import { createContext, memo, MutableRefObject, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Mesh } from "three";
 import { CityName } from "./coordinates";
 import { PlanarDistance } from "./utils";
+
+export type Distances = {
+  [key in CityName]?: {
+    [key in CityName]?: number;
+  }
+}
 
 type CityTable = {
   [key in CityName]?: Mesh;
@@ -14,35 +20,48 @@ type HoveredCityInfo = {
 }
 
 
-type RenderContextState = { // TODO: Move update into other context
+type RenderContextState = {
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
+}
+
+
+/* NOTE: UIContextState is fast state and needs to be a separate context to not trigger rerender on on everything else
+ * Alternative is to memoize everything, but I don't think it's prefferable
+*/
+type UIContextState = {
+  currDistances: Distances;
+};
+
+type UpdateUIContextState = {
+  updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
   setIsDragging: (isDragging: boolean) => void;
-}
-
-
+};
 
 const RenderContext = createContext<RenderContextState>(null!);
+const UIContext = createContext<UIContextState>({ currDistances: {} });
+const UpdateUIContext = createContext<UpdateUIContextState>(null!);
 
-/* NOTE: cities needs to be refactored to an object, because keeping indices consistent might be an issue
- * Thus, cities will be identified by their name, not their index
-*/
-
-
-export function RenderContextProvider({ children }: { children: React.ReactNode }) { // TODO: Refactor for everything to be a ref; Very slow
+export function ContextProvider({ children }: { children: React.ReactNode }) {
+  const [currDistances, setCurrDistances] = useState<Distances>({});
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const citiesRef = useRef<CityTable>({});
   const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const updateCities = (name: CityName, city: Mesh) => {
+  const updateCities = useCallback((name: CityName, city: Mesh) => {
     citiesRef.current[name] = city;
-  };
+  }, []);
 
-  const updateHoveredCity = (name: CityName | null) => {
+  const moveHoveredCity = useCallback((x: number, y: number, z: number) => {
+    if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
+    hoveredCityRef.current.mesh.position.set(x, y, z);
+  }, []);
+
+  const updateHoveredCity = useCallback((name: CityName | null) => {
     if (name === null) {
       hoveredCityRef.current = null;
       return;
@@ -53,48 +72,8 @@ export function RenderContextProvider({ children }: { children: React.ReactNode 
     hoveredCityRef.current = { name, mesh };
     const { x, y, z } = mesh.position;
     moveHoveredCity(x, y, z);
-  }
+  }, [moveHoveredCity]);
 
-  const moveHoveredCity = (x: number, y: number, z: number) => {
-    if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
-    hoveredCityRef.current.mesh.position.set(x, y, z);
-  }
-
-
-  return (
-    <RenderContext.Provider value={{ citiesRef, hoveredCityRef, isDragging, setIsDragging, updateCities, updateHoveredCity, moveHoveredCity }}>
-      {children}
-    </RenderContext.Provider>
-  )
-}
-
-export function useRenderContext() {
-  const context = useContext(RenderContext);
-  if (context === null) throw new Error("Could not retreive context");
-  return context;
-}
-
-export type Distances = {
-  [key in CityName]?: {
-    [key in CityName]?: number;
-  }
-}
-
-
-export type UIContextState = {
-  currDistances: Distances;
-};
-
-const UIContext = createContext<UIContextState>({ currDistances: {} });
-
-export type UpdateUIContextState = {
-  updateCurrDistances: () => void;
-};
-
-const UpdateUIContext = createContext<UpdateUIContextState>(null!);
-
-const UpdateContextProvider = memo(function({ children, setCurrDistances }: { children: React.ReactNode, setCurrDistances: (d: Distances) => void }) {
-  const { citiesRef } = useRenderContext();
   const updateCurrDistances = useCallback(() => {
     const currDistaces: Distances = {};
     for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
@@ -107,24 +86,39 @@ const UpdateContextProvider = memo(function({ children, setCurrDistances }: { ch
       }
     }
     setCurrDistances(currDistaces);
+  }, [setCurrDistances]);
 
-  }, [citiesRef, setCurrDistances]);
-  return (
-    <UpdateUIContext.Provider value={{ updateCurrDistances }}>
-      {children}
-    </UpdateUIContext.Provider>
-  );
-});
+  const renderContextValue: RenderContextState = useMemo(() => ({
+    citiesRef, hoveredCityRef, isDragging
+  }), [isDragging]);
 
-export function UIContextProvider({ children }: { children: React.ReactNode }) {
-  const [currDistances, setCurrDistances] = useState<Distances>({});
+  const uiContextValue: UIContextState = useMemo(() => ({
+    currDistances
+  }), [currDistances]);
+
+  const updateUIContextValue: UpdateUIContextState = useMemo(() => ({
+    updateCurrDistances,
+    updateCities,
+    updateHoveredCity,
+    moveHoveredCity,
+    setIsDragging
+  }), [moveHoveredCity, updateCities, updateCurrDistances, updateHoveredCity]);
+
   return (
-    <UIContext.Provider value={{ currDistances: currDistances }}>
-      <UpdateContextProvider setCurrDistances={setCurrDistances}>
-        {children}
-      </UpdateContextProvider>
-    </UIContext.Provider>
+    <RenderContext.Provider value={renderContextValue}>
+      <UIContext.Provider value={uiContextValue}>
+        <UpdateUIContext.Provider value={updateUIContextValue}>
+          {children}
+        </UpdateUIContext.Provider>
+      </UIContext.Provider>
+    </RenderContext.Provider>
   );
+}
+
+export function useRenderContext() {
+  const context = useContext(RenderContext);
+  if (context === null) throw new Error("Could not retreive context");
+  return context;
 }
 
 export function useUIContext() {
@@ -138,6 +132,3 @@ export function useUpdateContext() { // TODO: add all other update function here
   if (context === null) throw new Error("Could not retreive context");
   return context;
 }
-
-
-
