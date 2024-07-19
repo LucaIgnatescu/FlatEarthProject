@@ -1,13 +1,11 @@
 import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { TextSprite, totalDistance } from "../utils";
 import { CityName, cities as truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { getRealDistances, RenderContextProvider, UIContextProvider, useRenderContext, useUIContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
-import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
-import { normalize } from "three/src/math/MathUtils.js";
 
 const EARTH_RADIUS = 80;
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
@@ -26,57 +24,12 @@ export default function Plane() {
           <Stars />
           <Curves />
         </Canvas>
-
         <UIWrapper />
       </UIContextProvider>
     </RenderContextProvider>
-  ); // TODO: Look into refactoring structure
+  );
 }
 
-// const MemoizedCanvas = memo(function() {
-//   return (
-//     <Canvas gl={{ antialias: true }} className="bg-black">
-//       <PerspectiveCamera makeDefault position={[10, 10, 0]} />
-//       <Controls />
-//       <ambientLight color={0xffffff} intensity={2} />
-//       <Cities />
-//       <Earth />
-//       <EarthWireframe />
-//       <Stars />
-//       <Curves />
-//     </Canvas>
-//   );
-// });
-
-// function CanvasWrapper() {
-//   const [currDistances, setCurrDistances] = useState<Distances>({});
-//   const { citiesRef } = useRenderContext();
-//   const [, startTransition] = useTransition();
-//
-//   const updateCurrDistances = useCallback(() => {
-//     startTransition(() => {
-//       const currDistaces: Distances = {};
-//       for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-//         for (const [cityName2, cityMesh2] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-//           const distance = PlanarDistance(cityMesh1, cityMesh2);
-//           if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-//           if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-//           currDistaces[cityName1][cityName2] = distance;
-//           currDistaces[cityName2][cityName1] = distance;
-//         }
-//       }
-//       setCurrDistances(currDistaces);
-//     })
-//   }, [citiesRef]);
-//   return (
-//     <>
-//       <MemoizedCanvas updateCurrDistances={updateCurrDistances} />
-//       <UIWrapper currDistances={currDistances} />
-//     </>
-//   );
-// }
-//
-//
 function Controls() {
   const { isDragging } = useRenderContext();
   return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} />
@@ -165,7 +118,7 @@ function Stars() {
   );
 }
 
-const City = function({ i, cityName }: { i: number, cityName: CityName }) {
+const City = function({ cityName }: { cityName: CityName }) {
   const height = 0.4, nTriangles = 6;
   const coneRef = useRef<ConeGeometry>(null!);
   const meshRef = useRef<Mesh>(null!);
@@ -184,13 +137,13 @@ const City = function({ i, cityName }: { i: number, cityName: CityName }) {
     }
   }
   const spriteArguments = {
-    fontsize: 60,
+    fontsize: 30,
     borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
     backgroundColor: { r: 225, g: 140, b: 0, a: 0.9 }
   };
 
-
   const { lat, lon } = truePositions[cityName];
+  const capitalized = cityName.charAt(0).toUpperCase() + cityName.slice(1);
   return (
     <mesh position={[lat / 3, 0, lon / 3]} ref={meshRef}
       onPointerOver={onHover}
@@ -202,7 +155,7 @@ const City = function({ i, cityName }: { i: number, cityName: CityName }) {
     >
       <coneGeometry args={[height, height, nTriangles]} ref={coneRef} />
       <meshBasicMaterial color={"#DE1738"} />
-      <TextSprite message={String.fromCharCode(65 + i)} parameters={spriteArguments} />
+      <TextSprite message={capitalized} parameters={spriteArguments} />
     </mesh>
   )
 }
@@ -211,12 +164,11 @@ const City = function({ i, cityName }: { i: number, cityName: CityName }) {
 function Cities() {
   return (
     Object.entries(Object.keys(truePositions))
-      .map(([i, cityName]) => <City i={+i} cityName={cityName as CityName} key={cityName} />)
+      .map(([, cityName]) => <City cityName={cityName as CityName} key={cityName} />)
   );
 }
 
 const Curve = memo(function({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
-  console.log("rerendering");
   const ref = useRef<Mesh>(null!);
   const { hoveredCityRef } = useRenderContext();
   useFrame(() => {
@@ -268,7 +220,7 @@ function Curves() {
   }
 
 
-  return <>{curves}</>;
+  return curves;
 
 }
 

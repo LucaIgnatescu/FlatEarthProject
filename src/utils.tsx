@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Object3D, Texture } from "three";
 import { CityName, CityRealCoords } from "./coordinates";
-import { Distances } from "./state";
+import { Distances, getRealDistances, useUIContext } from "./state";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -122,4 +122,12 @@ export function totalDistance(distances: Distances) {
     }
   }
   return totalSum / SHRINKFACTOR;
+}
+
+export function useDistanceInfo() {
+  const realDistances = getRealDistances();
+  const { currDistances } = useUIContext();
+  const totalCurr = totalDistance(currDistances);
+  const totalReal = totalDistance(realDistances);
+  return { realDistances, currDistances, totalCurr, totalReal };
 }

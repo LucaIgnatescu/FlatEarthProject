@@ -15,7 +15,7 @@ type HoveredCityInfo = {
 }
 
 
-type RenderContextState = {
+type RenderContextState = { // TODO: Move update into other context
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
@@ -144,7 +144,7 @@ export function useUpdateContext() { // TODO: add all other update function here
 
 const realDistances: Distances = {};
 
-export function getRealDistances() {
+export function getRealDistances(): Distances {
   if (Object.keys(realDistances).length === 0) {
     for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
       for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
