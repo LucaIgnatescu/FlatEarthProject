@@ -1,7 +1,6 @@
-import { createContext, memo, MutableRefObject, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { createContext, MutableRefObject, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Mesh } from "three";
 import { CityName } from "./coordinates";
-import { PlanarDistance } from "./utils";
 
 export type Distances = {
   [key in CityName]?: {
@@ -9,18 +8,18 @@ export type Distances = {
   }
 }
 
-type CityTable = {
+export type CityTable = {
   [key in CityName]?: Mesh;
 };
 
 
-type HoveredCityInfo = {
+export type HoveredCityInfo = {
   name: CityName;
   mesh: Mesh;
 }
 
 
-type RenderContextState = {
+export type RenderContextState = {
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
@@ -30,11 +29,11 @@ type RenderContextState = {
 /* NOTE: UIContextState is fast state and needs to be a separate context to not trigger rerender on on everything else
  * Alternative is to memoize everything, but I don't think it's prefferable
 */
-type UIContextState = {
+export type UIContextState = {
   currDistances: Distances;
 };
 
-type UpdateUIContextState = {
+export type UpdateUIContextState = {
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -46,7 +45,11 @@ const RenderContext = createContext<RenderContextState>(null!);
 const UIContext = createContext<UIContextState>({ currDistances: {} });
 const UpdateUIContext = createContext<UpdateUIContextState>(null!);
 
-export function ContextProvider({ children }: { children: React.ReactNode }) {
+export function ContextProvider({ children, calculateDistances }: {
+  children: React.ReactNode,
+  calculateDistances: (cities: CityTable) => Distances
+}
+) {
   const [currDistances, setCurrDistances] = useState<Distances>({});
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const citiesRef = useRef<CityTable>({});
@@ -75,18 +78,20 @@ export function ContextProvider({ children }: { children: React.ReactNode }) {
   }, [moveHoveredCity]);
 
   const updateCurrDistances = useCallback(() => {
-    const currDistaces: Distances = {};
-    for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-      for (const [cityName2, cityMesh2] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-        const distance = PlanarDistance(cityMesh1, cityMesh2);
-        if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-        if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-        currDistaces[cityName1][cityName2] = distance;
-        currDistaces[cityName2][cityName1] = distance;
-      }
-    }
-    setCurrDistances(currDistaces);
-  }, [setCurrDistances]);
+    if (!citiesRef.current) return;
+    setCurrDistances(calculateDistances(citiesRef.current));
+    // const currDistaces: Distances = {};
+    // for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
+    //   for (const [cityName2, cityMesh2] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
+    //     const distance = PlanarDistance(cityMesh1, cityMesh2);
+    //     if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
+    //     if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
+    //     currDistaces[cityName1][cityName2] = distance;
+    //     currDistaces[cityName2][cityName1] = distance;
+    //   }
+    // }
+    // setCurrDistances(currDistaces);
+  }, [calculateDistances]);
 
   const renderContextValue: RenderContextState = useMemo(() => ({
     citiesRef, hoveredCityRef, isDragging

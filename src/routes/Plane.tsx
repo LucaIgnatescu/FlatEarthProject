@@ -2,17 +2,30 @@ import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, CircleGeometry, ConeGeometry, Mesh, Points, TextureLoader, TubeGeometry, Vector3 } from "three";
-import { TextSprite, totalDistance, getRealDistances } from "../utils";
+import { TextSprite, totalDistance, getRealDistances, PlanarDistance } from "../utils";
 import { CityName, truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { ContextProvider, RenderContextProvider, UIContextProvider, useRenderContext, useUIContext, useUpdateContext } from "../state";
+import { CityTable, ContextProvider, Distances, useRenderContext, useUIContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
 
 const EARTH_RADIUS = 80;
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
+  const calculateDistances = (cities: CityTable) => {
+    const currDistaces: Distances = {};
+    for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
+      for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
+        const distance = PlanarDistance(cityMesh1, cityMesh2);
+        if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
+        if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
+        currDistaces[cityName1][cityName2] = distance;
+        currDistaces[cityName2][cityName1] = distance;
+      }
+    }
+    return currDistaces;
+  }
   return (
-    <ContextProvider>
+    <ContextProvider calculateDistances={calculateDistances}>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
