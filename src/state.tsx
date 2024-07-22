@@ -126,3 +126,4 @@ export function useUpdateContext() { // TODO: add all other update function here
   if (context === null) throw new Error("Could not retreive context");
   return context;
 }
+

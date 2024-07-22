@@ -1,9 +1,9 @@
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Mesh, Points, Quaternion, SphereGeometry, TextureLoader } from "three";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { CatmullRomCurve3, Mesh, MeshBasicMaterial, Points, Quaternion, Sphere, SphereGeometry, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { CityName, truePositions } from "../coordinates";
-import { convertAngToPolar, sca, SphericalDistance, TextSprite } from "../utils";
+import { convertAngToPolar, slerp, sca, SphericalDistance, TextSprite } from "../utils";
 import { ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
 
 const SPHERE_RADIUS = 30;
@@ -31,6 +31,7 @@ export default function Globe() {
         <Earth />
         <Stars />
         <Cities />
+        <Curves />
       </Canvas>
     </ContextProvider>
   );
@@ -106,10 +107,18 @@ const City = function({ cityName }: { cityName: CityName }) {
   const meshRef = useRef<Mesh>(null!);
   const { hoveredCityRef, isDragging } = useRenderContext();
   const { updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
+  const posRef = useRef<[number, number, number]>([0, 0, 0]);
 
   useEffect(() => {
     updateCities(cityName, meshRef.current);
   });
+
+  useEffect(() => {
+    const { lat, lon } = truePositions[cityName];
+    const { x, y, z } = convertAngToPolar(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
+    posRef.current = [x, y, z];
+    meshRef.current.position.set(x, y, z);
+  }, [cityName]);
 
   const onHover = () => {
     if (cityName !== hoveredCityRef.current?.name && isDragging === false) {
@@ -117,19 +126,16 @@ const City = function({ cityName }: { cityName: CityName }) {
     }
   };
 
-
   const spriteArguments = {
     fontsize: 30,
     borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
     backgroundColor: { r: 225, g: 140, b: 0, a: 0.9 }
   };
 
-  const { lat, lon } = truePositions[cityName];
-  const { x, y, z } = convertAngToPolar(lat, lon, SPHERE_RADIUS); // TODO: scatter
   const capitalized = cityName.charAt(0).toUpperCase() + cityName.slice(1);
 
   return (
-    <mesh ref={meshRef} position={[x, y, z]}
+    <mesh ref={meshRef} position={posRef.current}
       onPointerOver={onHover}
       onPointerDown={
         () => setIsDragging(true)
@@ -153,23 +159,101 @@ function Cities() {
   );
 }
 
-function Test() {
-  const kiev = truePositions['kiev'];
-  const p1 = convertAngToPolar(kiev.lat, kiev.lon, SPHERE_RADIUS);
-  const q1 = new Quaternion(p1.x, p1.y, p1.z, 0).normalize();
-  const q2 = new Quaternion(0, 1, 0, 0).normalize();
 
-  const pts = [];
-  for (let i = 0; i <= 5; i += 1) {
-    pts.push(new Quaternion().copy(q1).slerp(q2, i / 5));
+
+function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
+  const ref = useRef<Mesh>(null!);
+  const { hoveredCityRef } = useRenderContext();
+  useFrame(() => {
+    const base = hoveredCityRef.current?.mesh.position;
+    if (base === undefined) {
+      ref.current.visible = false;
+      return;
+    }
+    ref.current.visible = true;
+    const pts = [];
+    const nSegments = 25;
+    const destN = new Vector3().copy(dest).normalize();
+    const baseN = new Vector3().copy(base).normalize();
+    for (let i = 0; i <= nSegments; i++) {
+      pts.push(slerp(baseN, destN, i / nSegments));
+    }
+    if (pts.length < 2 || isNaN(pts[0].x)) return; // TODO: FInd out why this happens
+    const pts3D = pts.map(q => q.multiplyScalar(SPHERE_RADIUS));
+    const curve = new CatmullRomCurve3(pts3D);
+    ref.current.geometry.dispose();
+    ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
+  });
+
+  const color = isCorrect ? 0x3acabb : 0xff8400;
+  return (
+    <mesh ref={ref}>
+      <meshBasicMaterial color={color} />
+    </mesh>
+  );
+}
+
+
+/* function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
+  const ref = useRef<Mesh>(null!);
+  const { hoveredCityRef } = useRenderContext();
+  useFrame((state, delta) => {
+    const base = hoveredCityRef.current?.mesh.position;
+    if (base === undefined) {
+      ref.current.visible = false;
+      return;
+    }
+    ref.current.visible = true;
+    const pts = [];
+    const nSegments = 10;
+    const theta = Math.acos(new Vector3().copy(base).normalize().dot(new Vector3().copy(dest).normalize()));
+    for (let i = 0; i <= nSegments; i++) {
+      const u = i / nSegments;
+      const pt = new Vector3().copy(base).normalize().multiplyScalar(Math.sin((1 - u) * theta) / Math.sin(theta)).add(
+        new Vector3().copy(dest).normalize().multiplyScalar(Math.sin(u * theta) / Math.sin(theta))
+      );
+      console.log(pt);
+
+      pts.push(pt);
+    }
+
+    const pts3D = pts.map(q => new Vector3(q.x * SPHERE_RADIUS, q.y * SPHERE_RADIUS, q.z * SPHERE_RADIUS));
+    for (const pos of pts3D) {
+      const sphere = new Mesh(new SphereGeometry(1), new MeshBasicMaterial({ color: "green" }));
+      sphere.position.set(pos.x, pos.y, pos.z);
+      state.scene.add(sphere);
+    }
+  });
+
+  const color = isCorrect ? 0x3acabb : 0xff8400;
+  return (
+    <mesh ref={ref}>
+      <meshBasicMaterial color={color} />
+    </mesh>
+  );
+} */
+
+
+function Curves() {
+  const { citiesRef, hoveredCityRef } = useRenderContext();
+  // const { currDistances } = useUIContext();
+  //
+  // const THRESH = 1;
+  //
+  if (hoveredCityRef.current === null) return null;
+
+  const cities = citiesRef.current;
+  // const hoveredCity = hoveredCityRef.current.name;
+  // const realDistances = getRealDistances();
+  // const totalCurrent = totalDistance(currDistances);
+  // const totalReal = totalDistance(realDistances);
+
+  const curves = [];
+  for (const cityName of Object.keys(cities) as CityName[]) {
+    if (cities[cityName]?.position === undefined) continue;
+    // const d = Math.abs(currDistances[hoveredCity][cityName] / totalCurrent - realDistances[hoveredCity][cityName] / totalReal);
+    curves.push(<Curve dest={cities[cityName].position} key={cityName} isCorrect={false} />)
   }
-  console.log(pts);
-
-  return pts.map((point: Quaternion, i) =>
-    <mesh position={[point.x * SPHERE_RADIUS, point.y * SPHERE_RADIUS, point.z * SPHERE_RADIUS]} key={i}>
-
-      <sphereGeometry args={[0.5]} />
-      <meshBasicMaterial color={"red"} />
-    </mesh>)
+  return curves;
 }
 

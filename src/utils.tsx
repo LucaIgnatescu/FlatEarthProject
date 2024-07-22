@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Mesh, Object3D, Sprite, Texture } from "three";
+import { Mesh, Object3D, Sprite, Texture, Vector3 } from "three";
 import { CityName, CityRealCoords, truePositions } from "./coordinates";
 import { Distances, useUIContext } from "./state";
+import { wgsl } from "three/examples/jsm/nodes/Nodes.js";
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -163,4 +164,13 @@ export function convertPolarToAng(x: number, y: number, z: number, r: number) {
 
 export function sca() {
   return Math.random() * 26 - 18;
+}
+
+export function slerp(base: Vector3, dest: Vector3, t: number) {
+  base = new Vector3().copy(base);
+  dest = new Vector3().copy(dest);
+  const theta = Math.acos(base.dot(dest));
+  return base.multiplyScalar(Math.sin((1 - t) * theta) / Math.sin(theta)).add(
+    dest.multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
+  );
 }
