@@ -1,10 +1,11 @@
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { CatmullRomCurve3, Mesh, MeshBasicMaterial, Points, Quaternion, Sphere, SphereGeometry, TextureLoader, TubeGeometry, Vector3 } from "three";
+import { CatmullRomCurve3, Intersection, Mesh, MeshBasicMaterial, Points, Quaternion, Sphere, SphereGeometry, Sprite, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { CityName, truePositions } from "../coordinates";
 import { convertAngToPolar, slerp, sca, SphericalDistance, TextSprite } from "../utils";
 import { ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
+import { lerp } from "three/src/math/MathUtils.js";
 
 const SPHERE_RADIUS = 30;
 const EARTH_RADIUS = 6371e3;
@@ -101,22 +102,22 @@ function Stars() {
   );
 }
 
-
-const City = function({ cityName }: { cityName: CityName }) {
+function City({ cityName }: { cityName: CityName }) {
   const radius = 0.2;
   const meshRef = useRef<Mesh>(null!);
-  const { hoveredCityRef, isDragging } = useRenderContext();
+  const { hoveredCityRef, isDragging, citiesRef } = useRenderContext();
   const { updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
-  const posRef = useRef<[number, number, number]>([0, 0, 0]);
 
   useEffect(() => {
+    if (citiesRef.current[cityName] !== undefined) {
+      meshRef.current.position.copy(citiesRef.current[cityName].position);
+    }
     updateCities(cityName, meshRef.current);
   });
 
   useEffect(() => {
     const { lat, lon } = truePositions[cityName];
     const { x, y, z } = convertAngToPolar(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
-    posRef.current = [x, y, z];
     meshRef.current.position.set(x, y, z);
   }, [cityName]);
 
@@ -135,11 +136,11 @@ const City = function({ cityName }: { cityName: CityName }) {
   const capitalized = cityName.charAt(0).toUpperCase() + cityName.slice(1);
 
   return (
-    <mesh ref={meshRef} position={posRef.current}
+    <mesh ref={meshRef}
       onPointerOver={onHover}
       onPointerDown={
         () => setIsDragging(true)
-      } // NOTE: Check sprite effects for bugs
+      }
       onPointerLeave={() => {
         if (isDragging) return;
         updateHoveredCity(null);
@@ -163,14 +164,21 @@ function Cities() {
 
 function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
   const ref = useRef<Mesh>(null!);
+  const spriteRef = useRef<Sprite>(null!);
   const { hoveredCityRef } = useRenderContext();
+
   useFrame(() => {
     const base = hoveredCityRef.current?.mesh.position;
     if (base === undefined) {
       ref.current.visible = false;
+      if (spriteRef.current)
+        spriteRef.current.visible = false;
       return;
     }
     ref.current.visible = true;
+    if (spriteRef.current)
+      spriteRef.current.visible = true;
+
     const pts = [];
     const nSegments = 25;
     const destN = new Vector3().copy(dest).normalize();
@@ -181,15 +189,24 @@ function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
     if (pts.length < 2 || isNaN(pts[0].x)) return; // TODO: FInd out why this happens
     const pts3D = pts.map(q => q.multiplyScalar(SPHERE_RADIUS));
     const curve = new CatmullRomCurve3(pts3D);
+
+    const midPoint = slerp(baseN, destN, 1 / 2).multiplyScalar(SPHERE_RADIUS);
+    spriteRef.current.position.copy(midPoint);
     ref.current.geometry.dispose();
     ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
+
   });
 
+
   const color = isCorrect ? 0x3acabb : 0xff8400;
+
   return (
-    <mesh ref={ref}>
-      <meshBasicMaterial color={color} />
-    </mesh>
+    <>
+      <mesh ref={ref}>
+        <meshBasicMaterial color={color} />
+      </mesh>
+      <TextSprite message={"100"} ref={spriteRef} />
+    </>
   );
 }
 
@@ -250,7 +267,7 @@ function Curves() {
 
   const curves = [];
   for (const cityName of Object.keys(cities) as CityName[]) {
-    if (cities[cityName]?.position === undefined) continue;
+    if (cities[cityName]?.position === undefined || cityName === hoveredCityRef.current.name) continue;
     // const d = Math.abs(currDistances[hoveredCity][cityName] / totalCurrent - realDistances[hoveredCity][cityName] / totalReal);
     curves.push(<Curve dest={cities[cityName].position} key={cityName} isCorrect={false} />)
   }

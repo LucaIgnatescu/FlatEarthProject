@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { forwardRef, MutableRefObject, useEffect, useMemo, useRef } from "react";
 import { Mesh, Object3D, Sprite, Texture, Vector3 } from "three";
 import { CityName, CityRealCoords, truePositions } from "./coordinates";
 import { Distances, useUIContext } from "./state";
@@ -30,11 +30,10 @@ type Parameters = {
   backgroundColor?: Color,
 }
 
-export function TextSprite(
-  { message, parameters, position }:
-    { message: string, parameters: Parameters | undefined, position?: [x: number, y: number, z: number] }
+export const TextSprite = forwardRef(function TextSprite(
+  { message, parameters, position }: { message: string, parameters?: Parameters, position?: [number, number, number] },
+  ref
 ) {
-
   if (parameters === undefined) parameters = {};
 
   const texture = useMemo(() => {
@@ -83,11 +82,11 @@ export function TextSprite(
   texture.needsUpdate = true;
 
   return (
-    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()} position={position}>
+    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()} position={position} ref={ref}>
       <spriteMaterial map={texture} depthTest={false} />
     </sprite>
   );
-}
+});
 
 
 export function SphericalDistance(x: CityRealCoords, y: CityRealCoords, r: number) {
