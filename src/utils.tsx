@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Object3D, Texture } from "three";
+import { useEffect, useMemo, useRef } from "react";
+import { Mesh, Object3D, Sprite, Texture } from "three";
 import { CityName, CityRealCoords, truePositions } from "./coordinates";
 import { Distances, useUIContext } from "./state";
 
@@ -29,7 +29,11 @@ type Parameters = {
   backgroundColor?: Color,
 }
 
-export function TextSprite({ message, parameters }: { message: string, parameters: Parameters | undefined }) {
+export function TextSprite(
+  { message, parameters, position }:
+    { message: string, parameters: Parameters | undefined, position?: [x: number, y: number, z: number] }
+) {
+
   if (parameters === undefined) parameters = {};
 
   const texture = useMemo(() => {
@@ -71,30 +75,21 @@ export function TextSprite({ message, parameters }: { message: string, parameter
     context.fillStyle = "rgba(0, 0, 0, 1.0)";
 
     context.fillText(message, borderThickness + 65, fontsize + borderThickness);
-
-    // canvas contents will be used for a texture
     return new Texture(canvas);
   }, [message, parameters]);
 
   if (texture === null) return null;
-
   texture.needsUpdate = true;
 
-  // const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-  // const sprite = new THREE.Sprite(spriteMaterial);
-  // sprite.scale.set(5, 2, 300.0);
-  // spriteMaterial.depthTest = false;
-
   return (
-    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()}>
+    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()} position={position}>
       <spriteMaterial map={texture} depthTest={false} />
     </sprite>
   );
 }
 
 
-export function SphericalDistance(x: CityRealCoords, y: CityRealCoords) {
-  const EarthR = 6371e3;
+export function SphericalDistance(x: CityRealCoords, y: CityRealCoords, r: number) {
   const φ1 = x.lat * Math.PI / 180;
   const φ2 = y.lat * Math.PI / 180;
   const Δφ = (y.lat - x.lat) * Math.PI / 180;
@@ -103,7 +98,7 @@ export function SphericalDistance(x: CityRealCoords, y: CityRealCoords) {
     Math.cos(φ1) * Math.cos(φ2) *
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const d = EarthR * c; // in metres
+  const d = r * c; // in metres
   return Math.round(d / 10) / 100;
 }
 
@@ -132,7 +127,6 @@ export function useDistanceInfo() {
   return { realDistances, currDistances, totalCurr, totalReal };
 }
 
-
 const realDistances: Distances = {};
 
 export function getRealDistances(): Distances {
@@ -147,8 +141,26 @@ export function getRealDistances(): Distances {
       }
     }
   }
-
   return realDistances;
+}
+
+export function convertAngToPolar(lat: number, lon: number, r: number) {
+  const latRad = lat * (Math.PI / 180);
+  const lonRad = -lon * (Math.PI / 180);
+  const x = Math.cos(latRad) * Math.cos(lonRad) * r;
+  const y = Math.sin(latRad) * r;
+  const z = Math.cos(latRad) * Math.sin(lonRad) * r;
+  return { x, y, z }
+}
 
 
+export function convertPolarToAng(x: number, y: number, z: number, r: number) {
+  const lat = Math.asin(y / r) * (180 / Math.PI);
+  const lon = -1 * Math.atan2(z, x) * (180 / Math.PI);
+
+  return { lat, lon }
+}
+
+export function sca() {
+  return Math.random() * 26 - 18;
 }

@@ -80,17 +80,6 @@ export function ContextProvider({ children, calculateDistances }: {
   const updateCurrDistances = useCallback(() => {
     if (!citiesRef.current) return;
     setCurrDistances(calculateDistances(citiesRef.current));
-    // const currDistaces: Distances = {};
-    // for (const [cityName1, cityMesh1] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-    //   for (const [cityName2, cityMesh2] of Object.entries(citiesRef.current) as [CityName, Mesh][]) {
-    //     const distance = PlanarDistance(cityMesh1, cityMesh2);
-    //     if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-    //     if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-    //     currDistaces[cityName1][cityName2] = distance;
-    //     currDistaces[cityName2][cityName1] = distance;
-    //   }
-    // }
-    // setCurrDistances(currDistaces);
   }, [calculateDistances]);
 
   const renderContextValue: RenderContextState = useMemo(() => ({

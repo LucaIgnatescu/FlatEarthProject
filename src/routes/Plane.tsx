@@ -47,7 +47,6 @@ function Controls() {
 }
 
 function Earth() {
-  console.log("rerendering");
   const { updateCurrDistances } = useUpdateContext();
   const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
   const { isDragging, hoveredCityRef } = useRenderContext();
@@ -64,7 +63,7 @@ function Earth() {
     moveHoveredCity(x, y, z);
     updateCurrDistances();
   }
-  useEffect(() => updateCurrDistances(), [updateCurrDistances]);
+  useEffect(() => updateCurrDistances(), [updateCurrDistances]); // TODO: REmove this
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={() => setIsDragging(false)}
@@ -132,6 +131,7 @@ function Stars() {
 }
 
 const City = function({ cityName }: { cityName: CityName }) {
+  console.log("rerendering");
   const height = 0.4, nTriangles = 6;
   const coneRef = useRef<ConeGeometry>(null!);
   const meshRef = useRef<Mesh>(null!);
@@ -230,9 +230,6 @@ function Curves() {
     const d = Math.abs(currDistances[hoveredCity][cityName] / totalCurrent - realDistances[hoveredCity][cityName] / totalReal);
     curves.push(<Curve dest={cities[cityName].position} key={cityName} isCorrect={(d < THRESH)} />)
   }
-
-
   return curves;
-
 }
 
