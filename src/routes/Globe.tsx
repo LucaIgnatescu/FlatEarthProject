@@ -7,7 +7,7 @@ import { polarToCartesian, slerp, sca, SphericalPolarDistance, TextSprite, carte
 import { AnimationStatus, CityTable, ContextProvider, Distances, useAnimationContext, useRenderContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
 import { EARTH_RADIUS } from "../utils";
-
+import "../mds";
 const SPHERE_RADIUS = 30;
 
 export default function Globe() {

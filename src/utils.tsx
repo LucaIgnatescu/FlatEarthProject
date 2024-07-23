@@ -1,6 +1,6 @@
 import { forwardRef, useMemo } from "react";
 import { Object3D, Texture, Vector3 } from "three";
-import { CityName, CityRealCoords, truePositions } from "./coordinates";
+import { CityName, PolarCoords, truePositions } from "./coordinates";
 import { Distances, useUIContext } from "./state";
 
 export const EARTH_RADIUS = 6371e3;
@@ -90,7 +90,7 @@ export const TextSprite = forwardRef(function TextSprite(
 });
 
 
-export function SphericalPolarDistance(x: CityRealCoords, y: CityRealCoords, r: number) {
+export function SphericalPolarDistance(x: PolarCoords, y: PolarCoords, r: number) {
   const φ1 = x.lat * Math.PI / 180;
   const φ2 = y.lat * Math.PI / 180;
   const Δφ = (y.lat - x.lat) * Math.PI / 180;
@@ -123,7 +123,7 @@ export function totalDistance(distances: Distances) {
 export function useDistanceInfo() {
   const realDistances = getRealDistances();
   const { currDistances } = useUIContext();
-  const totalCurr = totalDistance(currDistances);
+  const totalCurr = totalDistance(currDistances); //should be 5.018 in correct solve
   const totalReal = totalDistance(realDistances);
   return { realDistances, currDistances, totalCurr, totalReal };
 }
@@ -132,8 +132,8 @@ const realDistances: Distances = {};
 
 export function getRealDistances(): Distances {
   if (Object.keys(realDistances).length === 0) {
-    for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
-      for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
+    for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
+      for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
         const distance = SphericalPolarDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
         if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
         if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
