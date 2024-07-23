@@ -1,8 +1,9 @@
-import { forwardRef, MutableRefObject, useEffect, useMemo, useRef } from "react";
-import { Mesh, Object3D, Sprite, Texture, Vector3 } from "three";
+import { forwardRef, useMemo } from "react";
+import { Object3D, Texture, Vector3 } from "three";
 import { CityName, CityRealCoords, truePositions } from "./coordinates";
 import { Distances, useUIContext } from "./state";
-import { wgsl } from "three/examples/jsm/nodes/Nodes.js";
+
+export const EARTH_RADIUS = 6371e3;
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -89,7 +90,7 @@ export const TextSprite = forwardRef(function TextSprite(
 });
 
 
-export function SphericalDistance(x: CityRealCoords, y: CityRealCoords, r: number) {
+export function SphericalPolarDistance(x: CityRealCoords, y: CityRealCoords, r: number) {
   const φ1 = x.lat * Math.PI / 180;
   const φ2 = y.lat * Math.PI / 180;
   const Δφ = (y.lat - x.lat) * Math.PI / 180;
@@ -133,7 +134,7 @@ export function getRealDistances(): Distances {
   if (Object.keys(realDistances).length === 0) {
     for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
       for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, CityRealCoords][]) {
-        const distance = SphericalDistance(cityMesh1, cityMesh2);
+        const distance = SphericalPolarDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
         if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
         if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
         realDistances[cityName1][cityName2] = distance;
@@ -144,7 +145,7 @@ export function getRealDistances(): Distances {
   return realDistances;
 }
 
-export function convertAngToPolar(lat: number, lon: number, r: number) {
+export function polarToCartesian(lat: number, lon: number, r: number) {
   const latRad = lat * (Math.PI / 180);
   const lonRad = -lon * (Math.PI / 180);
   const x = Math.cos(latRad) * Math.cos(lonRad) * r;
@@ -154,7 +155,8 @@ export function convertAngToPolar(lat: number, lon: number, r: number) {
 }
 
 
-export function convertPolarToAng(x: number, y: number, z: number, r: number) {
+export function cartesianToPolar(v: Vector3, r: number) {
+  const { x, y, z } = v;
   const lat = Math.asin(y / r) * (180 / Math.PI);
   const lon = -1 * Math.atan2(z, x) * (180 / Math.PI);
 

@@ -1,12 +1,12 @@
 import { CityName } from "./coordinates";
-import { useRenderContext } from "./state";
+import { useRenderContext, useUpdateContext } from "./state";
 import { useDistanceInfo } from "./utils";
 
 export function UIWrapper() {
   return (
     <div className="text-white w-full absolute top-0 h-full z-100 pointer-events-none">
+      <Animate />
       <TotalError />
-      <Deltas />
     </div>
   );
 }
@@ -17,6 +17,7 @@ function TotalError() {
   let totalError = 0;
   for (const city1 of Object.keys(currDistances) as CityName[]) {
     for (const city2 of Object.keys(currDistances[city1]) as CityName[]) {
+      console.log(totalCurr);
       totalError += Math.abs(currDistances[city1][city2] / totalCurr - realDistances[city1][city2] / totalReal);
     }
   }
@@ -24,7 +25,7 @@ function TotalError() {
   return (
     <div className="flex w-full justify-center">
       <div className="p-2 text-lg">
-        Difference: {totalError}
+        Difference: {totalReal}:{totalCurr}
       </div>
     </div>
   );
@@ -52,6 +53,15 @@ function Deltas() {
     </div>
   );
 
+}
+
+function Animate() {
+  const { updateAnimationState } = useUpdateContext();
+  const onClick = () => {
+    updateAnimationState('global');
+    console.log('updating');
+  }
+  return <button className="top-0.5 p-2 pointer-events-auto" onClick={onClick}> Animate</button >
 }
 
 

@@ -64,7 +64,7 @@ export const truePositions = {
 };
 
 export type CityName = keyof typeof truePositions;
-export type CityRealCoords = {
+export type PolarCoords = {
   lat: number;
   lon: number;
 }

@@ -1,21 +1,23 @@
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { CatmullRomCurve3, Intersection, Mesh, MeshBasicMaterial, Points, Quaternion, Sphere, SphereGeometry, Sprite, TextureLoader, TubeGeometry, Vector3 } from "three";
+import { useEffect, useMemo, useRef } from "react";
+import { CatmullRomCurve3, Mesh, Points, Sprite, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { CityName, truePositions } from "../coordinates";
-import { convertAngToPolar, slerp, sca, SphericalDistance, TextSprite } from "../utils";
-import { ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
-import { lerp } from "three/src/math/MathUtils.js";
+import { polarToCartesian, slerp, sca, SphericalPolarDistance, TextSprite, cartesianToPolar } from "../utils";
+import { AnimationStatus, CityTable, ContextProvider, Distances, useAnimationContext, useRenderContext, useUpdateContext } from "../state";
+import { UIWrapper } from "../ui";
+import { EARTH_RADIUS } from "../utils";
 
 const SPHERE_RADIUS = 30;
-const EARTH_RADIUS = 6371e3;
 
 export default function Globe() {
   const calculateDistances = (cities: CityTable) => { // FIX:
     const currDistaces: Distances = {};
     for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
       for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-        const distance = SphericalDistance(truePositions[cityName1], truePositions[cityName2], EARTH_RADIUS);
+        const p1 = cartesianToPolar(cityMesh1.position, SPHERE_RADIUS);
+        const p2 = cartesianToPolar(cityMesh2.position, SPHERE_RADIUS);
+        const distance = SphericalPolarDistance(p1, p2, EARTH_RADIUS);
         if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
         if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
         currDistaces[cityName1][cityName2] = distance;
@@ -34,6 +36,8 @@ export default function Globe() {
         <Cities />
         <Curves />
       </Canvas>
+      <UIWrapper>
+      </UIWrapper>
     </ContextProvider>
   );
 }
@@ -102,11 +106,19 @@ function Stars() {
   );
 }
 
-function City({ cityName }: { cityName: CityName }) {
+type AnimationData = {
+  source: Vector3,
+  dest: Vector3,
+  elapsed: number
+}
+
+function City({ cityName, animation }: { cityName: CityName, animation: AnimationStatus }) {
   const radius = 0.2;
+  const animationTime = 2;
   const meshRef = useRef<Mesh>(null!);
   const { hoveredCityRef, isDragging, citiesRef } = useRenderContext();
-  const { updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
+  const { updateAnimationState, updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
+
 
   useEffect(() => {
     if (citiesRef.current[cityName] !== undefined) {
@@ -117,7 +129,7 @@ function City({ cityName }: { cityName: CityName }) {
 
   useEffect(() => {
     const { lat, lon } = truePositions[cityName];
-    const { x, y, z } = convertAngToPolar(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
+    const { x, y, z } = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
     meshRef.current.position.set(x, y, z);
   }, [cityName]);
 
@@ -126,6 +138,40 @@ function City({ cityName }: { cityName: CityName }) {
       updateHoveredCity(cityName);
     }
   };
+
+  const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
+
+  useEffect(() => {
+    if (animation === 'global') {
+      const pos = polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
+      const source = new Vector3().copy(meshRef.current.position).normalize();
+      const dest = new Vector3(pos.x, pos.y, pos.z).normalize();
+      if (source.distanceTo(dest) > 0.01) {
+        animationData.current = {
+          source,
+          dest,
+          elapsed: 0
+        };
+      }
+    } else if (animation === null) {
+      animationData.current = null
+    }
+  }, [animation, cityName])
+
+  useFrame((_, delta) => {
+    if (animation !== 'global' || animationData.current === null) return;
+    if (animationData.current.elapsed > animationTime) {
+      meshRef.current.position.copy(animationData.current.dest.multiplyScalar(SPHERE_RADIUS));
+      console.log(meshRef.current.position, cityName);
+      animationData.current = null;
+      updateAnimationState(null);
+      return
+    }
+
+    const pos = slerp(animationData.current.source, animationData.current.dest, animationData.current.elapsed / animationTime);
+    meshRef.current.position.copy(pos.multiplyScalar(SPHERE_RADIUS));
+    animationData.current.elapsed += delta;
+  })
 
   const spriteArguments = {
     fontsize: 30,
@@ -154,9 +200,12 @@ function City({ cityName }: { cityName: CityName }) {
 }
 
 function Cities() {
+  const { animations } = useAnimationContext();
+  console.log(animations);
   return (
     Object.entries(Object.keys(truePositions))
-      .map(([, cityName]) => <City cityName={cityName as CityName} key={cityName} />)
+      .map(([, cityName]) =>
+        <City cityName={cityName as CityName} key={cityName} animation={animations[cityName as CityName] ?? null} />)
   );
 }
 
@@ -209,47 +258,6 @@ function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
     </>
   );
 }
-
-
-/* function Curve({ dest, isCorrect }: { dest: Vector3, isCorrect: boolean }) {
-  const ref = useRef<Mesh>(null!);
-  const { hoveredCityRef } = useRenderContext();
-  useFrame((state, delta) => {
-    const base = hoveredCityRef.current?.mesh.position;
-    if (base === undefined) {
-      ref.current.visible = false;
-      return;
-    }
-    ref.current.visible = true;
-    const pts = [];
-    const nSegments = 10;
-    const theta = Math.acos(new Vector3().copy(base).normalize().dot(new Vector3().copy(dest).normalize()));
-    for (let i = 0; i <= nSegments; i++) {
-      const u = i / nSegments;
-      const pt = new Vector3().copy(base).normalize().multiplyScalar(Math.sin((1 - u) * theta) / Math.sin(theta)).add(
-        new Vector3().copy(dest).normalize().multiplyScalar(Math.sin(u * theta) / Math.sin(theta))
-      );
-      console.log(pt);
-
-      pts.push(pt);
-    }
-
-    const pts3D = pts.map(q => new Vector3(q.x * SPHERE_RADIUS, q.y * SPHERE_RADIUS, q.z * SPHERE_RADIUS));
-    for (const pos of pts3D) {
-      const sphere = new Mesh(new SphereGeometry(1), new MeshBasicMaterial({ color: "green" }));
-      sphere.position.set(pos.x, pos.y, pos.z);
-      state.scene.add(sphere);
-    }
-  });
-
-  const color = isCorrect ? 0x3acabb : 0xff8400;
-  return (
-    <mesh ref={ref}>
-      <meshBasicMaterial color={color} />
-    </mesh>
-  );
-} */
-
 
 function Curves() {
   const { citiesRef, hoveredCityRef } = useRenderContext();
