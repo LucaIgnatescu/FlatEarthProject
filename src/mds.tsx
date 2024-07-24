@@ -20,7 +20,7 @@ const MDS = (distances: number[][]) => {
   const D = dotMultiply(X, X);
   const C = subtract(identity(N), multiply(1 / N, ones(1, 1)));
   const B = multiply(-0.5, multiply(C, multiply(D, C)));
-  const { values, eigenvectors } = eigs(B);
+  const { eigenvectors } = eigs(B);
 
   eigenvectors.sort(eigenvector => eigenvector.value as number);
 
@@ -28,9 +28,8 @@ const MDS = (distances: number[][]) => {
   const e2 = eigenvectors[eigenvectors.length - 2];
   const v1 = multiply(sqrt(e1.value as number), e1.vector) as Matrix;
   const v2 = multiply(sqrt(e2.value as number), e2.vector) as Matrix;
-  const ans = matrix([v1.toArray(), v2.toArray()] as number[][]);
-  console.log(ans.toString());
-  return ans;
+  const ans = transpose(matrix([v1.toArray(), v2.toArray()] as number[][]));
+  return ans.toArray() as [number, number][];
 }
 
 MDS([

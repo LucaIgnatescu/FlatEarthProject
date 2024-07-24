@@ -83,8 +83,8 @@ export const TextSprite = forwardRef(function TextSprite(
   texture.needsUpdate = true;
 
   return (
-    <sprite scale={[10, 4, 600.0]} onPointerDown={ev => ev.stopPropagation()} position={position} ref={ref}>
-      <spriteMaterial map={texture} depthTest={false} />
+    <sprite scale={[10, 5, 200.0]} onPointerDown={ev => ev.stopPropagation()} position={position} ref={ref}>
+      <spriteMaterial map={texture} depthTest={true} transparent={false} />
     </sprite>
   );
 });
@@ -110,14 +110,13 @@ export function PlanarDistance(p1: Object3D, p2: Object3D) {
 }
 
 export function totalDistance(distances: Distances) {
-  const SHRINKFACTOR = 1000; // NOTE: make distances larger so computations are less vulnerable to floating point error
   let totalSum = 0;
   for (const city1 of Object.keys(distances) as CityName[]) {
     for (const city2 of Object.keys(distances[city1]) as CityName[]) {
       totalSum += distances[city1][city2]
     }
   }
-  return totalSum / SHRINKFACTOR;
+  return totalSum;
 }
 
 export function useDistanceInfo() {

@@ -48,7 +48,6 @@ function Controls() {
 }
 
 function Earth() {
-  const { updateCurrDistances } = useUpdateContext();
   const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
   const { isDragging, hoveredCityRef } = useRenderContext();
   const { moveHoveredCity, setIsDragging, } = useUpdateContext();
@@ -62,9 +61,7 @@ function Earth() {
     const { x, z } = earthIntersection.point;
     const { y } = hoveredCityRef.current.mesh.position;
     moveHoveredCity(x, y, z);
-    updateCurrDistances();
   }
-  useEffect(() => updateCurrDistances(), [updateCurrDistances]); // TODO: REmove this
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={() => setIsDragging(false)}
@@ -132,7 +129,6 @@ function Stars() {
 }
 
 const City = function({ cityName }: { cityName: CityName }) {
-  console.log("rerendering");
   const height = 0.4, nTriangles = 6;
   const coneRef = useRef<ConeGeometry>(null!);
   const meshRef = useRef<Mesh>(null!);
@@ -146,11 +142,15 @@ const City = function({ cityName }: { cityName: CityName }) {
     updateCities(cityName, meshRef.current);
   }, [cityName, updateCities]);
 
-  const onHover = () => {
-    if (cityName !== hoveredCityRef.current?.name && isDragging === false) {
+  const onHover = (event: ThreeEvent<PointerEvent>) => {
+    if (
+      event.intersections.find(intersection => intersection.object.uuid === meshRef.current.uuid) &&
+      cityName !== hoveredCityRef.current?.name &&
+      isDragging === false
+    ) {
       updateHoveredCity(cityName);
     }
-  }
+  };
   const spriteArguments = {
     fontsize: 30,
     borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
@@ -161,7 +161,7 @@ const City = function({ cityName }: { cityName: CityName }) {
   const capitalized = cityName.charAt(0).toUpperCase() + cityName.slice(1);
   return (
     <mesh position={[lat / 3, 0, lon / 3]} ref={meshRef}
-      onPointerOver={onHover}
+      onPointerMove={onHover}
       onPointerDown={() => setIsDragging(true)} // NOTE: Check sprite effects for bugs
       onPointerLeave={() => {
         if (isDragging) return;

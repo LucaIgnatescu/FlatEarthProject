@@ -17,7 +17,6 @@ function TotalError() {
   let totalError = 0;
   for (const city1 of Object.keys(currDistances) as CityName[]) {
     for (const city2 of Object.keys(currDistances[city1]) as CityName[]) {
-      console.log(totalCurr);
       totalError += Math.abs(currDistances[city1][city2] / totalCurr - realDistances[city1][city2] / totalReal);
     }
   }

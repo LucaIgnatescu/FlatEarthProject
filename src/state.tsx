@@ -57,40 +57,39 @@ const AnimationContext = createContext<AnimationContextState>(null!);
 export function ContextProvider({ children, calculateDistances }: {
   children: React.ReactNode,
   calculateDistances: (cities: CityTable) => Distances
-}
-) {
+}) {
   const [currDistances, setCurrDistances] = useState<Distances>({});
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const citiesRef = useRef<CityTable>({});
   const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
   const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {})
   const [animations, setAnimations] = useState<AnimationContextState['animations']>(fillAnimationTable(null));
+
+  const updateCurrDistances = useCallback(() => {
+    if (!citiesRef.current) return;
+    setCurrDistances(calculateDistances(citiesRef.current));
+  }, [calculateDistances]);
+
   const updateCities = useCallback((name: CityName, city: Mesh) => {
     citiesRef.current[name] = city;
-  }, []);
+    updateCurrDistances();
+  }, [updateCurrDistances]);
 
   const moveHoveredCity = useCallback((x: number, y: number, z: number) => {
     if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
     hoveredCityRef.current.mesh.position.set(x, y, z);
-  }, []);
+    updateCurrDistances();
+  }, [updateCurrDistances]);
 
   const updateHoveredCity = useCallback((name: CityName | null) => {
     if (name === null) {
       hoveredCityRef.current = null;
       return;
     }
-
     const mesh = citiesRef.current[name];
     if (mesh === undefined) throw new Error("invalid city name");
     hoveredCityRef.current = { name, mesh };
-    const { x, y, z } = mesh.position;
-    moveHoveredCity(x, y, z);
-  }, [moveHoveredCity]);
-
-  const updateCurrDistances = useCallback(() => {
-    if (!citiesRef.current) return;
-    setCurrDistances(calculateDistances(citiesRef.current));
-  }, [calculateDistances]);
+  }, []);
 
   const updateAnimationState = useCallback((status: AnimationStatus, cityName?: CityName) => {
     if (status === 'global') {
@@ -101,6 +100,8 @@ export function ContextProvider({ children, calculateDistances }: {
       setAnimations((animations) => ({ ...animations, [cityName]: status }))
     }
   }, []);
+
+
 
   const renderContextValue: RenderContextState = useMemo(() => ({
     citiesRef, hoveredCityRef, isDragging
