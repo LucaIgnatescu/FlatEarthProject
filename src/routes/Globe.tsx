@@ -1,13 +1,14 @@
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { CatmullRomCurve3, Mesh, Points, Sprite, TextureLoader, TubeGeometry, Vector3 } from "three";
-import { CityName, truePositions } from "../coordinates";
-import { polarToCartesian, slerp, sca, SphericalPolarDistance, TextSprite, cartesianToPolar, useDistanceInfo } from "../utils";
-import { AnimationStatus, CityTable, ContextProvider, Distances, useAnimationContext, useRenderContext, useUIContext, useUpdateContext } from "../state";
+import { useRef } from "react";
+import { CatmullRomCurve3, Mesh, TextureLoader, TubeGeometry, Vector3 } from "three";
+import { CityName } from "../coordinates";
+import { slerp, SphericalPolarDistance, cartesianToPolar } from "../utils";
+import { CityTable, ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
-import { EARTH_RADIUS } from "../utils";
-const SPHERE_RADIUS = 30;
+import { EARTH_RADIUS, SPHERE_RADIUS } from "../utils";
+import { Stars } from "../components/shared";
+import { Cities } from "../components/Cities";
 
 export default function Globe() {
   const calculateDistances = (cities: CityTable) => { // FIX:
@@ -32,7 +33,7 @@ export default function Globe() {
         <Controls />
         <Earth />
         <Stars />
-        <Cities />
+        <Cities type="Sphere" />
         <Curves />
       </Canvas>
       <UIWrapper>
@@ -52,7 +53,6 @@ function Earth() { // TODO: Better wireframe
   const texture = useLoader(TextureLoader, '../../static/img/globe1.jpg');
   const { isDragging, hoveredCityRef } = useRenderContext();
   const { moveHoveredCity, setIsDragging, } = useUpdateContext();
-  const { updateCurrDistances } = useUpdateContext();
   const ref = useRef<Mesh>(null!);
 
   const dragCity = (event: ThreeEvent<PointerEvent>) => {
@@ -75,46 +75,14 @@ function Earth() { // TODO: Better wireframe
   );
 }
 
-function Stars() {
-  const ref = useRef<Points>(null!);
-  const starVerticies = useMemo(() => {
-    const vertices = [];
-    for (let i = 0; i < 50000; i++) {
-      const x = (Math.random() - 0.5) * 1000;
-      const y = (Math.random() - 0.5) * 1000;
-      const z = (Math.random() - 0.5) * 1000;
-      if (x * x + y * y + z * z > 120000) vertices.push(x, y, z);
-    }
-    return vertices;
-  }, [])
 
-  useFrame((_, delta) => {
-    const speed = 0.01;
-    ref.current.rotation.x += delta * speed;
-    ref.current.rotation.y += delta * speed;
-  })
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <float32BufferAttribute args={[starVerticies, 3]} attach={"attributes-position"} />
-      </bufferGeometry>
-    </points>
-  );
-}
-
-type AnimationData = {
-  source: Vector3,
-  dest: Vector3,
-  elapsed: number
-}
-
-function City({ cityName, animation }: { cityName: CityName, animation: AnimationStatus }) {
+/* function City({ cityName, animation }: { cityName: CityName, animation: AnimationStatus }) {
   const radius = 0.2;
-  const animationTime = 2;
   const meshRef = useRef<Mesh>(null!);
   const { hoveredCityRef, isDragging, citiesRef } = useRenderContext();
-  const { updateCurrDistances, updateAnimationState, updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
+  const { updateHoveredCity, updateCities, setIsDragging } = useUpdateContext();
 
+  useAnimation({ animation, mesh: meshRef.current, cityName, type: 'Sphere' });
 
   useEffect(() => {
     if (citiesRef.current[cityName] !== undefined) {
@@ -139,41 +107,6 @@ function City({ cityName, animation }: { cityName: CityName, animation: Animatio
     }
   };
 
-  const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
-
-  useEffect(() => {
-    if (animation === 'global') {
-      const pos = polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
-      const source = new Vector3().copy(meshRef.current.position).normalize();
-      const dest = new Vector3(pos.x, pos.y, pos.z).normalize();
-      if (source.distanceTo(dest) > 0.01) {
-        animationData.current = {
-          source,
-          dest,
-          elapsed: 0
-        };
-      }
-    } else if (animation === null) {
-      animationData.current = null
-    }
-  }, [animation, cityName])
-
-  useFrame((_, delta) => {
-    if (animation !== 'global' || animationData.current === null) return;
-    if (animationData.current.elapsed > animationTime) {
-      meshRef.current.position.copy(animationData.current.dest.multiplyScalar(SPHERE_RADIUS));
-      animationData.current = null;
-      updateAnimationState(null);
-      updateCurrDistances();
-      return
-    }
-
-    const pos = slerp(animationData.current.source, animationData.current.dest, animationData.current.elapsed / animationTime);
-    meshRef.current.position.copy(pos.multiplyScalar(SPHERE_RADIUS));
-    animationData.current.elapsed += delta;
-    updateCurrDistances();
-  })
-
   const spriteArguments = {
     fontsize: 30,
     borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
@@ -196,23 +129,22 @@ function City({ cityName, animation }: { cityName: CityName, animation: Animatio
       <TextSprite message={capitalized} parameters={spriteArguments} />
     </mesh >
   )
-}
+} */
 
-function Cities() {
-  const { animations } = useAnimationContext();
-  return (
-    Object.entries(Object.keys(truePositions))
-      .map(([, cityName]) =>
-        <City cityName={cityName as CityName} key={cityName} animation={animations[cityName as CityName] ?? null} />)
-  );
-}
+// function Cities() {
+//   const { animations } = useAnimationContext();
+//   return (
+//     Object.entries(Object.keys(truePositions))
+//       .map(([, cityName]) =>
+//         <City cityName={cityName as CityName} key={cityName} animation={animations[cityName as CityName] ?? null} type="Sphere" />)
+//   );
+// }
 
 
 
 function Curve({ dest: destName, isCorrect }: { dest: CityName, isCorrect: boolean }) {
   const ref = useRef<Mesh>(null!);
   const { hoveredCityRef, citiesRef } = useRenderContext();
-  const { currDistances, realDistances } = useDistanceInfo();
 
 
   useFrame(() => {
