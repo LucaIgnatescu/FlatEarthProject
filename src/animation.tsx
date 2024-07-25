@@ -1,7 +1,7 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName, truePositions } from "./coordinates";
-import { ComponentType, polarToCartesian, slerp, SPHERE_RADIUS } from "./utils";
+import { ObjectType, polarToCartesian, slerp, SPHERE_RADIUS } from "./utils";
 import { AnimationStatus, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
 
@@ -11,21 +11,22 @@ type AnimationData = {
   elapsed: number
 }
 
-function getFinalPosition(type: ComponentType, cityName: CityName) {
-  if (type === 'Sphere') return polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
+function getFinalPosition(type: ObjectType, cityName: CityName) {
+  if (type === 'sphere') return polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
   return new Vector3(0, 0, 0);
 }
 
-function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: ComponentType) {
-  if (type === 'Sphere') {
+function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: ObjectType) {
+  if (type === 'sphere') {
     const sourceCopy = new Vector3().copy(source).normalize();
     const destCopy = new Vector3().copy(dest).normalize();
-    return slerp(sourceCopy, destCopy, t).multiplyScalar(SPHERE_RADIUS);
+    const pos = slerp(sourceCopy, destCopy, t).multiplyScalar(SPHERE_RADIUS);
+    return pos;
   }
   return new Vector3().lerpVectors(source, dest, t);
 }
 
-export function useAnimation(type: ComponentType, cityName: CityName, meshRef: MutableRefObject<Mesh>, animation: AnimationStatus) {
+export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, animation: AnimationStatus) {
   const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
   const animationTime = 2;
   const { updateAnimationState, updateCurrDistances } = useUpdateContext();

@@ -2,12 +2,12 @@ import { ThreeEvent } from "@react-three/fiber";
 import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh } from "three";
 import { CityName, truePositions } from "../coordinates";
-import { polarToCartesian, sca, ComponentType, SPHERE_RADIUS } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS } from "../utils";
 import { AnimationStatus, useAnimationContext, useRenderContext, useUpdateContext } from "../state";
 import { useAnimation } from "../animation";
 import { TextSprite } from "./shared";
 
-export function Cities({ type }: { type: ComponentType }) {
+export function Cities({ type }: { type: ObjectType }) {
   const { animations } = useAnimationContext();
   return (
     Object.entries(Object.keys(truePositions))
@@ -17,7 +17,7 @@ export function Cities({ type }: { type: ComponentType }) {
 }
 
 
-function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ComponentType }) {
+function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ObjectType }) {
   const radius = 0.2;
   const meshRef = useRef<Mesh>(null!);
   const { hoveredCityRef, isDragging } = useRenderContext();
@@ -60,7 +60,7 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
   )
 }
 
-function useSetupPosition(type: ComponentType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
+function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const { citiesRef } = useRenderContext();
   const { updateCities } = useUpdateContext();
   useEffect(() => {
@@ -72,9 +72,10 @@ function useSetupPosition(type: ComponentType, cityName: CityName, meshRef: Muta
 
   useEffect(() => {
     const { lat, lon } = truePositions[cityName];
-    if (type === 'Sphere') {
-      const { x, y, z } = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
-      meshRef.current.position.set(x, y, z);
+    if (type === 'sphere') {
+      const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
+      console.log(pos, pos.length(), cityName);
+      meshRef.current.position.copy(pos);
     } else {
       meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
     }

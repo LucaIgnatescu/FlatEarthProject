@@ -6,7 +6,7 @@ export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 
-export type ComponentType = 'Plane' | 'Sphere';
+export type ObjectType = 'plane' | 'sphere';
 
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();

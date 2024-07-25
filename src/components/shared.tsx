@@ -92,7 +92,7 @@ export function TextSprite(
 
   return (
     <sprite scale={[10, 5, 200.0]} onPointerDown={ev => ev.stopPropagation()} position={position}>
-      <spriteMaterial map={texture} depthTest={true} transparent={false} />
+      <spriteMaterial map={texture} depthTest={true} transparent={true} />
     </sprite>
   );
 }

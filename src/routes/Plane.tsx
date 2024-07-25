@@ -33,7 +33,7 @@ export default function Plane() {
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
         <ambientLight color={0xffffff} intensity={2} />
-        <Cities type="Plane" />
+        <Cities type="plane" />
         <Earth />
         <EarthWireframe />
         <Stars />
