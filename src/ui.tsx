@@ -24,7 +24,7 @@ function TotalError() {
   return (
     <div className="flex w-full justify-center">
       <div className="p-2 text-lg">
-        Difference: {totalReal}:{totalCurr}
+        Difference: {Math.round(totalReal)}:{Math.round(totalCurr)}
       </div>
     </div>
   );
@@ -55,10 +55,10 @@ function Deltas() {
 }
 
 function Animate() {
-  const { updateAnimationState } = useUpdateContext();
+  const { updateAnimationState, updateHoveredCity } = useUpdateContext();
   const onClick = () => {
-    updateAnimationState('global');
-    console.log('updating');
+    updateHoveredCity('kiev');
+    updateAnimationState('fixed', 'kiev');
   }
   return <button className="top-0.5 p-2 pointer-events-auto" onClick={onClick}> Animate</button >
 }

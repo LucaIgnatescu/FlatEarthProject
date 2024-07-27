@@ -1,9 +1,11 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
-import { CityName, truePositions } from "./coordinates";
-import { ObjectType, polarToCartesian, slerp, SPHERE_RADIUS } from "./utils";
-import { AnimationStatus, useUpdateContext } from "./state";
+import { CityName } from "./coordinates";
+import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
+import { AnimationStatus, RenderContextState, useRenderContext, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
+import { getPositionMDS } from "./solvers/planar";
+import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
   source: Vector3,
@@ -11,9 +13,17 @@ type AnimationData = {
   elapsed: number
 }
 
-function getFinalPosition(type: ObjectType, cityName: CityName) {
-  if (type === 'sphere') return polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
-  return new Vector3(0, 0, 0);
+function getFinalPosition(
+  animation: AnimationStatus,
+  type: ObjectType,
+  cityName: CityName,
+  citiesRef: RenderContextState['citiesRef'],
+  hoveredCityRef: RenderContextState['hoveredCityRef']
+) {
+  if (animation === null) throw new Error("Animation should not be null");
+  if (type === 'sphere') return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
+  const pos = getPositionMDS(cityName);
+  return pos;
 }
 
 function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: ObjectType) {
@@ -30,24 +40,26 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
   const animationTime = 2;
   const { updateAnimationState, updateCurrDistances } = useUpdateContext();
+  const { citiesRef, hoveredCityRef } = useRenderContext();
   useEffect(() => {
-    if (animation === 'global') {
+    if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);
-      const dest = getFinalPosition(type, cityName);
+      const dest = getFinalPosition(animation, type, cityName, citiesRef, hoveredCityRef);
       if (source.distanceTo(dest) > 0.01) {
         animationData.current = {
           source,
           dest,
           elapsed: 0
+
         };
+        return;
       }
-    } else if (animation === null) {
-      animationData.current = null;
     }
-  }, [animation, meshRef, cityName, type])
+    animationData.current = null;
+  }, [animation, meshRef, cityName, type, citiesRef, hoveredCityRef]);
 
   useFrame((_, delta) => {
-    if (animation !== 'global' || animationData.current === null) return;
+    if (animationData.current === null) return;
     if (animationData.current.elapsed > animationTime) {
       meshRef.current.position.copy(animationData.current.dest);
       animationData.current = null;
@@ -60,5 +72,5 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
 
     animationData.current.elapsed += delta;
     updateCurrDistances();
-  })
+  });
 }

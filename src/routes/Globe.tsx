@@ -3,7 +3,7 @@ import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { useRef } from "react";
 import { CatmullRomCurve3, Mesh, TextureLoader, TubeGeometry, Vector3 } from "three";
 import { CityName } from "../coordinates";
-import { slerp, SphericalPolarDistance, cartesianToPolar } from "../utils";
+import { slerp, sphericalDistance, cartesianToPolar } from "../utils";
 import { CityTable, ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
 import { EARTH_RADIUS, SPHERE_RADIUS } from "../utils";
@@ -18,7 +18,7 @@ export default function Globe() {
       for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
         const p1 = cartesianToPolar(cityMesh1.position, SPHERE_RADIUS);
         const p2 = cartesianToPolar(cityMesh2.position, SPHERE_RADIUS);
-        const distance = SphericalPolarDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
+        const distance = sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
         if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
         if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
         currDistaces[cityName1][cityName2] = distance;

@@ -42,7 +42,7 @@ export type UpdateUIContextState = {
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
 };
 
-export type AnimationStatus = 'source' | 'global' | 'solving' | null;
+export type AnimationStatus = 'fixed' | 'moving' | 'global' | null;
 export type AnimationContextState = {
   animations: {
     [key in CityName]?: AnimationStatus
@@ -62,7 +62,7 @@ export function ContextProvider({ children, calculateDistances }: {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const citiesRef = useRef<CityTable>({});
   const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
-  const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {})
+  const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as AnimationContextState['animations'];
   const [animations, setAnimations] = useState<AnimationContextState['animations']>(fillAnimationTable(null));
 
   const updateCurrDistances = useCallback(() => {
@@ -96,8 +96,10 @@ export function ContextProvider({ children, calculateDistances }: {
       setAnimations(fillAnimationTable('global'));
     } else if (status === null) {
       setAnimations(fillAnimationTable(null));
-    } else if (cityName !== undefined) {
-      setAnimations((animations) => ({ ...animations, [cityName]: status }))
+    } else if (cityName !== undefined && status === 'fixed') {
+      const animations = fillAnimationTable('moving');
+      animations[cityName] = 'fixed';
+      setAnimations(animations);
     }
   }, []);
 

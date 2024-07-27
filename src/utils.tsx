@@ -5,6 +5,7 @@ import { Distances, useUIContext } from "./state";
 export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
+export const SCALE_FACTOR = 225;
 
 export type ObjectType = 'plane' | 'sphere';
 
@@ -25,7 +26,7 @@ export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
 }
 
 
-export function SphericalPolarDistance(x: PolarCoords, y: PolarCoords, r: number) {
+export function sphericalDistance(x: PolarCoords, y: PolarCoords, r: number) {
   const φ1 = x.lat * Math.PI / 180;
   const φ2 = y.lat * Math.PI / 180;
   const Δφ = (y.lat - x.lat) * Math.PI / 180;
@@ -68,7 +69,7 @@ export function getRealDistances(): Distances {
   if (Object.keys(realDistances).length === 0) {
     for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
       for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-        const distance = SphericalPolarDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
+        const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
         if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
         if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
         realDistances[cityName1][cityName2] = distance;
@@ -101,7 +102,7 @@ export function sca() {
   return Math.random() * 26 - 18;
 }
 
-export function slerp(base: Vector3, dest: Vector3, t: number) {
+export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assumes normalized
   base = new Vector3().copy(base);
   dest = new Vector3().copy(dest);
   const theta = Math.acos(base.dot(dest));

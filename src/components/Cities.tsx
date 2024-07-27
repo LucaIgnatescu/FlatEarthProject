@@ -74,7 +74,6 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
     const { lat, lon } = truePositions[cityName];
     if (type === 'sphere') {
       const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
-      console.log(pos, pos.length(), cityName);
       meshRef.current.position.copy(pos);
     } else {
       meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
