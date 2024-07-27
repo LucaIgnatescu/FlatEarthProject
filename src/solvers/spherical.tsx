@@ -11,11 +11,10 @@ const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRe
   const distance = sphericalDistance(cartesianToPolar(baseMesh.position, SPHERE_RADIUS), cartesianToPolar(destMesh.position, SPHERE_RADIUS), EARTH_RADIUS);
   // @ts-expect-error: getRealDistances returns a complete table
   const trueDistance = getRealDistances()[cityName][hoveredCity.name] as number;
-
+  console.log(trueDistance / distance);
   const base = new Vector3().copy(baseMesh.position).normalize();
   const dest = new Vector3().copy(destMesh.position).normalize();
   const pos = slerp(base, dest, trueDistance / distance).multiplyScalar(SPHERE_RADIUS);
-  console.log(distance / trueDistance)
   return pos;
 }
 

@@ -2,7 +2,7 @@ import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { CatmullRomCurve3, CircleGeometry, Mesh, TextureLoader, TubeGeometry, Vector3 } from "three";
-import { PlanarDistance, SCALE_FACTOR } from "../utils";
+import { planarDistance, SCALE_FACTOR } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { CityTable, ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
@@ -17,7 +17,7 @@ export default function Plane() {
     const currDistaces: Distances = {};
     for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
       for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-        const distance = PlanarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
+        const distance = planarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
         if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
         if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
         currDistaces[cityName1][cityName2] = distance;

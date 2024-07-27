@@ -39,10 +39,8 @@ export function sphericalDistance(x: PolarCoords, y: PolarCoords, r: number) {
   return Math.round(d / 10) / 100;
 }
 
-export function PlanarDistance(p1: Object3D, p2: Object3D) {
-  return Math.round(
-    Math.sqrt((p1.position.x - p2.position.x) ** 2 + (p1.position.z - p2.position.z) ** 2)
-  );
+export function planarDistance(p1: Object3D, p2: Object3D) {
+  return p1.position.distanceTo(p2.position);
 }
 
 export function totalDistance(distances: Distances) {

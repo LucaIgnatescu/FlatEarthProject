@@ -1,7 +1,8 @@
 import { distanceDependencies, dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
-import { getRealDistances, SCALE_FACTOR } from "./../utils";
+import { CIRCLE_RADIUS, getRealDistances, planarDistance, SCALE_FACTOR, SPHERE_RADIUS } from "./../utils";
 import { CityName, truePositions } from "./../coordinates";
 import { Vector3 } from "three";
+import { AnimationStatus, RenderContextState } from "../state";
 
 const MDS = (distances: number[][]) => {
   const X = matrix(distances);
@@ -54,4 +55,39 @@ export const getPositionMDS = (cityName: CityName) => {
   return solution[cityName];
 };
 
+const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRef'], hoveredCityRef: RenderContextState['hoveredCityRef']) => {
+  const destMesh = citiesRef.current[cityName];
+  const hoveredCity = hoveredCityRef.current;
+  if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
+  const baseMesh = hoveredCity.mesh;
+  const distance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
+  // @ts-expect-error: getRealDistances returns a complete table
+  const trueDistance = getRealDistances()[cityName][hoveredCity.name] as number;
+
+  const base = new Vector3().copy(baseMesh.position);
+  const dest = new Vector3().copy(destMesh.position);
+  const pos = new Vector3().lerpVectors(base, dest, trueDistance / distance);
+  if (cityName === 'easter') console.log(pos, pos.length(), CIRCLE_RADIUS);
+  if (pos.length() > CIRCLE_RADIUS) {
+    pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
+  }
+  return pos;
+}
+
+export const getFinalPositionPlane = (
+  animation: AnimationStatus,
+  cityName: CityName,
+  citiesRef: RenderContextState['citiesRef'],
+  hoveredCityRef: RenderContextState['hoveredCityRef']
+) => {
+  if (animation === null) throw new Error("animation should not be null in getFinalPosition");
+  if (animation === 'global')
+    return new Vector3(0, 0, 0);
+  if (animation === 'fixed') {
+    const pos = citiesRef.current[cityName]?.position;
+    if (pos === undefined) throw new Error("City does not exist")
+    return pos;
+  }
+  return getPosition(cityName, citiesRef, hoveredCityRef);
+}
 

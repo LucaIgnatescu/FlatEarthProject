@@ -4,7 +4,7 @@ import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
 import { AnimationStatus, RenderContextState, useRenderContext, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
-import { getPositionMDS } from "./solvers/planar";
+import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
@@ -22,8 +22,7 @@ function getFinalPosition(
 ) {
   if (animation === null) throw new Error("Animation should not be null");
   if (type === 'sphere') return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
-  const pos = getPositionMDS(cityName);
-  return pos;
+  return getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef);
 }
 
 function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: ObjectType) {
