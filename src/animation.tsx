@@ -2,27 +2,15 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { AnimationStatus, RenderContextState, useRenderContext, useUpdateContext } from "./state";
+import { AnimationStatus, useRenderContext, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
-import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
+import { getFinalPositionPlane, } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
   source: Vector3,
   dest: Vector3,
   elapsed: number
-}
-
-function getFinalPosition(
-  animation: AnimationStatus,
-  type: ObjectType,
-  cityName: CityName,
-  citiesRef: RenderContextState['citiesRef'],
-  hoveredCityRef: RenderContextState['hoveredCityRef']
-) {
-  if (animation === null) throw new Error("Animation should not be null");
-  if (type === 'sphere') return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
-  return getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef);
 }
 
 function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: ObjectType) {
@@ -43,13 +31,13 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   useEffect(() => {
     if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);
-      const dest = getFinalPosition(animation, type, cityName, citiesRef, hoveredCityRef);
+      const getFinalPosition = (type === 'sphere') ? getFinalPositionSphere : getFinalPositionPlane;
+      const dest = getFinalPosition(animation, cityName, citiesRef, hoveredCityRef);
       if (source.distanceTo(dest) > 0.01) {
         animationData.current = {
           source,
           dest,
           elapsed: 0
-
         };
         return;
       }

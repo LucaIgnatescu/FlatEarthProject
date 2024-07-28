@@ -1,7 +1,7 @@
 import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, ThreeEvent, useFrame, useLoader } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { CatmullRomCurve3, CircleGeometry, Mesh, TextureLoader, TubeGeometry, Vector3 } from "three";
+import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
+import { useMemo } from "react";
+import { CircleGeometry, Mesh, TextureLoader, Vector3 } from "three";
 import { planarDistance, SCALE_FACTOR } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { CityTable, ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
@@ -9,6 +9,7 @@ import { UIWrapper } from "../ui";
 import { CIRCLE_RADIUS } from "../utils";
 import { Stars } from "../components/shared";
 import { Cities } from "../components/Cities";
+import { Curves } from "../components/Curves";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
@@ -36,7 +37,7 @@ export default function Plane() {
         <Earth />
         <EarthWireframe />
         <Stars />
-        <Curves />
+        <Curves type="plane" />
       </Canvas>
       <UIWrapper />
     </ContextProvider>
@@ -101,45 +102,3 @@ function CircleWire({ amplitude = CIRCLE_RADIUS, resolution = 90 }: { amplitude?
     <Line points={points} color={"grey"} linewidth={1} />
   );
 }
-
-function Curve({ dest }: { dest: Vector3 }) {
-  const ref = useRef<Mesh>(null!);
-  const { hoveredCityRef } = useRenderContext();
-  useFrame(() => {
-    const pts = [];
-    const base = hoveredCityRef.current?.mesh.position;
-    if (base === undefined) {
-      ref.current.visible = false;
-      return;
-    }
-    ref.current.visible = true;
-    for (let i = 0; i <= 1; i++) {
-      const p = new Vector3().lerpVectors(base, dest, i / 1);
-      pts.push(p);
-    }
-    const curve = new CatmullRomCurve3(pts);
-
-    ref.current.geometry.dispose();
-    ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
-  });
-
-  const color = 0x3acabb;
-  return (
-    <mesh ref={ref}>
-      <meshBasicMaterial color={color} />
-    </mesh>
-  );
-}
-
-function Curves() {
-  const { citiesRef, hoveredCityRef } = useRenderContext();
-  if (hoveredCityRef.current === null) return null;
-  const cities = citiesRef.current;
-  const curves = [];
-  for (const cityName of Object.keys(cities) as CityName[]) {
-    if (cities[cityName]?.position === undefined) continue;
-    curves.push(<Curve dest={cities[cityName].position} key={cityName} />)
-  }
-  return curves;
-}
-

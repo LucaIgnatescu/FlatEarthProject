@@ -34,7 +34,7 @@ function Curve({ type, dest }: { type: ObjectType, dest: Vector3 }) {
     ref.current.visible = true;
 
     const pts = generatePoints(type, base, dest);
-    if (pts.length < 2 || isNaN(pts[0].x)) return; // TODO: FInd out why this happens
+    if (pts.length < 2 || isNaN(pts[0].x)) return; // TODO: Find out why this happens
 
     const curve = new CatmullRomCurve3(pts);
 

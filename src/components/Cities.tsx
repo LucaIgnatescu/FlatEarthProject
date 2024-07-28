@@ -66,18 +66,17 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
   useEffect(() => {
     if (citiesRef.current[cityName] !== undefined) {
       meshRef.current.position.copy(citiesRef.current[cityName].position);
+    } else {
+
+      const { lat, lon } = truePositions[cityName];
+      if (type === 'sphere') {
+        const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
+        meshRef.current.position.copy(pos);
+      } else {
+        meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
+      }
     }
     updateCities(cityName, meshRef.current);
-  }, [citiesRef, meshRef, updateCities, cityName]);
-
-  useEffect(() => {
-    const { lat, lon } = truePositions[cityName];
-    if (type === 'sphere') {
-      const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
-      meshRef.current.position.copy(pos);
-    } else {
-      meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
-    }
-  }, [type, cityName, meshRef]);
+  }, [type, citiesRef, meshRef, updateCities, cityName]);
 }
 
