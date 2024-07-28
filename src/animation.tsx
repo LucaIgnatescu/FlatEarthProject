@@ -2,9 +2,9 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { AnimationStatus, useRenderContext, useUpdateContext } from "./state";
+import { AnimationStatus, RenderContextState, useRenderContext, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
-import { getFinalPositionPlane, } from "./solvers/planar";
+import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
@@ -31,19 +31,26 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   useEffect(() => {
     if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);
-      const getFinalPosition = (type === 'sphere') ? getFinalPositionSphere : getFinalPositionPlane;
-      const dest = getFinalPosition(animation, cityName, citiesRef, hoveredCityRef);
+      let dest;
+      if (type === 'sphere') {
+        dest = getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
+      } else {
+        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, ['kiev', 'florence'])
+      }
       if (source.distanceTo(dest) > 0.01) {
         animationData.current = {
           source,
           dest,
           elapsed: 0
         };
-        return;
+      } else {
+        updateAnimationState(null, cityName);
       }
     }
-    animationData.current = null;
-  }, [animation, meshRef, cityName, type, citiesRef, hoveredCityRef]);
+    else {
+      animationData.current = null;
+    }
+  }, [animation, meshRef, cityName, type, citiesRef, hoveredCityRef, updateAnimationState]);
 
   useFrame((_, delta) => {
     if (animationData.current === null) return;

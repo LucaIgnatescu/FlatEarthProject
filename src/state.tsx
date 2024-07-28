@@ -92,14 +92,14 @@ export function ContextProvider({ children, calculateDistances }: {
   }, []);
 
   const updateAnimationState = useCallback((status: AnimationStatus, cityName?: CityName) => {
-    if (status === 'global') {
-      setAnimations(fillAnimationTable('global'));
-    } else if (status === null) {
-      setAnimations(fillAnimationTable(null));
-    } else if (cityName !== undefined && status === 'fixed') {
+    if (cityName === undefined) {
+      setAnimations(fillAnimationTable(status));
+    } else if (status === 'fixed') {
       const animations = fillAnimationTable('moving');
       animations[cityName] = 'fixed';
       setAnimations(animations);
+    } else {
+      setAnimations(animations => ({ ...animations, [cityName]: status }));
     }
   }, []);
 

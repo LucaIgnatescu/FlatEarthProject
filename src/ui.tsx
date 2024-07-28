@@ -1,4 +1,5 @@
 import { CityName } from "./coordinates";
+import { getFinalPositionPlane, getPlanarSolution } from "./solvers/planar";
 import { useRenderContext, useUpdateContext } from "./state";
 import { useDistanceInfo } from "./utils";
 
@@ -55,10 +56,9 @@ function Deltas() {
 }
 
 function Animate() {
-  const { updateAnimationState, updateHoveredCity } = useUpdateContext();
+  const { updateAnimationState } = useUpdateContext();
   const onClick = () => {
-    updateHoveredCity('kiev');
-    updateAnimationState('fixed', 'kiev');
+    updateAnimationState('global');
   }
   return <button className="top-0.5 p-2 pointer-events-auto" onClick={onClick}> Animate</button >
 }
