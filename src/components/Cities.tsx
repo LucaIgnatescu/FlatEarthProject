@@ -36,6 +36,7 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
     }
   };
 
+
   const spriteArguments = {
     fontsize: 30,
     borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
@@ -69,7 +70,7 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
     } else {
       const { lat, lon } = truePositions[cityName];
       if (type === 'sphere') {
-        const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS); // TODO: scatter
+        const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS);
         meshRef.current.position.copy(pos);
       } else {
         meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
