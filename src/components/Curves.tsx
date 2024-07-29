@@ -3,7 +3,7 @@ import { ReactNode, useRef, useState } from "react";
 import { CatmullRomCurve3, Mesh, TubeGeometry, Vector3 } from "three";
 import { ObjectType, slerp, SPHERE_RADIUS } from "../utils";
 import { CityName, truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { useRenderContext } from "../state";
+import { useStore } from "../state";
 
 
 function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
@@ -24,7 +24,7 @@ function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
 
 function Curve({ type, dest }: { type: ObjectType, dest: Vector3 }) {
   const ref = useRef<Mesh>(null!);
-  const { hoveredCityRef } = useRenderContext();
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
   useFrame(() => {
     const base = hoveredCityRef.current?.mesh.position;
     if (base === undefined) {
@@ -51,10 +51,10 @@ function Curve({ type, dest }: { type: ObjectType, dest: Vector3 }) {
 }
 
 export function Curves({ type }: { type: ObjectType }) {
-  const { citiesRef, hoveredCityRef } = useRenderContext();
   const [isSet, setIsSet] = useState(false);
   const curvesRef = useRef<ReactNode[]>([]);
-
+  const citiesRef = useStore(state => state.citiesRef);
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
   useFrame(() => {
     if (
       isSet ||

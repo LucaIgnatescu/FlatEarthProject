@@ -1,34 +1,21 @@
 import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { CircleGeometry, Mesh, TextureLoader, Vector3 } from "three";
-import { planarDistance, SCALE_FACTOR } from "../utils";
-import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { CityTable, ContextProvider, Distances, useRenderContext, useUpdateContext } from "../state";
 import { UIWrapper } from "../ui";
 import { CIRCLE_RADIUS } from "../utils";
 import { Stars } from "../components/shared";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
+import { useStore } from "../state";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
-  const calculateDistances = (cities: CityTable) => {
-    const currDistaces: Distances = {};
-    for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
-      for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-        const distance = planarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
-        if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-        if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-        currDistaces[cityName1][cityName2] = distance;
-        currDistaces[cityName2][cityName1] = distance;
-      }
-    }
-    return currDistaces;
-  }
+  const updateRoute = useStore(state => state.updateRoute);
+  useLayoutEffect(() => updateRoute('sphere'));
   return (
-    <ContextProvider calculateDistances={calculateDistances}>
+    <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
@@ -40,20 +27,22 @@ export default function Plane() {
         <Curves type="plane" />
       </Canvas>
       <UIWrapper />
-    </ContextProvider>
+    </>
   );
 }
 
 function Controls() {
-  const { isDragging } = useRenderContext();
+  const isDragging = useStore(state => state.isDragging);
   return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} />
 }
 
 function Earth() {
   const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
-  const { isDragging, hoveredCityRef } = useRenderContext();
-  const { moveHoveredCity, setIsDragging, } = useUpdateContext();
 
+  const isDragging = useStore(state => state.isDragging);
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const moveHoveredCity = useStore(state => state.moveHoveredCity);
+  const updateIsDragging = useStore(state => state.updateIsDragging);
   const dragCity = (event: ThreeEvent<PointerEvent>) => {
     if (!isDragging || !hoveredCityRef.current) return;
     const earthIntersection = event.intersections.find(
@@ -66,7 +55,7 @@ function Earth() {
   }
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
-      onPointerUp={() => setIsDragging(false)}
+      onPointerUp={() => updateIsDragging(false)}
       onPointerMove={dragCity}>
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />

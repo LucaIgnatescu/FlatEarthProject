@@ -2,8 +2,8 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { AnimationStatus, RenderContextState, useRenderContext, useUpdateContext } from "./state";
 import { useFrame } from "@react-three/fiber";
+import { useStore, AnimationStatus } from "./state";
 import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
@@ -26,8 +26,10 @@ function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: O
 export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, animation: AnimationStatus) {
   const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
   const animationTime = 2;
-  const { updateAnimationState, updateCurrDistances } = useUpdateContext();
-  const { citiesRef, hoveredCityRef } = useRenderContext();
+  const updateAnimationState = useStore(state => state.updateAnimationState);
+  const updateCurrDistances = useStore(state => state.updateCurrDistances);
+  const citiesRef = useStore(state => state.citiesRef);
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
   useEffect(() => {
     if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);

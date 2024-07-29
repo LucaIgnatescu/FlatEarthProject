@@ -1,6 +1,5 @@
 import { CityName } from "./coordinates";
-import { getFinalPositionPlane, getPlanarSolution } from "./solvers/planar";
-import { useRenderContext, useUpdateContext } from "./state";
+import { useStore } from "./state";
 import { useDistanceInfo } from "./utils";
 
 export function UIWrapper() {
@@ -32,7 +31,7 @@ function TotalError() {
 }
 
 function Deltas() {
-  const { hoveredCityRef } = useRenderContext();
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const { realDistances, currDistances, totalCurr, totalReal } = useDistanceInfo();
   if (hoveredCityRef.current === null) return null;
   const current = hoveredCityRef.current.name as CityName;
@@ -56,7 +55,7 @@ function Deltas() {
 }
 
 function Animate() {
-  const { updateAnimationState } = useUpdateContext();
+  const updateAnimationState = useStore(state => state.updateAnimationState);
   const onClick = () => {
     updateAnimationState('global');
   }

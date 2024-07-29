@@ -1,6 +1,8 @@
-import { createContext, MutableRefObject, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { Mesh } from "three";
-import { CityName, truePositions } from "./coordinates";
+import { create } from 'zustand';
+import { createRef, MutableRefObject } from 'react';
+import { CityName, truePositions } from './coordinates';
+import { Mesh } from 'three';
+import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
 
 export type Distances = {
   [key in CityName]?: {
@@ -12,154 +14,126 @@ export type CityTable = {
   [key in CityName]?: Mesh;
 };
 
-
 export type HoveredCityInfo = {
   name: CityName;
   mesh: Mesh;
 }
 
+export type AnimationStatus = 'fixed' | 'moving' | 'global' | null;
 
-export type RenderContextState = {
+export type Animations = {
+  [key in CityName]: AnimationStatus;
+};
+
+export type Store = {
+  route: null | 'plane' | 'sphere'
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
-}
-
-
-/* NOTE: UIContextState is fast state and needs to be a separate context to not trigger rerender on on everything else
- * Alternative is to memoize everything, but I don't think it's prefferable
-*/
-export type UIContextState = {
   currDistances: Distances;
-};
-
-export type UpdateUIContextState = {
+  animations: Animations;
+  updateRoute: (route: 'plane' | 'sphere') => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
-  setIsDragging: (isDragging: boolean) => void;
+  updateIsDragging: (isDragging: boolean) => void;
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
-};
+}
 
-export type AnimationStatus = 'fixed' | 'moving' | 'global' | null;
-export type AnimationContextState = {
-  animations: {
-    [key in CityName]?: AnimationStatus
+const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
+
+
+const calculateDistancesPlane = (cities: CityTable) => {
+  const currDistaces: Distances = {};
+  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
+    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
+      const distance = planarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
+      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
+      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
+      currDistaces[cityName1][cityName2] = distance;
+      currDistaces[cityName2][cityName1] = distance;
+    }
   }
-};
+  return currDistaces;
+}
 
-const RenderContext = createContext<RenderContextState>(null!);
-const UIContext = createContext<UIContextState>({ currDistances: {} });
-const UpdateUIContext = createContext<UpdateUIContextState>(null!);
-const AnimationContext = createContext<AnimationContextState>(null!);
 
-export function ContextProvider({ children, calculateDistances }: {
-  children: React.ReactNode,
-  calculateDistances: (cities: CityTable) => Distances
-}) {
-  const [currDistances, setCurrDistances] = useState<Distances>({});
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const citiesRef = useRef<CityTable>({});
-  const hoveredCityRef = useRef<HoveredCityInfo | null>(null);
-  const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as AnimationContextState['animations'];
-  const [animations, setAnimations] = useState<AnimationContextState['animations']>(fillAnimationTable(null));
+const calculateDistancesSphere = (cities: CityTable) => { // FIX:
+  const currDistaces: Distances = {};
+  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
+    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
+      const p1 = cartesianToPolar(cityMesh1.position, SPHERE_RADIUS);
+      const p2 = cartesianToPolar(cityMesh2.position, SPHERE_RADIUS);
+      const distance = sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
+      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
+      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
+      currDistaces[cityName1][cityName2] = distance;
+      currDistaces[cityName2][cityName1] = distance;
+    }
+  }
+  return currDistaces;
+}
 
-  const updateCurrDistances = useCallback(() => {
-    if (!citiesRef.current) return;
-    setCurrDistances(calculateDistances(citiesRef.current));
-  }, [calculateDistances]);
-
-  const updateCities = useCallback((name: CityName, city: Mesh) => {
-    citiesRef.current[name] = city;
-    updateCurrDistances();
-  }, [updateCurrDistances]);
-
-  const moveHoveredCity = useCallback((x: number, y: number, z: number) => {
-    if (hoveredCityRef.current === null) throw new Error("Trying to move without selecting a city");
-    hoveredCityRef.current.mesh.position.set(x, y, z);
-    updateCurrDistances();
-  }, [updateCurrDistances]);
-
-  const updateHoveredCity = useCallback((name: CityName | null) => {
+const currDistances = {};
+const isDragging = false;
+const citiesRef = createRef() as MutableRefObject<CityTable>;
+const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
+const animations = fillAnimationTable(null);
+citiesRef.current = {};
+export const useStore = create<Store>((set, get) => ({
+  route: null,
+  citiesRef,
+  hoveredCityRef,
+  isDragging,
+  currDistances,
+  animations,
+  updateRoute: (route: 'plane' | 'sphere') => {
+    get().citiesRef.current = {};
+    get().hoveredCityRef.current = null;
+    get().updateIsDragging(false);
+    get().updateAnimationState(null);
+    const calculateDistances = (route === 'plane') ? calculateDistancesPlane : calculateDistancesSphere;
+    const updateCurrDistances = () => {
+      const cities = get().citiesRef.current;
+      if (!cities) return;
+      set({ currDistances: calculateDistances(cities) });
+    }
+    set({ updateCurrDistances });
+  },
+  updateCurrDistances: () => { throw new Error('route not set properly') },
+  updateCities: (name: CityName, city: Mesh) => {
+    get().citiesRef.current[name] = city;
+    get().updateCurrDistances();
+  },
+  updateHoveredCity: (name: CityName | null) => {
     if (name === null) {
-      hoveredCityRef.current = null;
+      get().hoveredCityRef.current = null;
       return;
     }
-    const mesh = citiesRef.current[name];
+    const mesh = get().citiesRef.current[name];
     if (mesh === undefined) throw new Error("invalid city name");
-    hoveredCityRef.current = { name, mesh };
-  }, []);
+    get().hoveredCityRef.current = { name, mesh };
+  },
 
-  const updateAnimationState = useCallback((status: AnimationStatus, cityName?: CityName) => {
+  moveHoveredCity: (x: number, y: number, z: number) => {
+    const hoveredCity = get().hoveredCityRef.current
+    if (hoveredCity === null)
+      throw new Error("Trying to move without selecting a city");
+    hoveredCity.mesh.position.set(x, y, z);
+    get().updateCurrDistances();
+  },
+  updateIsDragging: (isDragging) => set({ isDragging }),
+  updateAnimationState: (status: AnimationStatus, cityName?: CityName) => {
     if (cityName === undefined) {
-      setAnimations(fillAnimationTable(status));
+      return set({ animations: fillAnimationTable(status) });
     } else if (status === 'fixed') {
       const animations = fillAnimationTable('moving');
       animations[cityName] = 'fixed';
-      setAnimations(animations);
+      set({ animations });
     } else {
-      setAnimations(animations => ({ ...animations, [cityName]: status }));
+      return set((state) =>
+        ({ animations: { ...state.animations, [cityName]: status } }));
     }
-  }, []);
-
-
-
-  const renderContextValue: RenderContextState = useMemo(() => ({
-    citiesRef, hoveredCityRef, isDragging
-  }), [isDragging]);
-
-  const uiContextValue: UIContextState = useMemo(() => ({
-    currDistances
-  }), [currDistances]);
-
-  const animationContextValue = useMemo(() => (
-    { animations }
-  ), [animations]);
-
-  const updateUIContextValue: UpdateUIContextState = useMemo(() => ({
-    updateCurrDistances,
-    updateCities,
-    updateHoveredCity,
-    moveHoveredCity,
-    setIsDragging,
-    updateAnimationState
-  }), [moveHoveredCity, updateCities, updateCurrDistances, updateHoveredCity, updateAnimationState]);
-
-  return (
-    <RenderContext.Provider value={renderContextValue}>
-      <UIContext.Provider value={uiContextValue}>
-        <UpdateUIContext.Provider value={updateUIContextValue}>
-          <AnimationContext.Provider value={animationContextValue}>
-            {children}
-          </AnimationContext.Provider>
-        </UpdateUIContext.Provider>
-      </UIContext.Provider>
-    </RenderContext.Provider>
-  );
-}
-
-export function useRenderContext() {
-  const context = useContext(RenderContext);
-  if (context === null) throw new Error("Could not retreive context");
-  return context;
-}
-
-export function useUIContext() {
-  const context = useContext(UIContext);
-  if (context === null) throw new Error("Could not retreive context");
-  return context;
-}
-
-export function useUpdateContext() { // TODO: add all other update function here, memoize them
-  const context = useContext(UpdateUIContext);
-  if (context === null) throw new Error("Could not retreive context");
-  return context;
-}
-
-export function useAnimationContext() {
-  const context = useContext(AnimationContext);
-  if (context === null) throw new Error("Could not retreive context");
-  return context;
-}
-
+  }
+}));

@@ -3,12 +3,12 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh } from "three";
 import { CityName, truePositions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS } from "../utils";
-import { AnimationStatus, useAnimationContext, useRenderContext, useUpdateContext } from "../state";
+import { useStore, AnimationStatus } from "../state";
 import { useAnimation } from "../animation";
 import { TextSprite } from "./shared";
 
 export function Cities({ type }: { type: ObjectType }) {
-  const { animations } = useAnimationContext();
+  const animations = useStore(state => state.animations);
   return (
     Object.entries(Object.keys(truePositions))
       .map(([, cityName]) =>
@@ -20,8 +20,10 @@ export function Cities({ type }: { type: ObjectType }) {
 function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ObjectType }) {
   const radius = 0.2;
   const meshRef = useRef<Mesh>(null!);
-  const { hoveredCityRef, isDragging } = useRenderContext();
-  const { updateHoveredCity, setIsDragging } = useUpdateContext();
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const isDragging = useStore(state => state.isDragging);
+  const updateHoveredCity = useStore(state => state.updateHoveredCity);
+  const updateIsDragging = useStore(state => state.updateIsDragging);
 
   useAnimation(type, cityName, meshRef, animation);
   useSetupPosition(type, cityName, meshRef);
@@ -48,7 +50,7 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
   return (
     <mesh ref={meshRef} position={[0, 0, 0]}
       onPointerMove={onHover}
-      onPointerDown={() => setIsDragging(true)}
+      onPointerDown={() => updateIsDragging(true)}
       onPointerLeave={() => {
         if (isDragging) return;
         updateHoveredCity(null);
@@ -62,8 +64,8 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
 }
 
 function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
-  const { citiesRef } = useRenderContext();
-  const { updateCities } = useUpdateContext();
+  const citiesRef = useStore(state => state.citiesRef);
+  const updateCities = useStore(state => state.updateCities);
   useEffect(() => {
     if (citiesRef.current[cityName] !== undefined) {
       meshRef.current.position.copy(citiesRef.current[cityName].position);

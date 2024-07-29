@@ -1,6 +1,6 @@
 import { Object3D, Vector3 } from "three";
 import { CityName, PolarCoords, truePositions } from "./coordinates";
-import { Distances, useUIContext } from "./state";
+import { useStore, Distances } from "./state";
 
 export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
@@ -55,7 +55,7 @@ export function totalDistance(distances: Distances) {
 
 export function useDistanceInfo() {
   const realDistances = getRealDistances();
-  const { currDistances } = useUIContext();
+  const currDistances = useStore(state => state.currDistances);
   const totalCurr = totalDistance(currDistances); //should be 5.018 in correct solve
   const totalReal = totalDistance(realDistances);
   return { realDistances, currDistances, totalCurr, totalReal };
