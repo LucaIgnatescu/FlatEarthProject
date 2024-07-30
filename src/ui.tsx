@@ -1,3 +1,5 @@
+import { AnchorPrompt } from "./components/AnchorPrompt";
+import { ContextMenu } from "./components/ContextMenu";
 import { CityName } from "./coordinates";
 import { useStore } from "./state";
 import { useDistanceInfo } from "./utils";
@@ -5,8 +7,9 @@ import { useDistanceInfo } from "./utils";
 export function UIWrapper() {
   return (
     <div className="text-white w-full absolute top-0 h-full z-100 pointer-events-none">
-      <Animate />
       <TotalError />
+      <ContextMenu />
+      <AnchorPrompt />
     </div>
   );
 }

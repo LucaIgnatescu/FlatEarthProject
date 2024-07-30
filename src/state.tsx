@@ -25,6 +25,13 @@ export type Animations = {
   [key in CityName]: AnimationStatus;
 };
 
+export type ContextMenu = {
+  cityName: CityName | null;
+  mousePosition: [number, number] | null;
+  anchor: CityName | null;
+  visible: boolean
+};
+
 export type Store = {
   route: null | 'plane' | 'sphere'
   citiesRef: MutableRefObject<CityTable>;
@@ -32,6 +39,8 @@ export type Store = {
   isDragging: boolean;
   currDistances: Distances;
   animations: Animations;
+  contextMenu: ContextMenu;
+  isPicking: boolean;
   updateRoute: (route: 'plane' | 'sphere') => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
@@ -39,6 +48,8 @@ export type Store = {
   moveHoveredCity: (x: number, y: number, z: number) => void;
   updateIsDragging: (isDragging: boolean) => void;
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
+  updateContextMenu: (menu: ContextMenu) => void;
+  updateIsPicking: (isPicking: boolean) => void;
 }
 
 const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -80,6 +91,8 @@ const isDragging = false;
 const citiesRef = createRef() as MutableRefObject<CityTable>;
 const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
 const animations = fillAnimationTable(null);
+const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
+const isPicking = false;
 citiesRef.current = {};
 export const useStore = create<Store>((set, get) => ({
   route: null,
@@ -88,6 +101,8 @@ export const useStore = create<Store>((set, get) => ({
   isDragging,
   currDistances,
   animations,
+  contextMenu,
+  isPicking,
   updateRoute: (route: 'plane' | 'sphere') => {
     get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
@@ -99,7 +114,7 @@ export const useStore = create<Store>((set, get) => ({
       if (!cities) return;
       set({ currDistances: calculateDistances(cities) });
     }
-    set({ updateCurrDistances });
+    set({ updateCurrDistances, route });
   },
   updateCurrDistances: () => { throw new Error('route not set properly') },
   updateCities: (name: CityName, city: Mesh) => {
@@ -135,5 +150,7 @@ export const useStore = create<Store>((set, get) => ({
       return set((state) =>
         ({ animations: { ...state.animations, [cityName]: status } }));
     }
-  }
+  },
+  updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
+  updateIsPicking: (isPicking: boolean) => set({ isPicking })
 }));

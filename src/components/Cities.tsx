@@ -1,8 +1,8 @@
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh } from "three";
 import { CityName, truePositions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
 import { useStore, AnimationStatus } from "../state";
 import { useAnimation } from "../animation";
 import { TextSprite } from "./shared";
@@ -18,15 +18,29 @@ export function Cities({ type }: { type: ObjectType }) {
 
 
 function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ObjectType }) {
-  const radius = 0.2;
   const meshRef = useRef<Mesh>(null!);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const isDragging = useStore(state => state.isDragging);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
+  const updateMenuInfo = useStore(state => state.updateContextMenu);
+  const isPicking = useStore(state => state.isPicking);
+  const updateIsPicking = useStore(state => state.updateIsPicking);
+  const contextMenu = useStore(state => state.contextMenu);
+  const updateContextMenu = useStore(state => state.updateContextMenu);
+  const updateAnimationState = useStore(state => state.updateAnimationState);
+
+  const radius = type === 'sphere' ? 0.2 : 0.4;
 
   useAnimation(type, cityName, meshRef, animation);
   useSetupPosition(type, cityName, meshRef);
+
+  useFrame(() => {
+    const pos = meshRef.current.position;
+    if (pos.length() > CIRCLE_RADIUS) {
+      pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
+    }
+  })
 
   const onHover = (event: ThreeEvent<PointerEvent>) => {
     if (
@@ -37,7 +51,6 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
       updateHoveredCity(cityName);
     }
   };
-
 
   const spriteArguments = {
     fontsize: 30,
@@ -54,6 +67,18 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
       onPointerLeave={() => {
         if (isDragging) return;
         updateHoveredCity(null);
+      }}
+      onContextMenu={(ev) => {
+        updateMenuInfo({ cityName, mousePosition: [ev.nativeEvent.clientX, ev.nativeEvent.clientY], anchor: null, visible: true });
+        ev.nativeEvent.preventDefault();
+        ev.stopPropagation();
+      }}
+      onClick={() => {
+        if (isPicking) {
+          updateContextMenu({ ...contextMenu, anchor: cityName });
+          updateIsPicking(false);
+          updateAnimationState('global');
+        }
       }}
     >
       <sphereGeometry args={[radius]} />

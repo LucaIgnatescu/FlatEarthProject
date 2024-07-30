@@ -13,7 +13,7 @@ const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
   const updateRoute = useStore(state => state.updateRoute);
-  useLayoutEffect(() => updateRoute('sphere'));
+  useLayoutEffect(() => updateRoute('plane'));
   return (
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">

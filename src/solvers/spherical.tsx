@@ -1,9 +1,9 @@
-import { AnimationStatus, RenderContextState } from "../state";
+import { AnimationStatus, Store } from "../state";
 import { CityName, truePositions } from "../coordinates";
 import { cartesianToPolar, EARTH_RADIUS, getRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
 import { Vector3 } from "three";
 
-const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRef'], hoveredCityRef: RenderContextState['hoveredCityRef']) => {
+const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
   const destMesh = citiesRef.current[cityName];
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
@@ -20,8 +20,8 @@ const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRe
 export const getFinalPositionSphere = (
   animation: AnimationStatus,
   cityName: CityName,
-  citiesRef: RenderContextState['citiesRef'],
-  hoveredCityRef: RenderContextState['hoveredCityRef']
+  citiesRef: Store['citiesRef'],
+  hoveredCityRef: Store['hoveredCityRef']
 ) => {
   if (animation === null) throw new Error("animation should not be null in getFinalPosition");
   if (animation === 'global')

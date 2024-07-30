@@ -12,7 +12,7 @@ import { UIWrapper } from "../ui";
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
   useLayoutEffect(() => {
-    updateRoute('sphere')
+    updateRoute('sphere');
   }
   );
   return (

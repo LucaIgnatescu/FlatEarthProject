@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { useFrame } from "@react-three/fiber";
+import { context, useFrame } from "@react-three/fiber";
 import { useStore, AnimationStatus } from "./state";
 import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
@@ -30,6 +30,8 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const updateCurrDistances = useStore(state => state.updateCurrDistances);
   const citiesRef = useStore(state => state.citiesRef);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const contextMenu = useStore(state => state.contextMenu);
+
   useEffect(() => {
     if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);
@@ -37,7 +39,8 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
       if (type === 'sphere') {
         dest = getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
       } else {
-        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, ['kiev', 'florence'])
+        if (contextMenu.cityName === null || contextMenu.anchor === null) throw new Error('missing root or anchor');
+        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, [contextMenu.cityName, contextMenu.anchor])
       }
       if (source.distanceTo(dest) > 0.01) {
         animationData.current = {
@@ -70,3 +73,8 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     updateCurrDistances();
   });
 }
+
+// export function useStartAnimation(status: AnimationStatus, cityName?: CityName) {
+//   const updateAnimationState = useStore(state => state.updateAnimationState);// NOTE: more will be added here
+//   updateAnimationState(status, cityName);
+// }

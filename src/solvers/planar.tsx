@@ -3,7 +3,6 @@ import { CIRCLE_RADIUS, getRealDistances, planarDistance, SCALE_FACTOR } from ".
 import { CityName, truePositions } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationStatus, RenderContextState } from "../state";
-import { Params } from "react-router-dom";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -12,9 +11,10 @@ const rotate = (theta: number) => matrix(
 );
 
 const translate = (x: number, y: number) => matrix([[1, 0, x], [0, 1, y], [0, 0, 1]]);
-const getAngle = (v1: Vector2, v2: Vector2) => Math.atan((v2.y - v1.y) / (v2.x - v1.x));
-
-
+const getAngle = (v1: Vector2, v2: Vector2) => {
+  const theta = Math.atan((v2.y - v1.y) / (v2.x - v1.x));
+  return v1.x > v2.x ? Math.PI + theta : theta;
+}
 
 
 const MDS = (distances: number[][]) => {
@@ -46,10 +46,10 @@ const centerSolution = (numbers: number[][], citiesArray: CityName[], params: Co
   const p2 = new Vector2(params.city2.position.x, params.city2.position.z);
 
   const thetaMDS = getAngle(p1MDS, p2MDS);
-  let theta = getAngle(p1, p2);
-  if (p1.x > p2.x) {
-    theta = Math.PI + theta;
-  }
+  const theta = getAngle(p1, p2);
+  // if (p1.x > p2.x) {
+  //   theta = Math.PI + theta;
+  // }
 
   const row = Array.from({ length: numbers[0].length }).map(() => 1);
   const m = matrix([...numbers, row]);
@@ -126,9 +126,6 @@ const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRe
   const base = new Vector3().copy(baseMesh.position);
   const dest = new Vector3().copy(destMesh.position);
   const pos = new Vector3().lerpVectors(base, dest, trueDistance / distance);
-  if (pos.length() > CIRCLE_RADIUS) {
-    pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
-  }
   return pos;
 }
 
