@@ -14,7 +14,7 @@ export function AnchorPrompt() {
   return (
     <div className="w-full flex flex-row justify-center top-10">
       <div className="text-lg">
-        Choose another city to keep fixed:
+        Choose another city to construct solution with:
       </div>
     </div>
   );

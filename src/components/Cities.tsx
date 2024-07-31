@@ -1,11 +1,11 @@
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { MutableRefObject, useEffect, useRef } from "react";
-import { Mesh } from "three";
+import { Mesh, Sprite } from "three";
 import { CityName, truePositions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
 import { useStore, AnimationStatus } from "../state";
 import { useAnimation } from "../animation";
-import { TextSprite } from "./shared";
+import { TextSprite } from "./TextSprite";
 
 export function Cities({ type }: { type: ObjectType }) {
   const animations = useStore(state => state.animations);
@@ -19,6 +19,8 @@ export function Cities({ type }: { type: ObjectType }) {
 
 function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ObjectType }) {
   const meshRef = useRef<Mesh>(null!);
+  const spriteRef = useRef<Sprite>(null!);
+
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const isDragging = useStore(state => state.isDragging);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
@@ -30,10 +32,10 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const updateAnimationState = useStore(state => state.updateAnimationState);
 
-  const radius = type === 'sphere' ? 0.2 : 0.4;
+  const radius = type === 'sphere' ? 0.2 : 0.3;
 
   useAnimation(type, cityName, meshRef, animation);
-  useSetupPosition(type, cityName, meshRef);
+  useSetupPosition(type, cityName, meshRef, spriteRef);
 
   useFrame(() => {
     const pos = meshRef.current.position;
@@ -63,7 +65,15 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
   return (
     <mesh ref={meshRef} position={[0, 0, 0]}
       onPointerMove={onHover}
-      onPointerDown={() => updateIsDragging(true)}
+      onPointerDown={() => {
+        updateIsDragging(true);
+        if (isPicking) {
+          updateContextMenu({ ...contextMenu, anchor: cityName });
+          updateIsPicking(false);
+          updateAnimationState('global');
+          updateHoveredCity(cityName);
+        }
+      }}
       onPointerLeave={() => {
         if (isDragging) return;
         updateHoveredCity(null);
@@ -73,22 +83,15 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
         ev.nativeEvent.preventDefault();
         ev.stopPropagation();
       }}
-      onClick={() => {
-        if (isPicking) {
-          updateContextMenu({ ...contextMenu, anchor: cityName });
-          updateIsPicking(false);
-          updateAnimationState('global');
-        }
-      }}
     >
       <sphereGeometry args={[radius]} />
       <meshBasicMaterial color={"red"} />
-      <TextSprite message={capitalized} parameters={spriteArguments} />
+      <TextSprite message={capitalized} parameters={spriteArguments} ref={spriteRef} />
     </mesh >
   )
 }
 
-function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
+function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, spriteRef: MutableRefObject<Sprite>) {
   const citiesRef = useStore(state => state.citiesRef);
   const updateCities = useStore(state => state.updateCities);
   useEffect(() => {
@@ -102,8 +105,10 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
       } else {
         meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
       }
+      spriteRef.current.position.copy(meshRef.current.position).multiplyScalar(0.08);
     }
     updateCities(cityName, meshRef.current);
-  }, [type, citiesRef, meshRef, updateCities, cityName]);
+
+  }, [type, citiesRef, meshRef, updateCities, cityName, spriteRef]);
 }
 

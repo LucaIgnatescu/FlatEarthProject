@@ -138,7 +138,7 @@ export const useStore = create<Store>((set, get) => ({
     hoveredCity.mesh.position.set(x, y, z);
     get().updateCurrDistances();
   },
-  updateIsDragging: (isDragging) => set({ isDragging }),
+  updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => {
     if (cityName === undefined) {
       return set({ animations: fillAnimationTable(status) });

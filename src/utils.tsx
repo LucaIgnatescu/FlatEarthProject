@@ -9,23 +9,6 @@ export const SCALE_FACTOR = 225;
 
 export type ObjectType = 'plane' | 'sphere';
 
-export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-}
-
-
 export function sphericalDistance(x: PolarCoords, y: PolarCoords, r: number) {
   const φ1 = x.lat * Math.PI / 180;
   const φ2 = y.lat * Math.PI / 180;

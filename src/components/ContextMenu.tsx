@@ -10,10 +10,12 @@ export function ContextMenu() {
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const updateIsPicking = useStore(state => state.updateIsPicking);
 
-  if (contextMenu.visible === false) {
+  const { cityName } = contextMenu;
+
+  if (contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
     return null;
   }
-  const { cityName } = contextMenu;
+
   const [x, y] = contextMenu.mousePosition;
 
   const closeMenu = () => updateContextMenu({ ...contextMenu, visible: false });
