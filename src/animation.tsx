@@ -39,7 +39,6 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
       if (type === 'sphere') {
         dest = getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
       } else {
-        if (contextMenu.cityName === null || contextMenu.anchor === null) throw new Error('missing root or anchor');
         dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, [contextMenu.cityName, contextMenu.anchor])
       }
       if (source.distanceTo(dest) > 0.01) {
@@ -55,7 +54,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     else {
       animationData.current = null;
     }
-  }, [animation, meshRef, cityName, type, citiesRef, hoveredCityRef, updateAnimationState]);
+  }, [animation, meshRef, cityName, type, contextMenu, citiesRef, hoveredCityRef, updateAnimationState]);
 
   useFrame((_, delta) => {
     if (animationData.current === null) return;

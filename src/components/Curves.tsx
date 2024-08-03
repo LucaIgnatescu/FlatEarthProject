@@ -70,5 +70,5 @@ export function Curves({ type }: { type: ObjectType }) {
     setIsSet(true);
   })
 
-  return curvesRef.current; //this is prob bad
+  return curvesRef.current;
 }

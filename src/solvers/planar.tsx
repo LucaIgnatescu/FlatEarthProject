@@ -1,8 +1,8 @@
-import { dotMultiply, eigs, identity, Matrix, matrix, multiply, number, ones, sqrt, subtract, transpose } from "mathjs"
-import { CIRCLE_RADIUS, getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
+import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
+import { getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
 import { CityName, truePositions } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
-import { AnimationStatus, RenderContextState } from "../state";
+import { AnimationStatus } from "../state";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -134,11 +134,12 @@ export const getFinalPositionPlane = (
   cityName: CityName,
   citiesRef: RenderContextState['citiesRef'],
   hoveredCityRef: RenderContextState['hoveredCityRef'],
-  anchors: [CityName, CityName]
+  anchors: [CityName | undefined, CityName | undefined]
 ) => {
-  if (animation === null) throw new Error("animation should not be null in getFinalPosition");
   if (animation === 'global') {
+    if (anchors === undefined) throw new Error("no anchors set for global plane solution");
     const [city1, city2] = anchors;
+    if (!city1 || !city2) throw new Error("animation should not be null in getFinalPosition");
     const pos1 = citiesRef.current[city1]?.position;
     const pos2 = citiesRef.current[city2]?.position;
     if (pos1 === undefined || pos2 === undefined) throw new Error("City does not exist");
