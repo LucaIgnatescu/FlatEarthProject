@@ -2,7 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { ReactNode, useRef, useState } from "react";
 import { CatmullRomCurve3, Mesh, TubeGeometry, Vector3 } from "three";
 import { ObjectType, slerp, SPHERE_RADIUS } from "../utils";
-import { CityName, truePositions } from "../coordinates"; // NOTE: This used to be an array in the original implementation
+import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 
 
@@ -55,11 +55,12 @@ export function Curves({ type }: { type: ObjectType }) {
   const curvesRef = useRef<ReactNode[]>([]);
   const citiesRef = useStore(state => state.citiesRef);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const getTruePositions = useStore(state => state.getTruePositions);
   useFrame(() => {
     if (
       isSet ||
       hoveredCityRef.current === null || citiesRef.current == null ||
-      Object.keys(citiesRef.current).length !== Object.keys(truePositions).length
+      Object.keys(citiesRef.current).length !== Object.keys(getTruePositions()).length
     ) return;
     const cities = citiesRef.current;
     curvesRef.current = [];

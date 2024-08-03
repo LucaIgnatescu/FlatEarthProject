@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createRef, MutableRefObject } from 'react';
-import { CityName, truePositions } from './coordinates';
+import { CityName, PolarCoords, truePositions } from './coordinates';
 import { Mesh } from 'three';
 import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
 
@@ -32,6 +32,8 @@ export type ContextMenu = {
   visible: boolean
 };
 
+export type Positions = { [key in CityName]?: PolarCoords };
+
 export type Store = {
   route: null | 'plane' | 'sphere'
   citiesRef: MutableRefObject<CityTable>;
@@ -41,6 +43,7 @@ export type Store = {
   animations: Animations;
   contextMenu: ContextMenu;
   isPicking: boolean;
+  nCities: number;
   updateRoute: (route: 'plane' | 'sphere') => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
@@ -50,6 +53,8 @@ export type Store = {
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
   updateContextMenu: (menu: ContextMenu) => void;
   updateIsPicking: (isPicking: boolean) => void;
+  updateNCities: (nCities: number) => void;
+  getTruePositions: () => Positions;
 }
 
 const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -93,6 +98,7 @@ const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
 const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
 const isPicking = false;
+const nCities = 8;
 citiesRef.current = {};
 export const useStore = create<Store>((set, get) => ({
   route: null,
@@ -103,6 +109,7 @@ export const useStore = create<Store>((set, get) => ({
   animations,
   contextMenu,
   isPicking,
+  nCities,
   updateRoute: (route: 'plane' | 'sphere') => {
     get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
@@ -152,5 +159,17 @@ export const useStore = create<Store>((set, get) => ({
     }
   },
   updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
-  updateIsPicking: (isPicking: boolean) => set({ isPicking })
+  updateIsPicking: (isPicking: boolean) => set({ isPicking }),
+  updateNCities: (nCities: number) => set({ nCities }),
+  getTruePositions: () => {
+    const n = get().nCities;
+    if (n === undefined) return truePositions;
+    const keys = Object.keys(truePositions) as CityName[];
+    const ans: { [key in CityName]?: PolarCoords } = {};
+    for (let i = 0; i < n; i++) {
+      const key = keys[i];
+      ans[key] = truePositions[key];
+    }
+    return ans;
+  }
 }));

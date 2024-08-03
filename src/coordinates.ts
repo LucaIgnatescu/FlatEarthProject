@@ -4,8 +4,6 @@
  *
  *
 */
-
-
 export const truePositions = {
   atlanta: {
     lat: 33.753746,
@@ -68,5 +66,6 @@ export type PolarCoords = {
   lat: number;
   lon: number;
 }
+
 
 

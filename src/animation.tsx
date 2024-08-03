@@ -2,9 +2,9 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { context, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { useStore, AnimationStatus } from "./state";
-import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
+import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
@@ -72,8 +72,3 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     updateCurrDistances();
   });
 }
-
-// export function useStartAnimation(status: AnimationStatus, cityName?: CityName) {
-//   const updateAnimationState = useStore(state => state.updateAnimationState);// NOTE: more will be added here
-//   updateAnimationState(status, cityName);
-// }

@@ -1,8 +1,8 @@
 import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
 import { getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
-import { CityName, truePositions } from "./../coordinates";
+import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
-import { AnimationStatus } from "../state";
+import { AnimationStatus, Store } from "../state";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -79,7 +79,6 @@ export const getPlanarSolution = (params: ConfigParams) => {
   const distances = getRealDistances();
   const citiesArray = Object.keys(distances) as CityName[]; // NOTE: used to match distance matrix to cities
   const n = citiesArray.length;
-  if (n !== Object.keys(truePositions).length) throw Error("Not all cities have been loaded");
 
   const mat = Array.from({ length: n }).map(() => Array.from({ length: n }).map(() => 0));
   for (let i = 0; i < citiesArray.length; i++) {
@@ -114,7 +113,7 @@ const getPositionMDS = (cityName: CityName, params: ConfigParams) => {
   return singleton.solution[cityName];
 };
 
-const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRef'], hoveredCityRef: RenderContextState['hoveredCityRef']) => {
+const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
   const destMesh = citiesRef.current[cityName];
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
@@ -132,8 +131,8 @@ const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRe
 export const getFinalPositionPlane = (
   animation: AnimationStatus,
   cityName: CityName,
-  citiesRef: RenderContextState['citiesRef'],
-  hoveredCityRef: RenderContextState['hoveredCityRef'],
+  citiesRef: Store['citiesRef'],
+  hoveredCityRef: Store['hoveredCityRef'],
   anchors: [CityName | undefined, CityName | undefined]
 ) => {
   if (animation === 'global') {

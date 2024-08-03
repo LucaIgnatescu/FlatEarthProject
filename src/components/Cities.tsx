@@ -9,8 +9,9 @@ import { TextSprite } from "./TextSprite";
 
 export function Cities({ type }: { type: ObjectType }) {
   const animations = useStore(state => state.animations);
+  const getTruePositions = useStore(state => state.getTruePositions);
   return (
-    Object.entries(Object.keys(truePositions))
+    Object.entries(Object.keys(getTruePositions()))
       .map(([, cityName]) =>
         <City cityName={cityName as CityName} key={cityName} animation={animations[cityName as CityName] ?? null} type={type} />)
   );

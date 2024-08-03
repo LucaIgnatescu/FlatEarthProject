@@ -24,8 +24,10 @@ export const getFinalPositionSphere = (
   hoveredCityRef: Store['hoveredCityRef']
 ) => {
   if (animation === null) throw new Error("animation should not be null in getFinalPosition");
-  if (animation === 'global')
+  if (animation === 'global') {
+    if (!truePositions[cityName]) throw new Error("city does not exist");
     return polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
+  }
   if (animation === 'fixed') {
     const pos = citiesRef.current[cityName]?.position;
     if (pos === undefined) throw new Error("City does not exist")
