@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { ReactNode, useRef, useState } from "react";
-import { CatmullRomCurve3, Mesh, TubeGeometry, Vector3 } from "three";
-import { ObjectType, slerp, SPHERE_RADIUS } from "../utils";
+import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vector3 } from "three";
+import { ObjectType, slerp, SPHERE_RADIUS, useDistanceInfo } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 
@@ -22,15 +22,17 @@ function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
   return pts;
 }
 
-function Curve({ type, dest }: { type: ObjectType, dest: Vector3 }) {
+function Curve({ type, dest, cityName }: { type: ObjectType, dest: Vector3, cityName: CityName }) {
   const ref = useRef<Mesh>(null!);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const { realDistances, currDistances } = useDistanceInfo();
   useFrame(() => {
-    const base = hoveredCityRef.current?.mesh.position;
-    if (base === undefined) {
+    if (hoveredCityRef.current === null) {
       ref.current.visible = false;
       return;
     }
+    const base = hoveredCityRef.current.mesh.position;
+    const baseName = hoveredCityRef.current.name;
     ref.current.visible = true;
 
     const pts = generatePoints(type, base, dest);
@@ -39,13 +41,26 @@ function Curve({ type, dest }: { type: ObjectType, dest: Vector3 }) {
     const curve = new CatmullRomCurve3(pts);
 
     ref.current.geometry.dispose();
-    ref.current.geometry = new TubeGeometry(curve, 64, 0.05, 50, false);
+    ref.current.geometry = new TubeGeometry(curve, 64, 0.07, 50, false);
+    if (
+      realDistances[baseName] === undefined ||
+      realDistances[baseName][cityName] === undefined ||
+      currDistances[baseName] === undefined ||
+      currDistances[baseName][cityName] === undefined
+    ) throw new Error(`${baseName} or ${cityName} not found`)
+
+
+    const threshold = 2000;
+    const delta = Math.abs(realDistances[baseName][cityName] - currDistances[baseName][cityName]);
+    const color = delta < threshold ? 0x3acabb : 0xff8400;
+    const material = new MeshBasicMaterial({ color });
+    (ref.current.material as Material).dispose();
+    ref.current.material = material;
+
   });
 
-  const color = 0x3acabb; // TODO: Adjust color
   return (
     <mesh ref={ref}>
-      <meshBasicMaterial color={color} />
     </mesh>
   );
 }
@@ -66,7 +81,7 @@ export function Curves({ type }: { type: ObjectType }) {
     curvesRef.current = [];
     for (const cityName of Object.keys(citiesRef.current) as CityName[]) {
       if (cities[cityName]?.position === undefined) return;
-      curvesRef.current.push(<Curve dest={cities[cityName].position} key={cityName} type={type} />)
+      curvesRef.current.push(<Curve dest={cities[cityName].position} key={cityName} type={type} cityName={cityName} />)
     }
     setIsSet(true);
   })

@@ -3,6 +3,7 @@ import { createRef, MutableRefObject } from 'react';
 import { CityName, PolarCoords, truePositions } from './coordinates';
 import { Mesh } from 'three';
 import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
+import { Route } from './main';
 
 export type Distances = {
   [key in CityName]?: {
@@ -35,7 +36,7 @@ export type ContextMenu = {
 export type Positions = { [key in CityName]?: PolarCoords };
 
 export type Store = {
-  route: null | 'plane' | 'sphere'
+  route: null | Route
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
@@ -44,7 +45,7 @@ export type Store = {
   contextMenu: ContextMenu;
   isPicking: boolean;
   nCities: number;
-  updateRoute: (route: 'plane' | 'sphere') => void;
+  updateRoute: (route: Route) => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -75,7 +76,7 @@ const calculateDistancesPlane = (cities: CityTable) => {
 }
 
 
-const calculateDistancesSphere = (cities: CityTable) => { // FIX:
+const calculateDistancesSphere = (cities: CityTable) => {
   const currDistaces: Distances = {};
   for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
     for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
@@ -110,7 +111,7 @@ export const useStore = create<Store>((set, get) => ({
   contextMenu,
   isPicking,
   nCities,
-  updateRoute: (route: 'plane' | 'sphere') => {
+  updateRoute: (route: Route) => {
     get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
     get().updateIsDragging(false);

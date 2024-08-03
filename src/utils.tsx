@@ -36,7 +36,7 @@ export function totalDistance(distances: Distances) {
   return totalSum;
 }
 
-export function useUpdatedDistanceInfo() {
+export function useDistanceInfo() {
   const truePositions = useStore(state => state.getTruePositions)();
   const realDistances = computeRealDistances(truePositions);
   const currDistances = useStore(state => state.currDistances);

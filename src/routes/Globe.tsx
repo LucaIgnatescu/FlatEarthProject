@@ -12,9 +12,7 @@ import { EarthWrapper } from "../components/Earth";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
-  useLayoutEffect(() => {
-    updateRoute('sphere');
-  }
+  useLayoutEffect(() => { updateRoute('sphere') }
   );
   return (
     <>

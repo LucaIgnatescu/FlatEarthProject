@@ -7,6 +7,8 @@ import Globe from './routes/Globe.tsx';
 import Plane from './routes/Plane.tsx';
 import './index.css';
 
+export type Route = 'tutorial' | 'sphere' | 'plane'
+
 const router = createBrowserRouter([
   {
     path: "/",
