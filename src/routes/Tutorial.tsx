@@ -27,7 +27,7 @@ export default function Tutorial() {
             <ambientLight color={0xffffff} intensity={2} />
             <EarthWrapper EarthMesh={EarthMesh} />
             <Cities type="plane" CityMesh={CityMesh} />
-            <Curves type="plane" />
+            <Curves type="plane" radius={0.15} />
             <Sprites type="plane" generateLabels={alphabeticLabelStrategy} TextSprite={TextSprite} />
           </Canvas>
         </div>

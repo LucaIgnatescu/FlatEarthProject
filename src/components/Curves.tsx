@@ -22,7 +22,7 @@ function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
   return pts;
 }
 
-function Curve({ type, dest, cityName }: { type: ObjectType, dest: Vector3, cityName: CityName }) {
+function Curve({ type, dest, cityName, radius }: { type: ObjectType, dest: Vector3, cityName: CityName, radius?: number }) {
   const ref = useRef<Mesh>(null!);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const { realDistances, currDistances } = useDistanceInfo();
@@ -41,7 +41,7 @@ function Curve({ type, dest, cityName }: { type: ObjectType, dest: Vector3, city
     const curve = new CatmullRomCurve3(pts);
 
     ref.current.geometry.dispose();
-    ref.current.geometry = new TubeGeometry(curve, 64, 0.07, 50, false);
+    ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
     if (
       realDistances[baseName] === undefined ||
       realDistances[baseName][cityName] === undefined ||
@@ -65,7 +65,7 @@ function Curve({ type, dest, cityName }: { type: ObjectType, dest: Vector3, city
   );
 }
 
-export function Curves({ type }: { type: ObjectType }) {
+export function Curves({ type, radius }: { type: ObjectType, radius?: number }) {
   const [isSet, setIsSet] = useState(false);
   const curvesRef = useRef<ReactNode[]>([]);
   const citiesRef = useStore(state => state.citiesRef);
@@ -81,7 +81,7 @@ export function Curves({ type }: { type: ObjectType }) {
     curvesRef.current = [];
     for (const cityName of Object.keys(citiesRef.current) as CityName[]) {
       if (cities[cityName]?.position === undefined) return;
-      curvesRef.current.push(<Curve dest={cities[cityName].position} key={cityName} type={type} cityName={cityName} />)
+      curvesRef.current.push(<Curve dest={cities[cityName].position} key={cityName} radius={radius} type={type} cityName={cityName} />)
     }
     setIsSet(true);
   })
