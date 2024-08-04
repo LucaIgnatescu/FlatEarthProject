@@ -40,8 +40,6 @@ export function ContextMenu() {
           if (route === 'sphere') {
             startAnimation(updateAnimationState, updateHoveredCity, 'global', cityName);
             closeMenu();
-            updateHoveredCity(cityName);
-            updateAnimationState('global')
           } else {
             updateIsPicking(true);
           }

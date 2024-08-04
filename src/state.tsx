@@ -112,11 +112,12 @@ export const useStore = create<Store>((set, get) => ({
   isPicking,
   nCities,
   updateRoute: (route: Route) => {
+    get().nCities = nCities;
     get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
     get().updateIsDragging(false);
     get().updateAnimationState(null);
-    const calculateDistances = (route === 'plane') ? calculateDistancesPlane : calculateDistancesSphere;
+    const calculateDistances = (route === 'sphere') ? calculateDistancesSphere : calculateDistancesPlane;
     const updateCurrDistances = () => {
       const cities = get().citiesRef.current;
       if (!cities) return;

@@ -1,27 +1,70 @@
 import { ThreeEvent, useFrame } from "@react-three/fiber";
-import { MutableRefObject, useEffect, useRef } from "react";
-import { Mesh, Sprite } from "three";
+import { forwardRef, MutableRefObject, useEffect, useRef } from "react";
+import { Mesh } from "three";
 import { CityName, truePositions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
-import { useStore, AnimationStatus } from "../state";
+import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
-import { TextSprite } from "./TextSprite";
 
-export function Cities({ type }: { type: ObjectType }) {
-  const animations = useStore(state => state.animations);
+export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
+export type CityProps = {
+  onPointerMove: MouseEventHandler;
+  onPointerDown: MouseEventHandler;
+  onPointerLeave: MouseEventHandler;
+  onContextMenu: MouseEventHandler;
+};
+
+export type CityMesh = typeof DefaultCityMesh;
+
+export function Cities({ type, CityMesh }: { type: ObjectType, CityMesh?: CityMesh }) {
+  if (CityMesh === undefined) CityMesh = DefaultCityMesh;
   const getTruePositions = useStore(state => state.getTruePositions);
   return (
     Object.entries(Object.keys(getTruePositions()))
       .map(([, cityName]) =>
-        <City cityName={cityName as CityName} key={cityName} type={type} />)
+        <CityWrapper cityName={cityName as CityName} key={cityName} type={type} CityMesh={CityMesh} />)
   );
 }
 
-
-function City({ cityName, type }: { cityName: CityName, type: ObjectType }) {
+function CityWrapper({ cityName, type, CityMesh }: { cityName: CityName, type: ObjectType, CityMesh: CityMesh }) {
   const meshRef = useRef<Mesh>(null!);
-  const spriteRef = useRef<Sprite>(null!);
+  const props = useCreateHandlers(cityName, meshRef);
 
+  useAnimation(type, cityName, meshRef);
+  useSetupPosition(type, cityName, meshRef);
+
+  useFrame(() => {
+    const pos = meshRef.current.position;
+    if (pos.length() > CIRCLE_RADIUS) {
+      pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
+    }
+  })
+
+  return (<CityMesh {...props} ref={meshRef} />);
+}
+
+
+function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
+  const citiesRef = useStore(state => state.citiesRef);
+  const updateCities = useStore(state => state.updateCities);
+  useEffect(() => {
+    if (citiesRef.current[cityName] !== undefined) {
+      meshRef.current?.position.copy(citiesRef.current[cityName].position);
+    } else {
+      const { lat, lon } = truePositions[cityName];
+      if (type === 'sphere') {
+        const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS);
+        meshRef.current.position.copy(pos);
+      } else {
+        meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
+      }
+    }
+    updateCities(cityName, meshRef.current);
+  }, [type, citiesRef, meshRef, updateCities, cityName]);
+}
+
+
+function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>): CityProps {
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const isDragging = useStore(state => state.isDragging);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
@@ -33,19 +76,26 @@ function City({ cityName, type }: { cityName: CityName, type: ObjectType }) {
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const updateAnimationState = useStore(state => state.updateAnimationState);
 
-  const radius = type === 'sphere' ? 0.2 : 0.3;
-
-  useAnimation(type, cityName, meshRef);
-  useSetupPosition(type, cityName, meshRef, spriteRef);
-
-  useFrame(() => {
-    const pos = meshRef.current.position;
-    if (pos.length() > CIRCLE_RADIUS) {
-      pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
+  const onPointerDown = () => {
+    updateIsDragging(true);
+    if (isPicking) {
+      updateContextMenu({ ...contextMenu, anchor: cityName });
+      updateIsPicking(false);
+      startAnimation(updateAnimationState, updateHoveredCity, 'global');
     }
-  })
+  };
+  const onPointerLeave: MouseEventHandler = () => {
+    if (isDragging) return;
+    updateHoveredCity(null);
+  };
 
-  const onHover = (event: ThreeEvent<PointerEvent>) => {
+  const onContextMenu: MouseEventHandler = (ev) => {
+    updateMenuInfo({ cityName, mousePosition: [ev.nativeEvent.clientX, ev.nativeEvent.clientY], anchor: null, visible: true });
+    ev.nativeEvent.preventDefault();
+    ev.stopPropagation();
+  };
+
+  const onPointerMove: MouseEventHandler = (event) => {
     if (
       event.intersections.find(intersection => intersection.object.uuid === meshRef.current.uuid) &&
       cityName !== hoveredCityRef.current?.name &&
@@ -54,61 +104,15 @@ function City({ cityName, type }: { cityName: CityName, type: ObjectType }) {
       updateHoveredCity(cityName);
     }
   };
+  return { onPointerMove, onPointerDown, onPointerLeave, onContextMenu };
+}
 
-  const spriteArguments = {
-    fontsize: 30,
-    borderColor: { r: 225, g: 0, b: 0, a: 1.0 },
-    backgroundColor: { r: 225, g: 140, b: 0, a: 0.9 }
-  };
-
-  const capitalized = cityName.charAt(0).toUpperCase() + cityName.slice(1);
-
+// NOTE: This only exists because I don't know how to define the return type of this thing
+export const DefaultCityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {
+  const radius = 0.5;
   return (
-    <mesh ref={meshRef} position={[0, 0, 0]}
-      onPointerMove={onHover}
-      onPointerDown={() => {
-        updateIsDragging(true);
-        if (isPicking) {
-          updateContextMenu({ ...contextMenu, anchor: cityName });
-          updateIsPicking(false);
-          startAnimation(updateAnimationState, updateHoveredCity, 'global');
-        }
-      }}
-      onPointerLeave={() => {
-        if (isDragging) return;
-        updateHoveredCity(null);
-      }}
-      onContextMenu={(ev) => {
-        updateMenuInfo({ cityName, mousePosition: [ev.nativeEvent.clientX, ev.nativeEvent.clientY], anchor: null, visible: true });
-        ev.nativeEvent.preventDefault();
-        ev.stopPropagation();
-      }}
-    >
+    <mesh ref={meshRef} position={[0, 0, 0]} {...props} >
       <sphereGeometry args={[radius]} />
       <meshBasicMaterial color={"red"} />
-      <TextSprite message={capitalized} parameters={spriteArguments} ref={spriteRef} />
-    </mesh >
-  )
-}
-
-function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, spriteRef: MutableRefObject<Sprite>) {
-  const citiesRef = useStore(state => state.citiesRef);
-  const updateCities = useStore(state => state.updateCities);
-  useEffect(() => {
-    if (citiesRef.current[cityName] !== undefined) {
-      meshRef.current.position.copy(citiesRef.current[cityName].position);
-    } else {
-      const { lat, lon } = truePositions[cityName];
-      if (type === 'sphere') {
-        const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS);
-        meshRef.current.position.copy(pos);
-        spriteRef.current.position.copy(meshRef.current.position).multiplyScalar(0.08);// TODO: This needs to be done continuously
-      } else {
-        meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
-      }
-    }
-    updateCities(cityName, meshRef.current);
-
-  }, [type, citiesRef, meshRef, updateCities, cityName, spriteRef]);
-}
-
+    </mesh >);
+})

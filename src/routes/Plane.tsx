@@ -1,14 +1,15 @@
-import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
+import { Line, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
 import { useLayoutEffect, useMemo } from "react";
 import { TextureLoader, Vector3 } from "three";
 import { UIWrapper } from "../ui";
 import { CIRCLE_RADIUS } from "../utils";
-import { Stars } from "../components/shared";
-import { Cities } from "../components/Cities";
+import { Cities, DefaultCityMesh } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { useStore } from "../state";
 import { EarthWrapper } from "../components/Earth";
+import { Controls } from "../components/Controls";
+import { Stars } from "../components/Stars";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
@@ -19,7 +20,7 @@ export default function Plane() {
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
-        <Controls />
+        <Controls type="plane" />
         <ambientLight color={0xffffff} intensity={2} />
         <Cities type="plane" />
         <EarthWrapper EarthMesh={EarthMesh} />
@@ -32,16 +33,12 @@ export default function Plane() {
   );
 }
 
-function Controls() {
-  const isDragging = useStore(state => state.isDragging);
-  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} />
-}
 
 function EarthMesh({ dragCity, onPointerUp }: {
   dragCity: (event: ThreeEvent<PointerEvent>) => void,
   onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
 }) {
-  const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
+  const texture = useLoader(TextureLoader, '../../static/img/disk.png');
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}

@@ -6,6 +6,8 @@ export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
+export const RED = 0xff8400;
+export const GREEN = 0x3acabb;
 
 export type ObjectType = 'plane' | 'sphere';
 

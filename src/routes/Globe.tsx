@@ -1,14 +1,15 @@
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
-import { useLayoutEffect } from "react";
-import { TextureLoader, } from "three";
+import { forwardRef, useLayoutEffect } from "react";
+import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";
-import { Stars } from "../components/shared";
-import { Cities } from "../components/Cities";
+import { Cities, CityProps, DefaultCityMesh } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { useStore } from "../state";
 import { UIWrapper } from "../ui";
 import { EarthWrapper } from "../components/Earth";
+import { Stars } from "../components/Stars";
+import { Controls } from "../components/Controls";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -18,7 +19,7 @@ export default function Globe() {
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[15, 15, 15]} />
-        <Controls />
+        <Controls type="sphere" />
         <EarthWrapper EarthMesh={EarthMesh} />
         <Stars />
         <Cities type="sphere" />
@@ -30,10 +31,6 @@ export default function Globe() {
 }
 
 
-function Controls() {
-  const isDragging = useStore(state => state.isDragging);
-  return <OrbitControls enabled={!isDragging} enablePan={false} enableDamping dampingFactor={0.075} minDistance={50} maxDistance={200} rotateSpeed={0.5} />
-}
 
 function EarthMesh({ dragCity, onPointerUp }: {
   dragCity: (event: ThreeEvent<PointerEvent>) => void,
