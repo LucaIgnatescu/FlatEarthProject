@@ -4,12 +4,13 @@ import { useLayoutEffect, useMemo } from "react";
 import { TextureLoader, Vector3 } from "three";
 import { UIWrapper } from "../ui";
 import { CIRCLE_RADIUS } from "../utils";
-import { Cities, DefaultCityMesh } from "../components/Cities";
+import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { useStore } from "../state";
 import { EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
+import { Sprites } from "../components/TextSprite";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
@@ -27,6 +28,7 @@ export default function Plane() {
         <EarthWireframe />
         <Stars />
         <Curves type="plane" />
+        <Sprites type="plane" />
       </Canvas>
       <UIWrapper />
     </>

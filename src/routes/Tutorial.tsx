@@ -3,10 +3,11 @@ import { EarthWrapper } from "../components/Earth";
 import { CIRCLE_RADIUS, RED } from "../utils";
 import { useStore } from "../state";
 import { MapControls } from "@react-three/drei";
-import { RepeatWrapping, TextureLoader } from "three";
-import { useLayoutEffect } from "react";
-import { Cities } from "../components/Cities";
+import { Mesh, RepeatWrapping, Sprite, TextureLoader } from "three";
+import { forwardRef, useLayoutEffect } from "react";
+import { Cities, CityProps } from "../components/Cities";
 import { Curves } from "../components/Curves";
+import { alphabeticLabelStrategy, Sprites, TextSpriteFactory } from "../components/TextSprite";
 
 
 export default function Tutorial() {
@@ -25,8 +26,9 @@ export default function Tutorial() {
             <Controls />
             <ambientLight color={0xffffff} intensity={2} />
             <EarthWrapper EarthMesh={EarthMesh} />
-            <Cities type="plane" />
+            <Cities type="plane" CityMesh={CityMesh} />
             <Curves type="plane" />
+            <Sprites type="plane" generateLabels={alphabeticLabelStrategy} TextSprite={TextSprite} />
           </Canvas>
         </div>
         <div className="w-1/2 flex flex-col justify-center">
@@ -62,6 +64,17 @@ export function Controls() {
   const isDragging = useStore(state => state.isDragging);
   return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} /> // TODO: Set a decent position
 }
+
+export const CityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {
+  const radius = 1;
+  return (
+    <mesh ref={meshRef} position={[0, 0, 0]} {...props} >
+      <sphereGeometry args={[radius]} />
+      <meshBasicMaterial color={"red"} />
+    </mesh >);
+});
+
+const TextSprite = TextSpriteFactory({ fontsize: 50, scale: [20, 10, 1] });
 
 
 function Prompt() {

@@ -107,7 +107,6 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   return { onPointerMove, onPointerDown, onPointerLeave, onContextMenu };
 }
 
-// NOTE: This only exists because I don't know how to define the return type of this thing
 export const DefaultCityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {
   const radius = 0.5;
   return (
