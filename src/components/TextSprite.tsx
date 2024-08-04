@@ -109,7 +109,9 @@ export function Sprites({ type, generateLabels, TextSprite }: { type: ObjectType
     spritesRef.current = [];
     const labels = generateLabels(citiesRef);
     for (const cityName of Object.keys(labels) as CityName[]) {
-      spritesRef.current.push(<SpriteWrapper message={labels[cityName] ?? ""} cityName={cityName} type={type} TextSprite={TextSprite} />)
+      spritesRef.current.push(
+        <SpriteWrapper key={cityName} message={labels[cityName] ?? ""} cityName={cityName} type={type} TextSprite={TextSprite} />
+      )
     }
     setIsSet(true);
   })

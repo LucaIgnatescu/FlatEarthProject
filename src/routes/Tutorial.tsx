@@ -8,6 +8,7 @@ import { forwardRef, useLayoutEffect } from "react";
 import { Cities, CityProps } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites, TextSpriteFactory } from "../components/TextSprite";
+import { TotalError, UIWrapper } from "../components/UI";
 
 
 export default function Tutorial() {
@@ -21,7 +22,7 @@ export default function Tutorial() {
   return (
     <div className="flex h-full">
       <TaskManager>
-        <div className="w-1/2">
+        <div className="w-1/2 relative">
           <Canvas className="bg-black w-full" >
             <Controls />
             <ambientLight color={0xffffff} intensity={2} />
@@ -30,6 +31,12 @@ export default function Tutorial() {
             <Curves type="plane" radius={0.15} />
             <Sprites type="plane" generateLabels={alphabeticLabelStrategy} TextSprite={TextSprite} />
           </Canvas>
+          <UIWrapper>
+            <div className="w-full flex justify-center">
+
+              <TotalError />
+            </div>
+          </UIWrapper>
         </div>
         <div className="w-1/2 flex flex-col justify-center">
           <div className="flex w-full justify-center" >
@@ -78,10 +85,11 @@ const TextSprite = TextSpriteFactory({ fontsize: 50, scale: [20, 10, 1] });
 
 
 function Prompt() {
+  const textColor = "text-[#" + RED.toString(16) + '] ';
   return (
     <div className="text-lg p-10">
       <p>
-        On the left, there are two points, highlighed in <span className={`text-[#${RED.toString(16)}]`}>orange</span>.
+        On the left, there are two points, highlighed in <span className={textColor + ' '}>orange</span>.
         You can click and drag to move them.
       </p>
       <p>

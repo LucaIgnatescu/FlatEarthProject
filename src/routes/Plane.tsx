@@ -30,7 +30,6 @@ export default function Plane() {
         <Curves type="plane" />
         <Sprites type="plane" />
       </Canvas>
-      <UIWrapper />
     </>
   );
 }

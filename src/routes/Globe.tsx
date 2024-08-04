@@ -6,7 +6,6 @@ import { SPHERE_RADIUS } from "../utils";
 import { Cities, } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { useStore } from "../state";
-import { UIWrapper } from "../ui";
 import { EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
@@ -27,7 +26,6 @@ export default function Globe() {
         <Curves type="sphere" />
         <Sprites type="sphere" />
       </Canvas>
-      <UIWrapper />
     </>
   );
 }

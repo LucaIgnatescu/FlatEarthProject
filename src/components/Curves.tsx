@@ -50,7 +50,7 @@ function Curve({ type, dest, cityName, radius }: { type: ObjectType, dest: Vecto
     ) throw new Error(`${baseName} or ${cityName} not found`)
 
 
-    const threshold = 2000;
+    const threshold = 100;
     const delta = Math.abs(realDistances[baseName][cityName] - currDistances[baseName][cityName]);
     const color = delta < threshold ? GREEN : RED;
     const material = new MeshBasicMaterial({ color });
