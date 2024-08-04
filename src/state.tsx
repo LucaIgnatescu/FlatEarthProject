@@ -148,6 +148,8 @@ export const useStore = create<Store>((set, get) => ({
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationStatus, cityName?: CityName) => {
+    if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined) return;
+
     if (cityName === undefined) {
       return set({ animations: fillAnimationTable(status) });
     } else if (status === 'fixed') {

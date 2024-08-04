@@ -133,10 +133,9 @@ export const getFinalPositionPlane = (
   cityName: CityName,
   citiesRef: Store['citiesRef'],
   hoveredCityRef: Store['hoveredCityRef'],
-  anchors: [CityName | undefined, CityName | undefined]
+  anchors: [CityName | null, CityName | null]
 ) => {
   if (animation === 'global') {
-    if (anchors === undefined) throw new Error("no anchors set for global plane solution");
     const [city1, city2] = anchors;
     if (!city1 || !city2) throw new Error("animation should not be null in getFinalPosition");
     const pos1 = citiesRef.current[city1]?.position;

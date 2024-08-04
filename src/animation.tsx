@@ -3,7 +3,7 @@ import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
 import { useFrame } from "@react-three/fiber";
-import { useStore, AnimationStatus } from "./state";
+import { useStore, AnimationStatus, Store } from "./state";
 import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
@@ -23,7 +23,7 @@ function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: O
   return new Vector3().lerpVectors(source, dest, t);
 }
 
-export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, animation: AnimationStatus) {
+export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
   const animationTime = 2;
   const updateAnimationState = useStore(state => state.updateAnimationState);
@@ -31,6 +31,9 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const citiesRef = useStore(state => state.citiesRef);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const contextMenu = useStore(state => state.contextMenu);
+  const animations = useStore(state => state.animations);
+
+  const animation = animations[cityName] ?? null;
 
   useEffect(() => {
     if (animation !== null) {
@@ -72,3 +75,14 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     updateCurrDistances();
   });
 }
+
+export function startAnimation(
+  updateAnimationState: Store['updateAnimationState'],
+  updateHoveredCity: Store['updateHoveredCity'],
+  animation: AnimationStatus,
+  cityName?: CityName,
+) {
+  if (cityName) updateHoveredCity(cityName);
+  updateAnimationState(animation, cityName);
+}
+

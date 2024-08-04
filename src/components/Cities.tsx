@@ -4,7 +4,7 @@ import { Mesh, Sprite } from "three";
 import { CityName, truePositions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
 import { useStore, AnimationStatus } from "../state";
-import { useAnimation } from "../animation";
+import { startAnimation, useAnimation } from "../animation";
 import { TextSprite } from "./TextSprite";
 
 export function Cities({ type }: { type: ObjectType }) {
@@ -13,12 +13,12 @@ export function Cities({ type }: { type: ObjectType }) {
   return (
     Object.entries(Object.keys(getTruePositions()))
       .map(([, cityName]) =>
-        <City cityName={cityName as CityName} key={cityName} animation={animations[cityName as CityName] ?? null} type={type} />)
+        <City cityName={cityName as CityName} key={cityName} type={type} />)
   );
 }
 
 
-function City({ cityName, animation, type }: { cityName: CityName, animation: AnimationStatus, type: ObjectType }) {
+function City({ cityName, type }: { cityName: CityName, type: ObjectType }) {
   const meshRef = useRef<Mesh>(null!);
   const spriteRef = useRef<Sprite>(null!);
 
@@ -35,7 +35,7 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
 
   const radius = type === 'sphere' ? 0.2 : 0.3;
 
-  useAnimation(type, cityName, meshRef, animation);
+  useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef, spriteRef);
 
   useFrame(() => {
@@ -71,8 +71,7 @@ function City({ cityName, animation, type }: { cityName: CityName, animation: An
         if (isPicking) {
           updateContextMenu({ ...contextMenu, anchor: cityName });
           updateIsPicking(false);
-          updateAnimationState('global');
-          updateHoveredCity(cityName);
+          startAnimation(updateAnimationState, updateHoveredCity, 'global');
         }
       }}
       onPointerLeave={() => {
@@ -103,10 +102,10 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
       if (type === 'sphere') {
         const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS);
         meshRef.current.position.copy(pos);
+        spriteRef.current.position.copy(meshRef.current.position).multiplyScalar(0.08);// TODO: This needs to be done continuously
       } else {
         meshRef.current.position.set(lat / 3 + sca(), 0, lon / 3 + sca());
       }
-      spriteRef.current.position.copy(meshRef.current.position).multiplyScalar(0.08);
     }
     updateCities(cityName, meshRef.current);
 

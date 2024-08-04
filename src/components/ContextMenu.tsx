@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useStore } from "../state";
+import { startAnimation } from "../animation";
 
 export function ContextMenu() {
   const contextMenu = useStore(state => state.contextMenu);
@@ -29,8 +30,7 @@ export function ContextMenu() {
       ref={ref}
     >
       <button onClick={() => {
-        updateAnimationState('fixed', cityName);
-        updateHoveredCity(cityName);
+        startAnimation(updateAnimationState, updateHoveredCity, 'fixed', cityName);
         closeMenu();
       }}>
         Solve City
@@ -38,6 +38,7 @@ export function ContextMenu() {
       <button className="border-l border-l-gray-500"
         onClick={() => {
           if (route === 'sphere') {
+            startAnimation(updateAnimationState, updateHoveredCity, 'global', cityName);
             closeMenu();
             updateHoveredCity(cityName);
             updateAnimationState('global')
