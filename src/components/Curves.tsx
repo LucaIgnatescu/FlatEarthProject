@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { ReactNode, useRef, useState } from "react";
 import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vector3 } from "three";
-import { GREEN, ObjectType, RED, slerp, SPHERE_RADIUS, useDistanceInfo } from "../utils";
+import { GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS, useDistanceInfo } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 
@@ -52,7 +52,7 @@ function Curve({ type, dest, cityName, radius }: { type: ObjectType, dest: Vecto
 
     const threshold = 100;
     const delta = Math.abs(realDistances[baseName][cityName] - currDistances[baseName][cityName]);
-    const color = delta < threshold ? GREEN : RED;
+    const color = delta < threshold ? GREEN : ORANGE;
     const material = new MeshBasicMaterial({ color });
     (ref.current.material as Material).dispose();
     ref.current.material = material;

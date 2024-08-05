@@ -2,7 +2,7 @@ import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subt
 import { getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
-import { AnimationStatus, Store } from "../state";
+import { AnimationType, Positions, Store } from "../state";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -72,11 +72,12 @@ type ConfigParams = {
   city2: {
     name: CityName,
     position: Vector3
-  }
+  },
+  positions: Positions
 };
 
 export const getPlanarSolution = (params: ConfigParams) => {
-  const distances = getRealDistances();
+  const distances = getRealDistances(params.positions);
   const citiesArray = Object.keys(distances) as CityName[]; // NOTE: used to match distance matrix to cities
   const n = citiesArray.length;
 
@@ -129,10 +130,11 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
 }
 
 export const getFinalPositionPlane = (
-  animation: AnimationStatus,
+  animation: AnimationType,
   cityName: CityName,
   citiesRef: Store['citiesRef'],
   hoveredCityRef: Store['hoveredCityRef'],
+  getTruePositions: Store['getTruePositions'],
   anchors: [CityName | null, CityName | null]
 ) => {
   if (animation === 'global') {
@@ -141,6 +143,7 @@ export const getFinalPositionPlane = (
     const pos1 = citiesRef.current[city1]?.position;
     const pos2 = citiesRef.current[city2]?.position;
     if (pos1 === undefined || pos2 === undefined) throw new Error("City does not exist");
+    const positions = getTruePositions();
     const params: ConfigParams = {
       city1: {
         name: city1,
@@ -149,7 +152,8 @@ export const getFinalPositionPlane = (
       city2: {
         name: city2,
         position: new Vector3().copy(pos2)
-      }
+      },
+      positions
     };
     return getPositionMDS(cityName, params);
   }

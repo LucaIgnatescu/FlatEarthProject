@@ -18,7 +18,7 @@ type TextureParameters = {
 
 type SpriteArguments = { message: string, parameters?: TextureParameters, position?: [number, number, number] };
 type Labels = { [key in CityName]?: string };
-type GenerateLabelsStrategy = (cities: Store['citiesRef']) => Labels;
+type GenerateLabelsStrategy = (citiesRef: Store['citiesRef']) => Labels;
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();

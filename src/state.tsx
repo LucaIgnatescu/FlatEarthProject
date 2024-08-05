@@ -20,10 +20,10 @@ export type HoveredCityInfo = {
   mesh: Mesh;
 }
 
-export type AnimationStatus = 'fixed' | 'moving' | 'global' | null;
+export type AnimationType = 'fixed' | 'moving' | 'global' | null;
 
 export type Animations = {
-  [key in CityName]: AnimationStatus;
+  [key in CityName]: AnimationType;
 };
 
 export type ContextMenu = {
@@ -51,14 +51,14 @@ export type Store = {
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
   updateIsDragging: (isDragging: boolean) => void;
-  updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
+  updateAnimationState: (status: AnimationType, cityName?: CityName) => void;
   updateContextMenu: (menu: ContextMenu) => void;
   updateIsPicking: (isPicking: boolean) => void;
   updateNCities: (nCities: number) => void;
   getTruePositions: () => Positions;
 }
 
-const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
+const fillAnimationTable = (val: AnimationType) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
 
 
 const calculateDistancesPlane = (cities: CityTable) => {
@@ -148,7 +148,7 @@ export const useStore = create<Store>((set, get) => ({
     get().updateCurrDistances();
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
-  updateAnimationState: (status: AnimationStatus, cityName?: CityName) => {
+  updateAnimationState: (status: AnimationType, cityName?: CityName) => {
     if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined) return;
 
     if (cityName === undefined) {

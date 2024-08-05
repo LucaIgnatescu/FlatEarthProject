@@ -10,6 +10,9 @@ import { EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
+import { UIWrapper } from "../components/UI";
+import { ContextMenu } from "../components/ContextMenu";
+import { AnchorPrompt } from "../components/AnchorPrompt";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -26,11 +29,13 @@ export default function Globe() {
         <Curves type="sphere" />
         <Sprites type="sphere" />
       </Canvas>
+      <UIWrapper>
+        <ContextMenu />
+        <AnchorPrompt />
+      </UIWrapper>
     </>
   );
 }
-
-
 
 function EarthMesh({ dragCity, onPointerUp }: {
   dragCity: (event: ThreeEvent<PointerEvent>) => void,

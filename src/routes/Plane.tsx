@@ -2,7 +2,6 @@ import { Line, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
 import { useLayoutEffect, useMemo } from "react";
 import { TextureLoader, Vector3 } from "three";
-import { UIWrapper } from "../ui";
 import { CIRCLE_RADIUS } from "../utils";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
@@ -11,6 +10,9 @@ import { EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites } from "../components/TextSprite";
+import { ContextMenu } from "../components/ContextMenu";
+import { UIWrapper } from "../components/UI";
+import { AnchorPrompt } from "../components/AnchorPrompt";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
@@ -30,6 +32,10 @@ export default function Plane() {
         <Curves type="plane" />
         <Sprites type="plane" />
       </Canvas>
+      <UIWrapper>
+        <ContextMenu />
+        <AnchorPrompt />
+      </UIWrapper>
     </>
   );
 }

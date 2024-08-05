@@ -1,4 +1,4 @@
-import { AnimationStatus, Store } from "../state";
+import { AnimationType, Store } from "../state";
 import { CityName, truePositions } from "../coordinates";
 import { cartesianToPolar, EARTH_RADIUS, getRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
 import { Vector3 } from "three";
@@ -18,7 +18,7 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
 }
 
 export const getFinalPositionSphere = (
-  animation: AnimationStatus,
+  animation: AnimationType,
   cityName: CityName,
   citiesRef: Store['citiesRef'],
   hoveredCityRef: Store['hoveredCityRef']

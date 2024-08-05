@@ -6,7 +6,7 @@ export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
-export const RED = 0xff8400;
+export const ORANGE = 0xff8400;
 export const GREEN = 0x3acabb;
 
 export type ObjectType = 'plane' | 'sphere';
@@ -62,17 +62,16 @@ function computeRealDistances(truePositions: Positions): Distances {
 }
 
 
-const realDistances: Distances = {};
-export function getRealDistances(): Distances {
-  if (Object.keys(realDistances).length === 0) {
-    for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-      for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-        const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
-        if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
-        if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
-        realDistances[cityName1][cityName2] = distance;
-        realDistances[cityName2][cityName1] = distance;
-      }
+export function getRealDistances(positions?: Positions): Distances {
+  if (positions === undefined) positions = truePositions;
+  const realDistances: Distances = {};
+  for (const [cityName1, cityMesh1] of Object.entries(positions) as [CityName, PolarCoords][]) {
+    for (const [cityName2, cityMesh2] of Object.entries(positions) as [CityName, PolarCoords][]) {
+      const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
+      if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
+      if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
+      realDistances[cityName1][cityName2] = distance;
+      realDistances[cityName2][cityName1] = distance;
     }
   }
   return realDistances;

@@ -3,9 +3,10 @@ import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
 import { useFrame } from "@react-three/fiber";
-import { useStore, AnimationStatus, Store } from "./state";
+import { useStore, AnimationType, Store } from "./state";
 import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
+import { Vector } from "three/examples/jsm/Addons.js";
 
 type AnimationData = {
   source: Vector3,
@@ -23,6 +24,33 @@ function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: O
   return new Vector3().lerpVectors(source, dest, t);
 }
 
+// Need to be able to:
+// AnimationObject -> interface
+// source
+// dest 
+// elapsed
+// .getFinalPosition()
+// .getIntermediatePoint()
+// .addTime()
+//
+// Kinds of AnimationObjects -> different logic for each
+// GlobalAnimationObject
+// NullAnimationObject
+// MovingAnimationObject
+//
+// useAnimationObject() hook that creates the needed Animation Object based on AnimationType and ObjectType
+//
+type AnimationInterface = {
+  getIntermediatepoint: () => Vector3;
+  addTime: () => void;
+  getFinalPosition: () => Vector3;
+  [key: string]: unknown;
+}
+
+function useAnimationObject(type: ObjectType, animation: AnimationType): AnimationInterface {
+  // https://refactoring.guru/design-patterns/factory-method  
+}
+
 export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
   const animationTime = 2;
@@ -32,17 +60,17 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const contextMenu = useStore(state => state.contextMenu);
   const animations = useStore(state => state.animations);
-
+  const getTruePositions = useStore(state => state.getTruePositions);
   const animation = animations[cityName] ?? null;
 
-  useEffect(() => {
+  useEffect(() => { // FIX: Weird interactions if i rightclick when animating
     if (animation !== null) {
       const source = new Vector3().copy(meshRef.current.position);
       let dest;
       if (type === 'sphere') {
         dest = getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
       } else {
-        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, [contextMenu.cityName, contextMenu.anchor])
+        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, getTruePositions, [contextMenu.cityName, contextMenu.anchor])
       }
       if (source.distanceTo(dest) > 0.01) {
         animationData.current = {
@@ -57,7 +85,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     else {
       animationData.current = null;
     }
-  }, [animation, meshRef, cityName, type, contextMenu, citiesRef, hoveredCityRef, updateAnimationState]);
+  }, [animation, meshRef, cityName, type, contextMenu, getTruePositions, citiesRef, hoveredCityRef, updateAnimationState]);
 
   useFrame((_, delta) => {
     if (animationData.current === null) return;
@@ -79,7 +107,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
 export function startAnimation(
   updateAnimationState: Store['updateAnimationState'],
   updateHoveredCity: Store['updateHoveredCity'],
-  animation: AnimationStatus,
+  animation: AnimationType,
   cityName?: CityName,
 ) {
   if (cityName) updateHoveredCity(cityName);
