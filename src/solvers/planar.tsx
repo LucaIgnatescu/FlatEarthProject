@@ -1,5 +1,5 @@
 import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
-import { getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
+import { computeRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationType, Positions, Store } from "../state";
@@ -62,22 +62,8 @@ const centerSolution = (numbers: number[][], citiesArray: CityName[], params: Co
 }
 
 
-type Configuration = { [key in CityName]: Vector3 };
-
-type ConfigParams = {
-  city1: {
-    name: CityName,
-    position: Vector3
-  },
-  city2: {
-    name: CityName,
-    position: Vector3
-  },
-  positions: Positions
-};
-
 export const getPlanarSolution = (params: ConfigParams) => {
-  const distances = getRealDistances(params.positions);
+  const distances = computeRealDistances(params.positions);
   const citiesArray = Object.keys(distances) as CityName[]; // NOTE: used to match distance matrix to cities
   const n = citiesArray.length;
 
@@ -98,11 +84,26 @@ export const getPlanarSolution = (params: ConfigParams) => {
   return ans;
 }
 
+
+
+type Configuration = { [key in CityName]: Vector3 };
+
+type ConfigParams = {
+  city1: {
+    name: CityName,
+    position: Vector3
+  },
+  city2: {
+    name: CityName,
+    position: Vector3
+  },
+  positions: Positions
+};
+
 type Singleton = { // NOTE: typescript error forced me to write it like this
   solution: Configuration | null;
   prevParams: ConfigParams | null;
 };
-
 
 const singleton: Singleton = { solution: null, prevParams: null };
 
@@ -121,7 +122,7 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
   const baseMesh = hoveredCity.mesh;
   const distance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
   // @ts-expect-error: getRealDistances returns a complete table
-  const trueDistance = getRealDistances()[cityName][hoveredCity.name] as number;
+  const trueDistance = computeRealDistances()[cityName][hoveredCity.name] as number;
 
   const base = new Vector3().copy(baseMesh.position);
   const dest = new Vector3().copy(destMesh.position);
@@ -134,7 +135,7 @@ export const getFinalPositionPlane = (
   cityName: CityName,
   citiesRef: Store['citiesRef'],
   hoveredCityRef: Store['hoveredCityRef'],
-  getTruePositions: Store['getTruePositions'],
+  positions: Positions,
   anchors: [CityName | null, CityName | null]
 ) => {
   if (animation === 'global') {
@@ -143,7 +144,6 @@ export const getFinalPositionPlane = (
     const pos1 = citiesRef.current[city1]?.position;
     const pos2 = citiesRef.current[city2]?.position;
     if (pos1 === undefined || pos2 === undefined) throw new Error("City does not exist");
-    const positions = getTruePositions();
     const params: ConfigParams = {
       city1: {
         name: city1,

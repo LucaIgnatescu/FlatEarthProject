@@ -47,22 +47,7 @@ export function useDistanceInfo() {
   return { realDistances, currDistances, totalCurr, totalReal };
 }
 
-function computeRealDistances(truePositions: Positions): Distances {
-  const ans: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-      const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
-      if (ans[cityName1] === undefined) ans[cityName1] = {};
-      if (ans[cityName2] === undefined) ans[cityName2] = {};
-      ans[cityName1][cityName2] = distance;
-      ans[cityName2][cityName1] = distance;
-    }
-  }
-  return ans;
-}
-
-
-export function getRealDistances(positions?: Positions): Distances {
+export function computeRealDistances(positions?: Positions): Distances {
   if (positions === undefined) positions = truePositions;
   const realDistances: Distances = {};
   for (const [cityName1, cityMesh1] of Object.entries(positions) as [CityName, PolarCoords][]) {
@@ -107,3 +92,4 @@ export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assume
     dest.multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
   );
 }
+

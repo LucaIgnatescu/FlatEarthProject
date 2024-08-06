@@ -1,6 +1,6 @@
 import { AnimationType, Store } from "../state";
 import { CityName, truePositions } from "../coordinates";
-import { cartesianToPolar, EARTH_RADIUS, getRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
+import { cartesianToPolar, EARTH_RADIUS, computeRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
 import { Vector3 } from "three";
 
 const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
@@ -10,7 +10,7 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
   const baseMesh = hoveredCity.mesh;
   const distance = sphericalDistance(cartesianToPolar(baseMesh.position, SPHERE_RADIUS), cartesianToPolar(destMesh.position, SPHERE_RADIUS), EARTH_RADIUS);
   // @ts-expect-error: getRealDistances returns a complete table
-  const trueDistance = getRealDistances()[cityName][hoveredCity.name] as number;
+  const trueDistance = computeRealDistances()[cityName][hoveredCity.name] as number;
   const base = new Vector3().copy(baseMesh.position).normalize();
   const dest = new Vector3().copy(destMesh.position).normalize();
   const pos = slerp(base, dest, trueDistance / distance).multiplyScalar(SPHERE_RADIUS);

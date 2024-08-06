@@ -45,17 +45,20 @@ export type Store = {
   contextMenu: ContextMenu;
   isPicking: boolean;
   nCities: number;
+  isAnimating: boolean;
   updateRoute: (route: Route) => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
   updateIsDragging: (isDragging: boolean) => void;
-  updateAnimationState: (status: AnimationType, cityName?: CityName) => void;
+  updateAnimationState: (status: AnimationType, cityName?: CityName) => boolean;
   updateContextMenu: (menu: ContextMenu) => void;
   updateIsPicking: (isPicking: boolean) => void;
   updateNCities: (nCities: number) => void;
   getTruePositions: () => Positions;
+  updateIsAnimating: (isAnimating: boolean) => void;
+  reset: () => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -99,10 +102,14 @@ const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
 const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
 const isPicking = false;
+const isAnimating = false;
 const nCities = 8;
+const updateCurrDistances = () => { throw new Error('route not set properly') };
+const route = null;
 citiesRef.current = {};
+
 export const useStore = create<Store>((set, get) => ({
-  route: null,
+  route,
   citiesRef,
   hoveredCityRef,
   isDragging,
@@ -111,12 +118,17 @@ export const useStore = create<Store>((set, get) => ({
   contextMenu,
   isPicking,
   nCities,
-  updateRoute: (route: Route) => {
+  isAnimating,
+  reset: () => {
     get().nCities = nCities;
     get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
-    get().updateIsDragging(false);
+    get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
+    set({ isAnimating, isDragging, contextMenu, route })
+  },
+  updateRoute: (route: Route) => {
+    get().reset();
     const calculateDistances = (route === 'sphere') ? calculateDistancesSphere : calculateDistancesPlane;
     const updateCurrDistances = () => {
       const cities = get().citiesRef.current;
@@ -125,7 +137,7 @@ export const useStore = create<Store>((set, get) => ({
     }
     set({ updateCurrDistances, route });
   },
-  updateCurrDistances: () => { throw new Error('route not set properly') },
+  updateCurrDistances,
   updateCities: (name: CityName, city: Mesh) => {
     get().citiesRef.current[name] = city;
     get().updateCurrDistances();
@@ -149,18 +161,21 @@ export const useStore = create<Store>((set, get) => ({
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationType, cityName?: CityName) => {
-    if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined) return;
-
+    if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined)
+      return false;
     if (cityName === undefined) {
-      return set({ animations: fillAnimationTable(status) });
-    } else if (status === 'fixed') {
+      set({ animations: fillAnimationTable(status) });
+      return true;
+    }
+    if (status === 'fixed') {
       const animations = fillAnimationTable('moving');
       animations[cityName] = 'fixed';
       set({ animations });
-    } else {
-      return set((state) =>
-        ({ animations: { ...state.animations, [cityName]: status } }));
+      return true;
     }
+    set((state) => ({ animations: { ...state.animations, [cityName]: status } }));
+
+    return true;
   },
   updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
   updateIsPicking: (isPicking: boolean) => set({ isPicking }),
@@ -175,5 +190,6 @@ export const useStore = create<Store>((set, get) => ({
       ans[key] = truePositions[key];
     }
     return ans;
-  }
+  },
+  updateIsAnimating: (isAnimating: boolean) => set({ isAnimating })
 }));

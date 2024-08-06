@@ -10,10 +10,11 @@ export function ContextMenu() {
   const updateAnimationState = useStore(state => state.updateAnimationState);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const updateIsPicking = useStore(state => state.updateIsPicking);
+  const isAnimating = useStore(state => state.isAnimating);
 
   const { cityName } = contextMenu;
 
-  if (contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
+  if (isAnimating || contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
     return null;
   }
 

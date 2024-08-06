@@ -41,7 +41,7 @@ export function Tutorial4() {
       </div>
       <div className="w-1/2 flex flex-col justify-center">
         <div className="flex w-full justify-center" >
-          <div className="*:my-10">
+          <div className="*:my-10 p-10">
             <Prompt />
             <ContinueButton dest="/tutorial/5" />
           </div>

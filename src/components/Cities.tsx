@@ -75,10 +75,12 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   const contextMenu = useStore(state => state.contextMenu);
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const updateAnimationState = useStore(state => state.updateAnimationState);
+  const animations = useStore(state => state.animations);
 
   const onPointerDown = () => {
     updateIsDragging(true);
     if (isPicking) {
+      if (contextMenu.cityName === cityName) return;
       updateContextMenu({ ...contextMenu, anchor: cityName });
       updateIsPicking(false);
       startAnimation(updateAnimationState, updateHoveredCity, 'global');
@@ -90,9 +92,8 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   };
 
   const onContextMenu: MouseEventHandler = (ev) => {
-    updateMenuInfo({ cityName, mousePosition: [ev.nativeEvent.clientX, ev.nativeEvent.clientY], anchor: null, visible: true });
     ev.nativeEvent.preventDefault();
-    ev.stopPropagation();
+    updateMenuInfo({ cityName, mousePosition: [ev.nativeEvent.clientX, ev.nativeEvent.clientY], anchor: null, visible: true });
   };
 
   const onPointerMove: MouseEventHandler = (event) => {
