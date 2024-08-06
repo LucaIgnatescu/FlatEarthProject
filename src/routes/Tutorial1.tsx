@@ -6,6 +6,7 @@ import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { ContinueButton, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
+import { PerspectiveCamera } from "@react-three/drei";
 
 
 export function Tutorial1() {
@@ -21,6 +22,7 @@ export function Tutorial1() {
         <Canvas className="bg-black w-full" >
           <TutorialControls />
           <ambientLight color={0xffffff} intensity={2} />
+          <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
           <EarthWrapper EarthMesh={TutorialEarthMesh} />
           <Cities type="plane" CityMesh={TutorialCityMesh} />
           <Sprites type="plane" generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
