@@ -134,19 +134,20 @@ export const useStore = create<Store>((set, get) => ({
   updateRoute: (route: Route) => {
     get().reset();
     get().citiesRef.current = {};
+
     const calculateDistances = (route === 'sphere') ? calculateDistancesSphere : calculateDistancesPlane;
     const updateCurrDistances = () => {
       const cities = get().citiesRef.current;
       if (!cities) return;
       set({ currDistances: calculateDistances(cities) });
     }
-    set({ updateCurrDistances, route });
+    set({ updateCurrDistances, route, nRenderedCities });
   },
   updateCurrDistances,
   updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
     const cities = get().citiesRef.current;
     if (remove === true) {
-      if (cities[name] === undefined) throw new Error("city does not exist");
+      if (cities[name] === undefined) return;
       delete cities[name];
       set(state => ({ nRenderedCities: state.nRenderedCities - 1 }))
     } else {

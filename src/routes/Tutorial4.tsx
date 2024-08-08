@@ -45,7 +45,7 @@ export function Tutorial4() {
         <div className="flex w-full justify-center" >
           <div className="*:my-10 p-10">
             <Prompt />
-            <ContinueButton dest="/tutorial/5" />
+            <ContinueButton dest="/plane" />
             <CitySlider />
           </div>
         </div>

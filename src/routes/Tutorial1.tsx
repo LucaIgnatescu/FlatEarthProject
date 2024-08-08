@@ -33,7 +33,6 @@ export function Tutorial1() {
           <div className="*:my-10 p-10">
             <Prompt />
             <ContinueButton dest="/tutorial/2" />
-            <CitySlider />
           </div>
         </div>
       </div>

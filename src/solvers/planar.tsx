@@ -25,7 +25,7 @@ const MDS = (distances: number[][]) => {
   const B = multiply(-0.5, multiply(C, multiply(D, C)));
   const { eigenvectors } = eigs(B);
 
-  eigenvectors.sort(eigenvector => eigenvector.value as number);
+  eigenvectors.sort(eigenvector => eigenvector.value as number); // BUG: These are not always normalized
 
   const e1 = eigenvectors[eigenvectors.length - 1];
   const e2 = eigenvectors[eigenvectors.length - 2];
@@ -74,7 +74,11 @@ export const getPlanarSolution = (params: ConfigParams) => {
       mat[i][j] = distances[citiesArray[i]][citiesArray[j]] / SCALE_FACTOR;
     }
   }
-  const sol = centerSolution(MDS(mat), citiesArray, params);
+  // console.log(MDS(mat));
+  // const sol = centerSolution(MDS(mat), citiesArray, params);
+  // console.log(sol);
+  const sol = transpose(MDS(mat));
+  console.log(sol);
   // @ts-expect-error: avoid using reduce
   const ans: Configuration = {};
   for (let i = 0; i < citiesArray.length; i++) {
