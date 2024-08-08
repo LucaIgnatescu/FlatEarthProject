@@ -1,5 +1,7 @@
-import { redirect, u, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDistanceInfo } from "../utils";
+import { useStore } from "../state";
+import { positions } from "../coordinates";
 
 export function TotalError() {
   const { totalReal, totalCurr } = useDistanceInfo();
@@ -27,4 +29,14 @@ export function ContinueButton({ dest }: { dest: string }) {
       Continue
     </button>
   )
+}
+
+export function CitySlider() {
+  const updateNCities = useStore(state => state.updateNCities)
+  const nCities = useStore(state => state.nCities);
+  return (
+    <input type='range' min='1' max={Object.keys(positions).length} value={nCities}
+      onChange={(event) => updateNCities(+event.target.value)}
+    />
+  );
 }

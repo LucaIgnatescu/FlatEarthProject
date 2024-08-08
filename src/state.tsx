@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createRef, MutableRefObject } from 'react';
-import { CityName, PolarCoords, truePositions } from './coordinates';
+import { CityName, PolarCoords, positions } from './coordinates';
 import { Mesh } from 'three';
 import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
 import { Route } from './main';
@@ -46,9 +46,11 @@ export type Store = {
   isPicking: boolean;
   nCities: number;
   isAnimating: boolean;
+  truePositions: Positions;
+  nRenderedCities: number;
   updateRoute: (route: Route) => void;
   updateCurrDistances: () => void;
-  updateCities: (name: CityName, city: Mesh) => void;
+  updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number) => void;
   updateIsDragging: (isDragging: boolean) => void;
@@ -56,12 +58,11 @@ export type Store = {
   updateContextMenu: (menu: ContextMenu) => void;
   updateIsPicking: (isPicking: boolean) => void;
   updateNCities: (nCities: number) => void;
-  getTruePositions: () => Positions;
   updateIsAnimating: (isAnimating: boolean) => void;
   reset: () => void;
 }
 
-const fillAnimationTable = (val: AnimationType) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
+const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
 
 
 const calculateDistancesPlane = (cities: CityTable) => {
@@ -103,9 +104,11 @@ const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
 const isPicking = false;
 const isAnimating = false;
-const nCities = 8;
+const nCities = 7;
 const updateCurrDistances = () => { throw new Error('route not set properly') };
 const route = null;
+const truePositions = {};
+const nRenderedCities = 0;
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -119,16 +122,18 @@ export const useStore = create<Store>((set, get) => ({
   isPicking,
   nCities,
   isAnimating,
+  nRenderedCities,
+  truePositions: truePositions,
   reset: () => {
-    get().nCities = nCities;
-    get().citiesRef.current = {};
+    // get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
-    set({ isAnimating, isDragging, contextMenu, route })
+    set({ isAnimating, isDragging, contextMenu, route, nCities, truePositions })
   },
   updateRoute: (route: Route) => {
     get().reset();
+    get().citiesRef.current = {};
     const calculateDistances = (route === 'sphere') ? calculateDistancesSphere : calculateDistancesPlane;
     const updateCurrDistances = () => {
       const cities = get().citiesRef.current;
@@ -138,8 +143,16 @@ export const useStore = create<Store>((set, get) => ({
     set({ updateCurrDistances, route });
   },
   updateCurrDistances,
-  updateCities: (name: CityName, city: Mesh) => {
-    get().citiesRef.current[name] = city;
+  updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
+    const cities = get().citiesRef.current;
+    if (remove === true) {
+      if (cities[name] === undefined) throw new Error("city does not exist");
+      delete cities[name];
+      set(state => ({ nRenderedCities: state.nRenderedCities - 1 }))
+    } else {
+      cities[name] = city;
+      set(state => ({ nRenderedCities: state.nRenderedCities + 1 }))
+    }
     get().updateCurrDistances();
   },
   updateHoveredCity: (name: CityName | null) => {
@@ -179,17 +192,18 @@ export const useStore = create<Store>((set, get) => ({
   },
   updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
   updateIsPicking: (isPicking: boolean) => set({ isPicking }),
-  updateNCities: (nCities: number) => set({ nCities }),
-  getTruePositions: () => {
-    const n = get().nCities;
-    if (n === undefined) return truePositions;
-    const keys = Object.keys(truePositions) as CityName[];
-    const ans: { [key in CityName]?: PolarCoords } = {};
+  updateNCities: (nCities: number) => {
+    get().reset();
+    set({ nCities });
+    const n = nCities;
+    if (n === undefined) return positions;
+    const keys = Object.keys(positions) as CityName[];
+    const truePositions: { [key in CityName]?: PolarCoords } = {};
     for (let i = 0; i < n; i++) {
       const key = keys[i];
-      ans[key] = truePositions[key];
+      truePositions[key] = positions[key];
     }
-    return ans;
+    set({ truePositions });
   },
   updateIsAnimating: (isAnimating: boolean) => set({ isAnimating })
 }));

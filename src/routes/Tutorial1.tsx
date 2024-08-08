@@ -4,7 +4,7 @@ import { useStore } from "../state";
 import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { ContinueButton, TotalError, UIWrapper } from "../components/UI";
+import { CitySlider, ContinueButton, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 
@@ -33,6 +33,7 @@ export function Tutorial1() {
           <div className="*:my-10 p-10">
             <Prompt />
             <ContinueButton dest="/tutorial/2" />
+            <CitySlider />
           </div>
         </div>
       </div>

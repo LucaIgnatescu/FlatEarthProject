@@ -50,7 +50,7 @@ function Curve({ type, dest, cityName, radius }: { type: ObjectType, dest: Vecto
     ) throw new Error(`${baseName} or ${cityName} not found`)
 
 
-    const threshold = 100;
+    const threshold = 50;
     const delta = Math.abs(realDistances[baseName][cityName] - currDistances[baseName][cityName]);
     const color = delta < threshold ? GREEN : ORANGE;
     const material = new MeshBasicMaterial({ color });
@@ -66,25 +66,12 @@ function Curve({ type, dest, cityName, radius }: { type: ObjectType, dest: Vecto
 }
 
 export function Curves({ type, radius }: { type: ObjectType, radius?: number }) {
-  const [isSet, setIsSet] = useState(false);
-  const curvesRef = useRef<ReactNode[]>([]);
   const citiesRef = useStore(state => state.citiesRef);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
-  const getTruePositions = useStore(state => state.getTruePositions);
-  useFrame(() => {
-    if (
-      isSet ||
-      hoveredCityRef.current === null || citiesRef.current == null ||
-      Object.keys(citiesRef.current).length !== Object.keys(getTruePositions()).length
-    ) return;
-    const cities = citiesRef.current;
-    curvesRef.current = [];
-    for (const cityName of Object.keys(citiesRef.current) as CityName[]) {
-      if (cities[cityName]?.position === undefined) return;
-      curvesRef.current.push(<Curve dest={cities[cityName].position} key={cityName} radius={radius} type={type} cityName={cityName} />)
-    }
-    setIsSet(true);
-  })
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  const nCities = useStore(state => state.nCities);
+  if (nCities !== nRenderedCities) return null;
 
-  return curvesRef.current;
+  return Object.keys(citiesRef.current).map(cityName =>
+    <Curve dest={citiesRef.current[cityName as CityName]?.position ?? new Vector3(0, 0, 0)} key={cityName} radius={radius} type={type} cityName={cityName as CityName} />
+  )
 }

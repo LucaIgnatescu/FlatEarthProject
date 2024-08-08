@@ -1,6 +1,6 @@
-import { forwardRef, MutableRefObject, ReactNode, useEffect, useRef, useState } from "react";
+import { forwardRef, MutableRefObject, useRef } from "react";
 import { Sprite, Texture } from "three";
-import { Store, useStore } from "../state";
+import { useStore } from "../state";
 import { CityName } from "../coordinates";
 import { useFrame } from "@react-three/fiber";
 import { ObjectType } from "../utils";
@@ -18,7 +18,7 @@ type TextureParameters = {
 
 type SpriteArguments = { message: string, parameters?: TextureParameters, position?: [number, number, number] };
 type Labels = { [key in CityName]?: string };
-type GenerateLabelsStrategy = (citiesRef: Store['citiesRef']) => Labels;
+type GenerateLabelsStrategy = (cities: { [key in CityName]?: unknown }) => Labels;
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -75,18 +75,18 @@ const createTexture = (message: SpriteArguments['message'], parameters: SpriteAr
   return new Texture(canvas);
 }
 
-export const directLabelStrategy: GenerateLabelsStrategy = (citiesRef) => {
+export const directLabelStrategy: GenerateLabelsStrategy = (cities) => {
   const ans: Labels = {};
-  for (const key of Object.keys(citiesRef.current) as CityName[]) {
+  for (const key of Object.keys(cities) as CityName[]) {
     ans[key] = key.charAt(0).toUpperCase() + key.slice(1);
   }
   return ans;
 }
 
-export const alphabeticLabelStrategy: GenerateLabelsStrategy = (citiesRef) => {
+export const alphabeticLabelStrategy: GenerateLabelsStrategy = (cities) => {
   const ans: Labels = {};
-  for (let i = 0; i < Object.keys(citiesRef.current).length; i++) {
-    const key = Object.keys(citiesRef.current)[i] as CityName;
+  for (let i = 0; i < Object.keys(cities).length; i++) {
+    const key = Object.keys(cities)[i] as CityName;
     ans[key] = String.fromCharCode(i + 65);
   }
   return ans;
@@ -96,26 +96,11 @@ export const alphabeticLabelStrategy: GenerateLabelsStrategy = (citiesRef) => {
 export function Sprites({ type, generateLabels, TextSprite }: { type: ObjectType, generateLabels?: GenerateLabelsStrategy, TextSprite?: typeof DefaultTextSprite }) {
   if (TextSprite === undefined) TextSprite = DefaultTextSprite;
   if (generateLabels === undefined) generateLabels = directLabelStrategy;
-  const [isSet, setIsSet] = useState(false);
-  const spritesRef = useRef<ReactNode[]>([]);
-  const citiesRef = useStore(state => state.citiesRef);
-  const getTruePositions = useStore(state => state.getTruePositions);
-  useFrame(() => {
-    if (
-      isSet ||
-      citiesRef.current == null ||
-      Object.keys(citiesRef.current).length !== Object.keys(getTruePositions()).length
-    ) return;
-    spritesRef.current = [];
-    const labels = generateLabels(citiesRef);
-    for (const cityName of Object.keys(labels) as CityName[]) {
-      spritesRef.current.push(
-        <SpriteWrapper key={cityName} message={labels[cityName] ?? ""} cityName={cityName} type={type} TextSprite={TextSprite} />
-      )
-    }
-    setIsSet(true);
-  })
-  return spritesRef.current;
+  const truePositions = useStore(state => state.truePositions);
+  const labels = generateLabels(truePositions);
+  return Object.keys(labels).map((cityName) =>
+    <SpriteWrapper key={cityName} message={labels[cityName as CityName] ?? ""} cityName={cityName as CityName} type={type} TextSprite={TextSprite} />
+  )
 }
 
 const useSpritePositionManager = (type: ObjectType, ref: MutableRefObject<Sprite>, cityName: CityName) => {

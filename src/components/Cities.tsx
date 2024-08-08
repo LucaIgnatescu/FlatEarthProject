@@ -1,7 +1,7 @@
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef } from "react";
 import { Mesh } from "three";
-import { CityName, truePositions } from "../coordinates";
+import { CityName, positions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
@@ -18,12 +18,9 @@ export type CityMesh = typeof DefaultCityMesh;
 
 export function Cities({ type, CityMesh }: { type: ObjectType, CityMesh?: CityMesh }) {
   if (CityMesh === undefined) CityMesh = DefaultCityMesh;
-  const getTruePositions = useStore(state => state.getTruePositions);
-  return (
-    Object.entries(Object.keys(getTruePositions()))
-      .map(([, cityName]) =>
-        <CityWrapper cityName={cityName as CityName} key={cityName} type={type} CityMesh={CityMesh} />)
-  );
+  const truePositions = useStore(state => state.truePositions);
+  return (Object.keys(truePositions)).map((cityName) =>
+    <CityWrapper cityName={cityName as CityName} key={cityName} type={type} CityMesh={CityMesh} />);
 }
 
 function CityWrapper({ cityName, type, CityMesh }: { cityName: CityName, type: ObjectType, CityMesh: CityMesh }) {
@@ -48,10 +45,11 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
   const citiesRef = useStore(state => state.citiesRef);
   const updateCities = useStore(state => state.updateCities);
   useEffect(() => {
+    const mesh = meshRef.current;
     if (citiesRef.current[cityName] !== undefined) {
-      meshRef.current?.position.copy(citiesRef.current[cityName].position);
+      meshRef.current.position.copy(citiesRef.current[cityName].position);
     } else {
-      const { lat, lon } = truePositions[cityName];
+      const { lat, lon } = positions[cityName];
       if (type === 'sphere') {
         const pos = polarToCartesian(lat + sca(), lon + sca(), SPHERE_RADIUS);
         meshRef.current.position.copy(pos);
@@ -60,6 +58,7 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
       }
     }
     updateCities(cityName, meshRef.current);
+    return () => updateCities(cityName, mesh, true);
   }, [type, citiesRef, meshRef, updateCities, cityName]);
 }
 
@@ -75,7 +74,6 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   const contextMenu = useStore(state => state.contextMenu);
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const updateAnimationState = useStore(state => state.updateAnimationState);
-  const animations = useStore(state => state.animations);
 
   const onPointerDown = () => {
     updateIsDragging(true);

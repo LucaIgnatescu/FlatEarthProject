@@ -1,5 +1,5 @@
 import { AnimationType, Store } from "../state";
-import { CityName, truePositions } from "../coordinates";
+import { CityName, positions } from "../coordinates";
 import { cartesianToPolar, EARTH_RADIUS, computeRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
 import { Vector3 } from "three";
 
@@ -25,8 +25,8 @@ export const getFinalPositionSphere = (
 ) => {
   if (animation === null) throw new Error("animation should not be null in getFinalPosition");
   if (animation === 'global') {
-    if (!truePositions[cityName]) throw new Error("city does not exist");
-    return polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
+    if (!positions[cityName]) throw new Error("city does not exist");
+    return polarToCartesian(positions[cityName].lat, positions[cityName].lon, SPHERE_RADIUS);
   }
   if (animation === 'fixed') {
     const pos = citiesRef.current[cityName]?.position;

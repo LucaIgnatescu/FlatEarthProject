@@ -1,5 +1,5 @@
 import { Object3D, Vector3 } from "three";
-import { CityName, PolarCoords, truePositions } from "./coordinates";
+import { CityName, PolarCoords, positions } from "./coordinates";
 import { useStore, Distances, Positions } from "./state";
 
 export const EARTH_RADIUS = 6371e3;
@@ -39,7 +39,7 @@ export function totalDistance(distances: Distances) {
 }
 
 export function useDistanceInfo() {
-  const truePositions = useStore(state => state.getTruePositions)();
+  const truePositions = useStore(state => state.truePositions);
   const realDistances = computeRealDistances(truePositions);
   const currDistances = useStore(state => state.currDistances);
   const totalCurr = totalDistance(currDistances); //should be 5.018 in correct solve
@@ -47,11 +47,11 @@ export function useDistanceInfo() {
   return { realDistances, currDistances, totalCurr, totalReal };
 }
 
-export function computeRealDistances(positions?: Positions): Distances {
-  if (positions === undefined) positions = truePositions;
+export function computeRealDistances(pos?: Positions): Distances {
+  if (pos === undefined) pos = positions;
   const realDistances: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(positions) as [CityName, PolarCoords][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(positions) as [CityName, PolarCoords][]) {
+  for (const [cityName1, cityMesh1] of Object.entries(pos) as [CityName, PolarCoords][]) {
+    for (const [cityName2, cityMesh2] of Object.entries(pos) as [CityName, PolarCoords][]) {
       const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
       if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
       if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};

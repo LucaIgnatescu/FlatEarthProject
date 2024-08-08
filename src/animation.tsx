@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
@@ -34,6 +34,7 @@ type FinalPositionParams = {
 
 // Unfortunately, these computations requre a lot of state data
 function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions }: FinalPositionParams) {
+  console.log(type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions);
   if (type === 'sphere') {
     return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
   }
@@ -49,7 +50,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const contextMenu = useStore(state => state.contextMenu);
   const animations = useStore(state => state.animations);
-  const positions = useStore(state => state.getTruePositions)();
+  const truePositions = useStore(state => state.truePositions);
   const isAnimating = useStore(state => state.isAnimating);
   const updateIsAnimating = useStore(state => state.updateIsAnimating);
   const animation = animations[cityName] ?? null;
@@ -60,14 +61,14 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     if (citiesRef.current[cityName] === undefined) return;
 
     const source = citiesRef.current[cityName].position.clone();
-    let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCityRef, contextMenu, positions })
+    let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCityRef, contextMenu, positions: truePositions })
     const elapsed = 0;
     if (source.distanceTo(dest) < 0.01) dest = source.clone();
 
     animationData.current = { source, dest, elapsed };
     updateIsAnimating(true);
 
-  }, [updateIsAnimating, citiesRef, cityName, isAnimating, animation, type, contextMenu, hoveredCityRef, positions]);
+  }, [updateIsAnimating, citiesRef, cityName, isAnimating, animation, type, contextMenu, hoveredCityRef, truePositions]);
 
 
   useFrame((_, delta) => {

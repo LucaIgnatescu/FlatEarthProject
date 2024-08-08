@@ -5,7 +5,7 @@ import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { ContinueButton, TotalError, UIWrapper } from "../components/UI";
+import { CitySlider, ContinueButton, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { ContextMenu } from "../components/ContextMenu";
 import { AnchorPrompt } from "../components/AnchorPrompt";
@@ -17,7 +17,7 @@ export function Tutorial4() {
   const updateNCities = useStore(state => state.updateNCities);
   useLayoutEffect(() => {
     updateRoute('tutorial');
-    updateNCities(3);
+    updateNCities(7);
   })
   return (
     <div className="flex h-full">
@@ -46,6 +46,7 @@ export function Tutorial4() {
           <div className="*:my-10 p-10">
             <Prompt />
             <ContinueButton dest="/tutorial/5" />
+            <CitySlider />
           </div>
         </div>
       </div>
