@@ -10,14 +10,17 @@ import { EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
-import { UIWrapper } from "../components/UI";
+import { TotalError, UIWrapper } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
 import { AnchorPrompt } from "../components/AnchorPrompt";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
-  useLayoutEffect(() => { updateRoute('sphere') }
-  );
+  const updateNCities = useStore(state => state.updateNCities);
+  useLayoutEffect(() => {
+    updateRoute('sphere');
+    updateNCities(8);
+  })
   return (
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
@@ -30,8 +33,13 @@ export default function Globe() {
         <Sprites type="sphere" />
       </Canvas>
       <UIWrapper>
+        <div className="w-full flex justify-center text-white text-center">
+          <div className="flex flex-col">
+            <TotalError />
+            <AnchorPrompt />
+          </div>
+        </div>
         <ContextMenu />
-        <AnchorPrompt />
       </UIWrapper>
     </>
   );

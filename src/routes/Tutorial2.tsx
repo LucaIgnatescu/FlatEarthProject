@@ -61,10 +61,10 @@ function Prompt() {
       </p>
       <p>
         The error between a pair of points is also indicated by their respective line.
-        It is <span className="text-[#ff8400]">orange</span> when incorrect, or otherwise <span className="text-[#3acabb]"> green</span>.
+        It is <span className="text-[#ff8400]">orange</span> when incorrect, and otherwise <span className="text-[#3acabb]"> green</span>.
       </p>
       <p>
-        Try to move the points, such that the error decreases to 0.
+        Try to move the points such that the error decreases to <span className="text-[#3acabb]">0 </span>.
       </p>
     </div>
   );

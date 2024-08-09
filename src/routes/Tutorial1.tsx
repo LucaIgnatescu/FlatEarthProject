@@ -50,9 +50,6 @@ function Prompt() {
         On the left, there are two points, highlighed in <span className="text-[#ff8400]">orange</span>.
         You can click and drag to move them.
       </p>
-      <p>
-        Try it out.
-      </p>
     </div>
   );
 }

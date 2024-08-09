@@ -74,11 +74,7 @@ export const getPlanarSolution = (params: ConfigParams) => {
       mat[i][j] = distances[citiesArray[i]][citiesArray[j]] / SCALE_FACTOR;
     }
   }
-  // console.log(MDS(mat));
-  // const sol = centerSolution(MDS(mat), citiesArray, params);
-  // console.log(sol);
-  const sol = transpose(MDS(mat));
-  console.log(sol);
+  const sol = centerSolution(MDS(mat), citiesArray, params);
   // @ts-expect-error: avoid using reduce
   const ans: Configuration = {};
   for (let i = 0; i < citiesArray.length; i++) {

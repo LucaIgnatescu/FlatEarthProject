@@ -54,7 +54,7 @@ function Prompt() {
   return (
     <div className="*:my-2 text-lg">
       <p>Now, attempt to do the same, but with 3 points.</p>
-      <p>Be mindful of both the total distance, and the pairwise distances indicated by the lines</p>
+      <p>Be mindful of both the total distance, and the pairwise distances indicated by the lines.</p>
     </div>
   );
 }

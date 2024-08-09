@@ -11,14 +11,18 @@ import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
-import { UIWrapper } from "../components/UI";
+import { TotalError, UIWrapper } from "../components/UI";
 import { AnchorPrompt } from "../components/AnchorPrompt";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
   const updateRoute = useStore(state => state.updateRoute);
-  useLayoutEffect(() => updateRoute('plane'));
+  const updateNCities = useStore(state => state.updateNCities);
+  useLayoutEffect(() => {
+    updateRoute('plane');
+    updateNCities(8);
+  })
   return (
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
@@ -33,8 +37,13 @@ export default function Plane() {
         <Sprites type="plane" />
       </Canvas>
       <UIWrapper>
+        <div className="w-full flex justify-center text-white text-center">
+          <div className="flex flex-col">
+            <TotalError />
+            <AnchorPrompt />
+          </div>
+        </div>
         <ContextMenu />
-        <AnchorPrompt />
       </UIWrapper>
     </>
   );

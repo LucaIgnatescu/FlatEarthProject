@@ -69,7 +69,6 @@ export function Curves({ type, radius }: { type: ObjectType, radius?: number }) 
   const citiesRef = useStore(state => state.citiesRef);
   const nRenderedCities = useStore(state => state.nRenderedCities);
   const nCities = useStore(state => state.nCities);
-  console.log(nRenderedCities);
   if (nCities !== nRenderedCities) return null;
 
   return Object.keys(citiesRef.current).map(cityName =>
