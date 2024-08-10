@@ -45,14 +45,14 @@ export default function Globe() {
   );
 }
 
-function EarthMesh({ dragCity, onPointerUp }: {
-  dragCity: (event: ThreeEvent<PointerEvent>) => void,
+function EarthMesh({ onPointerMove, onPointerUp }: {
+  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
   onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
 }) {
   const texture = useLoader(TextureLoader, '../../static/img/globe1.jpg');
   return (
     <mesh onPointerUp={onPointerUp}
-      onPointerMove={dragCity} >
+      onPointerMove={onPointerMove} >
       <sphereGeometry args={[SPHERE_RADIUS, 50, 50]} />
       <meshBasicMaterial map={texture} />
     </mesh >

@@ -1,10 +1,11 @@
-import { ThreeEvent, useFrame } from "@react-three/fiber";
-import { forwardRef, MutableRefObject, useEffect, useRef } from "react";
-import { Mesh } from "three";
+import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
+import { Mesh, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, useDistanceInfo, slerp, SCALE_FACTOR, planarDistance, computeRealDistances } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
+import { fix } from "mathjs";
 
 export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
 export type CityProps = {
@@ -29,6 +30,7 @@ function CityWrapper({ cityName, type, CityMesh }: { cityName: CityName, type: O
 
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
+  useSnapping(type, cityName);
 
   useFrame(() => {
     const pos = meshRef.current.position;
@@ -36,6 +38,7 @@ function CityWrapper({ cityName, type, CityMesh }: { cityName: CityName, type: O
       pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
     }
   })
+
 
   return (<CityMesh {...props} ref={meshRef} />);
 }
@@ -74,9 +77,12 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   const contextMenu = useStore(state => state.contextMenu);
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const updateAnimationState = useStore(state => state.updateAnimationState);
-
+  const updateControls = useStore(state => state.updateControlsEnabled);
+  const updateMoveLock = useStore(state => state.updateMoveLock);
   const onPointerDown = () => {
     updateIsDragging(true);
+    updateControls(false);
+    updateMoveLock(false);
     if (isPicking) {
       if (contextMenu.cityName === cityName) return;
       updateContextMenu({ ...contextMenu, anchor: cityName });
@@ -85,8 +91,8 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
     }
   };
   const onPointerLeave: MouseEventHandler = () => {
-    if (isDragging) return;
-    updateHoveredCity(null);
+    // if (isDragging) return;
+    // updateHoveredCity(null);
   };
 
   const onContextMenu: MouseEventHandler = (ev) => {
@@ -104,6 +110,64 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
     }
   };
   return { onPointerMove, onPointerDown, onPointerLeave, onContextMenu };
+}
+
+function useSnapping(type: ObjectType, cityName: CityName) {
+  const { realDistances, currDistances } = useDistanceInfo();
+  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const truePositions = useStore(state => state.truePositions);
+  const citiesRef = useStore(state => state.citiesRef);
+  const moveHoveredCity = useStore(state => state.moveHoveredCity);
+  const updateControls = useStore(state => state.updateControlsEnabled);
+  const isDragging = useStore(state => state.isDragging);
+  const [fixTarget, setFixTarget] = useState<CityName | null>(null);
+
+  const THRESH_CLOSE = 200;
+  const THRESH_FAR = 500;
+  useFrame(() => {
+    if (hoveredCityRef.current?.name !== cityName || !isDragging) {
+      return
+    }
+    const otherCities = Object.keys(truePositions).filter(key => key !== cityName) as CityName[];
+    for (const other of otherCities) {
+      if (
+        realDistances[other] === undefined ||
+        realDistances[other][cityName] === undefined ||
+        currDistances[other] === undefined ||
+        currDistances[other][cityName] === undefined ||
+        citiesRef.current[cityName] === undefined ||
+        citiesRef.current[other] === undefined
+      ) continue;
+      const baseMesh = citiesRef.current[other];
+      const destMesh = citiesRef.current[cityName];
+      // NOTE: This cannot be done like below because the data is stale. 
+      // TODO: Abstract this into a function that's faster
+      // const trueDistance = realDistances[other][cityName]; 
+      // const currDistance = currDistances[other][cityName];
+      const currDistance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
+      // // @ts-expect-error: getRealDistances returns a complete table
+      const trueDistance = computeRealDistances()[cityName][other] as number;
+      const delta = Math.abs(trueDistance - currDistance);
+      if (fixTarget === other) {
+        if (delta > THRESH_FAR) {
+          setFixTarget(null);
+        }
+        return;
+      }
+      if (delta < THRESH_CLOSE) {
+        const dest = citiesRef.current[cityName].position;
+        const base = citiesRef.current[other].position;
+        const pos = (type === 'plane') ?
+          new Vector3().lerpVectors(base, dest, trueDistance / currDistance) :
+          slerp(base, dest, trueDistance / currDistance);
+        const { x, y, z } = pos;
+        moveHoveredCity(x, y, z, true);
+        setFixTarget(other);
+        updateControls(false);
+        return;
+      }
+    }
+  })
 }
 
 export const DefaultCityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {

@@ -21,7 +21,7 @@ export default function Plane() {
   const updateNCities = useStore(state => state.updateNCities);
   useLayoutEffect(() => {
     updateRoute('plane');
-    updateNCities(8);
+    updateNCities(4);
   })
   return (
     <>
@@ -50,15 +50,15 @@ export default function Plane() {
 }
 
 
-function EarthMesh({ dragCity, onPointerUp }: {
-  dragCity: (event: ThreeEvent<PointerEvent>) => void,
+function EarthMesh({ onPointerMove, onPointerUp }: {
+  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
   onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
 }) {
   const texture = useLoader(TextureLoader, '../../static/img/disk.png');
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}
-      onPointerMove={dragCity}>
+      onPointerMove={onPointerMove}>
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />
     </mesh>

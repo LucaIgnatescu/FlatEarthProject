@@ -7,8 +7,8 @@ import { TextSpriteFactory } from "./TextSprite";
 import { forwardRef } from "react";
 import { CityProps } from "./Cities";
 
-export function TutorialEarthMesh({ dragCity, onPointerUp }: {
-  dragCity: (event: ThreeEvent<PointerEvent>) => void,
+export function TutorialEarthMesh({ onPointerMove, onPointerUp }: {
+  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
   onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
 }) {
   const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
@@ -19,7 +19,7 @@ export function TutorialEarthMesh({ dragCity, onPointerUp }: {
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}
-      onPointerMove={dragCity}>
+      onPointerMove={onPointerMove}>
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />
     </mesh>
@@ -28,8 +28,8 @@ export function TutorialEarthMesh({ dragCity, onPointerUp }: {
 
 
 export function TutorialControls() {
-  const isDragging = useStore(state => state.isDragging);
-  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} /> // TODO: Set a decent position
+  const controlsEnabled = useStore(state => state.controlsEnabled);
+  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={controlsEnabled} /> // TODO: Set a decent position
 }
 
 

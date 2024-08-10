@@ -35,6 +35,7 @@ export type ContextMenu = {
 
 export type Positions = { [key in CityName]?: PolarCoords };
 
+
 export type Store = {
   route: null | Route
   citiesRef: MutableRefObject<CityTable>;
@@ -48,11 +49,13 @@ export type Store = {
   isAnimating: boolean;
   truePositions: Positions;
   nRenderedCities: number;
+  controlsEnabled: boolean;
+  moveLock: boolean;
   updateRoute: (route: Route) => void;
   updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
-  moveHoveredCity: (x: number, y: number, z: number) => void;
+  moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => void;
   updateIsDragging: (isDragging: boolean) => void;
   updateAnimationState: (status: AnimationType, cityName?: CityName) => boolean;
   updateContextMenu: (menu: ContextMenu) => void;
@@ -60,6 +63,8 @@ export type Store = {
   updateNCities: (nCities: number) => void;
   updateIsAnimating: (isAnimating: boolean) => void;
   reset: () => void;
+  updateControlsEnabled: (controlsEnabled: boolean) => void;
+  updateMoveLock: (moveLock: boolean) => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -109,6 +114,9 @@ const updateCurrDistances = () => { throw new Error('route not set properly') };
 const route = null;
 const truePositions = {};
 const nRenderedCities = 0;
+const controls = true;
+const moveLock = false;
+
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -124,6 +132,9 @@ export const useStore = create<Store>((set, get) => ({
   isAnimating,
   nRenderedCities,
   truePositions: truePositions,
+  controlsEnabled: controls,
+  moveLock: moveLock,
+  updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   reset: () => {
     // get().citiesRef.current = {};
     get().hoveredCityRef.current = null;
@@ -166,12 +177,16 @@ export const useStore = create<Store>((set, get) => ({
     get().hoveredCityRef.current = { name, mesh };
   },
 
-  moveHoveredCity: (x: number, y: number, z: number) => {
-    const hoveredCity = get().hoveredCityRef.current
+  moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => {
+    if (get().moveLock === true && lock !== false) return;
+    const hoveredCity = get().hoveredCityRef.current;
     if (hoveredCity === null)
       throw new Error("Trying to move without selecting a city");
     hoveredCity.mesh.position.set(x, y, z);
     get().updateCurrDistances();
+    if (lock !== undefined) {
+      set({ moveLock: lock })
+    }
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationType, cityName?: CityName) => {
@@ -206,5 +221,6 @@ export const useStore = create<Store>((set, get) => ({
     }
     set({ truePositions });
   },
-  updateIsAnimating: (isAnimating: boolean) => set({ isAnimating })
+  updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
+  updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled })
 }));

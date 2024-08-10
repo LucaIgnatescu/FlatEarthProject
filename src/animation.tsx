@@ -33,8 +33,7 @@ type FinalPositionParams = {
 }
 
 // Unfortunately, these computations requre a lot of state data
-function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions }: FinalPositionParams) {
-  console.log(type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions);
+export function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions }: FinalPositionParams) {
   if (type === 'sphere') {
     return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
   }

@@ -2,9 +2,9 @@ import { ThreeEvent } from "@react-three/fiber";
 import { Mesh } from "three";
 import { useStore } from "../state";
 
-export type EarthMesh = ({ dragCity, onPointerUp }:
+export type EarthMesh = ({ onPointerMove, onPointerUp }:
   {
-    dragCity: (event: ThreeEvent<PointerEvent>) => void,
+    onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
     onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
   }) => React.JSX.Element;
 
@@ -14,7 +14,8 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: EarthMesh }) { // TODO:
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
-  const dragCity = (event: ThreeEvent<PointerEvent>) => {
+  const updateControls = useStore(state => state.updateControlsEnabled);
+  const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
     if (!isDragging || !hoveredCityRef.current) return;
     const meshes = event.intersections.filter((intersection) => intersection.object instanceof Mesh);
     if (meshes.length === 0) return;
@@ -27,10 +28,11 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: EarthMesh }) { // TODO:
 
   const onPointerUp = () => {
     updateIsDragging(false)
+    updateControls(true)
   };
 
   return (
-    <EarthMesh dragCity={dragCity} onPointerUp={onPointerUp} />
+    <EarthMesh onPointerMove={onPointerMove} onPointerUp={onPointerUp} />
   );
 }
 
