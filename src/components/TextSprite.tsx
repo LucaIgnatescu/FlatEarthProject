@@ -3,7 +3,6 @@ import { Sprite, Texture } from "three";
 import { useStore } from "../state";
 import { CityName } from "../coordinates";
 import { useFrame } from "@react-three/fiber";
-import { ObjectType } from "../utils";
 
 type Color = { r: number, g: number, b: number, a: number };
 
@@ -93,18 +92,19 @@ export const alphabeticLabelStrategy: GenerateLabelsStrategy = (cities) => {
 }
 
 
-export function Sprites({ type, generateLabels, TextSprite }: { type: ObjectType, generateLabels?: GenerateLabelsStrategy, TextSprite?: typeof DefaultTextSprite }) {
+export function Sprites({ generateLabels, TextSprite }: { generateLabels?: GenerateLabelsStrategy, TextSprite?: typeof DefaultTextSprite }) {
   if (TextSprite === undefined) TextSprite = DefaultTextSprite;
   if (generateLabels === undefined) generateLabels = directLabelStrategy;
   const truePositions = useStore(state => state.truePositions);
   const labels = generateLabels(truePositions);
   return Object.keys(labels).map((cityName) =>
-    <SpriteWrapper key={cityName} message={labels[cityName as CityName] ?? ""} cityName={cityName as CityName} type={type} TextSprite={TextSprite} />
+    <SpriteWrapper key={cityName} message={labels[cityName as CityName] ?? ""} cityName={cityName as CityName} TextSprite={TextSprite} />
   )
 }
 
-const useSpritePositionManager = (type: ObjectType, ref: MutableRefObject<Sprite>, cityName: CityName) => {
+const useSpritePositionManager = (ref: MutableRefObject<Sprite>, cityName: CityName) => {
   const citiesRef = useStore(state => state.citiesRef);
+  const type = useStore(state => state.objectType);
   useFrame(() => {
     const city = citiesRef.current[cityName];
     if (city === undefined) return;
@@ -117,9 +117,9 @@ const useSpritePositionManager = (type: ObjectType, ref: MutableRefObject<Sprite
 
 }
 
-export function SpriteWrapper({ type, message, cityName, TextSprite }: { type: ObjectType, message: string, cityName: CityName, TextSprite: typeof DefaultTextSprite }) {
+export function SpriteWrapper({ message, cityName, TextSprite }: { message: string, cityName: CityName, TextSprite: typeof DefaultTextSprite }) {
   const ref = useRef<Sprite>(null!);
-  useSpritePositionManager(type, ref, cityName);
+  useSpritePositionManager(ref, cityName);
   return (<TextSprite ref={ref} message={message} />);
 }
 

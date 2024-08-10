@@ -44,7 +44,6 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const ANIMATION_TIME = 5;
 
   const updateAnimationState = useStore(state => state.updateAnimationState);
-  const updateCurrDistances = useStore(state => state.updateCurrDistances);
   const citiesRef = useStore(state => state.citiesRef);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const contextMenu = useStore(state => state.contextMenu);
@@ -52,6 +51,8 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const truePositions = useStore(state => state.truePositions);
   const isAnimating = useStore(state => state.isAnimating);
   const updateIsAnimating = useStore(state => state.updateIsAnimating);
+  const updateTotalError = useStore(state => state.updateTotalError);
+
   const animation = animations[cityName] ?? null;
   const animationData = useRef<AnimationData | null>(null);
 
@@ -77,13 +78,13 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
       animationData.current = null;
       updateIsAnimating(false);
       updateAnimationState(null, cityName);
-      updateCurrDistances();
+      updateTotalError();
       return
     }
     const pos = getIntermediatePoint(animationData.current.source, animationData.current.dest, animationData.current.elapsed / ANIMATION_TIME, type);
     meshRef.current.position.copy(pos);
     animationData.current.elapsed += delta;
-    updateCurrDistances();
+    updateTotalError();
   });
 }
 

@@ -28,39 +28,7 @@ export function planarDistance(p1: Object3D, p2: Object3D) {
   return p1.position.distanceTo(p2.position);
 }
 
-export function totalDistance(distances: Distances) {
-  let totalSum = 0;
-  for (const city1 of Object.keys(distances) as CityName[]) {
-    for (const city2 of Object.keys(distances[city1]) as CityName[]) {
-      totalSum += distances[city1][city2]
-    }
-  }
-  return totalSum;
-}
 
-export function useDistanceInfo() {
-  const truePositions = useStore(state => state.truePositions);
-  const realDistances = computeRealDistances(truePositions);
-  const currDistances = useStore(state => state.currDistances);
-  const totalCurr = totalDistance(currDistances); //should be 5.018 in correct solve
-  const totalReal = totalDistance(realDistances);
-  return { realDistances, currDistances, totalCurr, totalReal };
-}
-
-export function computeRealDistances(pos?: Positions): Distances {
-  if (pos === undefined) pos = positions;
-  const realDistances: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(pos) as [CityName, PolarCoords][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(pos) as [CityName, PolarCoords][]) {
-      const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
-      if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
-      if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
-      realDistances[cityName1][cityName2] = distance;
-      realDistances[cityName2][cityName1] = distance;
-    }
-  }
-  return realDistances;
-}
 
 export function polarToCartesian(lat: number, lon: number, r: number) {
   const latRad = lat * (Math.PI / 180);

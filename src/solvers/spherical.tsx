@@ -1,19 +1,18 @@
 import { AnimationType, Store } from "../state";
 import { CityName, positions } from "../coordinates";
-import { cartesianToPolar, EARTH_RADIUS, computeRealDistances, polarToCartesian, slerp, SPHERE_RADIUS, sphericalDistance } from "../utils";
+import { polarToCartesian, slerp, SPHERE_RADIUS } from "../utils";
 import { Vector3 } from "three";
+import { getDistances } from "../distances";
 
 const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
   const destMesh = citiesRef.current[cityName];
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const distance = sphericalDistance(cartesianToPolar(baseMesh.position, SPHERE_RADIUS), cartesianToPolar(destMesh.position, SPHERE_RADIUS), EARTH_RADIUS);
-  // @ts-expect-error: getRealDistances returns a complete table
-  const trueDistance = computeRealDistances()[cityName][hoveredCity.name] as number;
+  const { trueDistance, currDistance } = getDistances(cityName, hoveredCity.name, 'plane', citiesRef);
   const base = new Vector3().copy(baseMesh.position).normalize();
   const dest = new Vector3().copy(destMesh.position).normalize();
-  const pos = slerp(base, dest, trueDistance / distance).multiplyScalar(SPHERE_RADIUS);
+  const pos = slerp(base, dest, trueDistance / currDistance).multiplyScalar(SPHERE_RADIUS);
   return pos;
 }
 

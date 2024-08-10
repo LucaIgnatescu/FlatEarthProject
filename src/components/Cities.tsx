@@ -1,11 +1,11 @@
-import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, useDistanceInfo, slerp, SCALE_FACTOR, planarDistance, computeRealDistances } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, slerp } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
-import { fix } from "mathjs";
+import { getDistances } from "../distances";
 
 export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
 export type CityProps = {
@@ -17,16 +17,17 @@ export type CityProps = {
 
 export type CityMesh = typeof DefaultCityMesh;
 
-export function Cities({ type, CityMesh }: { type: ObjectType, CityMesh?: CityMesh }) {
+export function Cities({ CityMesh }: { CityMesh?: CityMesh }) {
   if (CityMesh === undefined) CityMesh = DefaultCityMesh;
   const truePositions = useStore(state => state.truePositions);
   return (Object.keys(truePositions)).map((cityName) =>
-    <CityWrapper cityName={cityName as CityName} key={cityName} type={type} CityMesh={CityMesh} />);
+    <CityWrapper cityName={cityName as CityName} key={cityName} CityMesh={CityMesh} />);
 }
 
-function CityWrapper({ cityName, type, CityMesh }: { cityName: CityName, type: ObjectType, CityMesh: CityMesh }) {
+function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: CityMesh }) {
   const meshRef = useRef<Mesh>(null!);
   const props = useCreateHandlers(cityName, meshRef);
+  const type = useStore(state => state.objectType);
 
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
@@ -113,7 +114,6 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
 }
 
 function useSnapping(type: ObjectType, cityName: CityName) {
-  const { realDistances, currDistances } = useDistanceInfo();
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const truePositions = useStore(state => state.truePositions);
   const citiesRef = useStore(state => state.citiesRef);
@@ -131,22 +131,10 @@ function useSnapping(type: ObjectType, cityName: CityName) {
     const otherCities = Object.keys(truePositions).filter(key => key !== cityName) as CityName[];
     for (const other of otherCities) {
       if (
-        realDistances[other] === undefined ||
-        realDistances[other][cityName] === undefined ||
-        currDistances[other] === undefined ||
-        currDistances[other][cityName] === undefined ||
         citiesRef.current[cityName] === undefined ||
         citiesRef.current[other] === undefined
       ) continue;
-      const baseMesh = citiesRef.current[other];
-      const destMesh = citiesRef.current[cityName];
-      // NOTE: This cannot be done like below because the data is stale. 
-      // TODO: Abstract this into a function that's faster
-      // const trueDistance = realDistances[other][cityName]; 
-      // const currDistance = currDistances[other][cityName];
-      const currDistance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
-      // // @ts-expect-error: getRealDistances returns a complete table
-      const trueDistance = computeRealDistances()[cityName][other] as number;
+      const { trueDistance, currDistance } = getDistances(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
       if (fixTarget === other) {
         if (delta > THRESH_FAR) {

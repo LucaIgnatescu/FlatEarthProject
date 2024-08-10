@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { createRef, MutableRefObject } from 'react';
 import { CityName, PolarCoords, positions } from './coordinates';
 import { Mesh } from 'three';
-import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
 import { Route } from './main';
+import { ObjectType } from './utils';
+import { computeTotalError } from './distances';
 
 export type Distances = {
   [key in CityName]?: {
@@ -38,6 +39,7 @@ export type Positions = { [key in CityName]?: PolarCoords };
 
 export type Store = {
   route: null | Route
+  objectType: ObjectType
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
@@ -51,8 +53,8 @@ export type Store = {
   nRenderedCities: number;
   controlsEnabled: boolean;
   moveLock: boolean;
+  totalError: number;
   updateRoute: (route: Route) => void;
-  updateCurrDistances: () => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => void;
@@ -62,44 +64,14 @@ export type Store = {
   updateIsPicking: (isPicking: boolean) => void;
   updateNCities: (nCities: number) => void;
   updateIsAnimating: (isAnimating: boolean) => void;
-  reset: () => void;
   updateControlsEnabled: (controlsEnabled: boolean) => void;
   updateMoveLock: (moveLock: boolean) => void;
+  updateTotalError: () => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
 
 
-const calculateDistancesPlane = (cities: CityTable) => {
-  const currDistaces: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-      const distance = planarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
-      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-      currDistaces[cityName1][cityName2] = distance;
-      currDistaces[cityName2][cityName1] = distance;
-    }
-  }
-  return currDistaces;
-}
-
-
-const calculateDistancesSphere = (cities: CityTable) => {
-  const currDistaces: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-      const p1 = cartesianToPolar(cityMesh1.position, SPHERE_RADIUS);
-      const p2 = cartesianToPolar(cityMesh2.position, SPHERE_RADIUS);
-      const distance = sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
-      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-      currDistaces[cityName1][cityName2] = distance;
-      currDistaces[cityName2][cityName1] = distance;
-    }
-  }
-  return currDistaces;
-}
 
 const currDistances = {};
 const isDragging = false;
@@ -110,13 +82,13 @@ const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: 
 const isPicking = false;
 const isAnimating = false;
 const nCities = 7;
-const updateCurrDistances = () => { throw new Error('route not set properly') };
 const route = null;
 const truePositions = {};
 const nRenderedCities = 0;
 const controls = true;
 const moveLock = false;
-
+const objectType: ObjectType = 'plane';
+const totalError = 0;
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -134,27 +106,18 @@ export const useStore = create<Store>((set, get) => ({
   truePositions: truePositions,
   controlsEnabled: controls,
   moveLock: moveLock,
+  objectType,
+  totalError,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
-  reset: () => {
-    // get().citiesRef.current = {};
+  updateRoute: (route: Route) => {
     get().hoveredCityRef.current = null;
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
-    set({ isAnimating, isDragging, contextMenu, route, nCities, truePositions })
-  },
-  updateRoute: (route: Route) => {
-    get().reset();
     get().citiesRef.current = {};
 
-    const calculateDistances = (route === 'sphere') ? calculateDistancesSphere : calculateDistancesPlane;
-    const updateCurrDistances = () => {
-      const cities = get().citiesRef.current;
-      if (!cities) return;
-      set({ currDistances: calculateDistances(cities) });
-    }
-    set({ updateCurrDistances, route, nRenderedCities });
+    const objectType: ObjectType = route === 'sphere' ? 'sphere' : 'plane';
+    set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType });
   },
-  updateCurrDistances,
   updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
     const cities = get().citiesRef.current;
     if (remove === true) {
@@ -165,7 +128,7 @@ export const useStore = create<Store>((set, get) => ({
       cities[name] = city;
       set(state => ({ nRenderedCities: state.nRenderedCities + 1 }))
     }
-    get().updateCurrDistances();
+    get().updateTotalError();
   },
   updateHoveredCity: (name: CityName | null) => {
     if (name === null) {
@@ -183,10 +146,10 @@ export const useStore = create<Store>((set, get) => ({
     if (hoveredCity === null)
       throw new Error("Trying to move without selecting a city");
     hoveredCity.mesh.position.set(x, y, z);
-    get().updateCurrDistances();
     if (lock !== undefined) {
       set({ moveLock: lock })
     }
+    get().updateTotalError();
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationType, cityName?: CityName) => {
@@ -203,14 +166,11 @@ export const useStore = create<Store>((set, get) => ({
       return true;
     }
     set((state) => ({ animations: { ...state.animations, [cityName]: status } }));
-
     return true;
   },
   updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
   updateIsPicking: (isPicking: boolean) => set({ isPicking }),
   updateNCities: (nCities: number) => {
-    get().reset();
-    set({ nCities });
     const n = nCities;
     if (n === undefined) return positions;
     const keys = Object.keys(positions) as CityName[];
@@ -219,8 +179,15 @@ export const useStore = create<Store>((set, get) => ({
       const key = keys[i];
       truePositions[key] = positions[key];
     }
-    set({ truePositions });
+    get().hoveredCityRef.current = null;
+    get().updateIsDragging(isDragging);
+    get().updateAnimationState(null);
+    set({ nCities, isAnimating, isDragging, contextMenu, route, truePositions })
   },
   updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
-  updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled })
+  updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled }),
+  updateTotalError: () => {
+    const totalError = computeTotalError(get().objectType, get().citiesRef);
+    set({ totalError });
+  }
 }));

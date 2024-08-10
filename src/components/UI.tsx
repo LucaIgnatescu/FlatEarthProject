@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useDistanceInfo } from "../utils";
 import { useStore } from "../state";
 import { positions } from "../coordinates";
 
 export function TotalError() {
-  const { totalReal, totalCurr } = useDistanceInfo();
-  const delta = Math.round(Math.abs(totalCurr - totalReal) / 100) * 100;
+  const nCities = useStore(state => state.nCities);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+
+  const totalError = Math.round(useStore(state => state.totalError) / 100) * 100;
+  if (nCities !== nRenderedCities) return null;
   return (
     <div className="text-white p-10 text-xl">
-      Total Error: {delta} km
+      Total Error: {totalError} km
     </div>
   );
 }

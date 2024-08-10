@@ -25,9 +25,9 @@ export function Tutorial2() {
           <ambientLight color={0xffffff} intensity={2} />
           <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
           <EarthWrapper EarthMesh={TutorialEarthMesh} />
-          <Cities type="plane" CityMesh={TutorialCityMesh} />
-          <Curves type="plane" radius={0.2} />
-          <Sprites type="plane" generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
+          <Cities CityMesh={TutorialCityMesh} />
+          <Curves radius={0.2} />
+          <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
         </Canvas>
         <UIWrapper>
           <div className="w-full flex justify-center">

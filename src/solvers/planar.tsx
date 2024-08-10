@@ -1,8 +1,9 @@
 import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
-import { computeRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
+import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationType, Positions, Store } from "../state";
+import { computeRealDistances, getDistances } from "../distances";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -120,13 +121,10 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const distance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
-  // @ts-expect-error: getRealDistances returns a complete table
-  const trueDistance = computeRealDistances()[cityName][hoveredCity.name] as number;
-
+  const { trueDistance, currDistance } = getDistances(cityName, hoveredCity.name, 'plane', citiesRef);
   const base = new Vector3().copy(baseMesh.position);
   const dest = new Vector3().copy(destMesh.position);
-  const pos = new Vector3().lerpVectors(base, dest, trueDistance / distance);
+  const pos = new Vector3().lerpVectors(base, dest, trueDistance / currDistance);
   return pos;
 }
 

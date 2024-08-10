@@ -27,14 +27,14 @@ export default function Plane() {
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
-        <Controls type="plane" />
+        <Controls />
         <ambientLight color={0xffffff} intensity={2} />
-        <Cities type="plane" />
+        <Cities />
         <EarthWrapper EarthMesh={EarthMesh} />
         <EarthWireframe />
         <Stars />
-        <Curves type="plane" />
-        <Sprites type="plane" />
+        <Curves />
+        <Sprites />
       </Canvas>
       <UIWrapper>
         <div className="w-full flex justify-center text-white text-center">

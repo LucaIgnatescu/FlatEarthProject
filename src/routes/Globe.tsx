@@ -25,12 +25,12 @@ export default function Globe() {
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[15, 15, 15]} />
-        <Controls type="sphere" />
+        <Controls />
         <EarthWrapper EarthMesh={EarthMesh} />
         <Stars />
-        <Cities type="sphere" />
-        <Curves type="sphere" />
-        <Sprites type="sphere" />
+        <Cities />
+        <Curves />
+        <Sprites />
       </Canvas>
       <UIWrapper>
         <div className="w-full flex justify-center text-white text-center">
