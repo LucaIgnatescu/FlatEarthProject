@@ -1,12 +1,14 @@
-import { useNavigate } from "react-router-dom";
 import { useStore } from "../state";
 import { positions } from "../coordinates";
+import { computeTotalError } from "../distances";
 
 export function TotalError() {
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
+  const currentPositions = useStore(state => state.currentPositions);
+  const type = useStore(state => state.objectType);
 
-  const totalError = Math.round(useStore(state => state.totalError) / 100) * 100;
+  const totalError = Math.round(computeTotalError(type, currentPositions) / 100) * 100;
   if (nCities !== nRenderedCities) return null;
   return (
     <div className="text-white p-10 text-xl">
@@ -23,15 +25,6 @@ export function UIWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ContinueButton({ dest }: { dest: string }) {
-  const navigate = useNavigate();
-  return (
-    <button onClick={() => navigate(dest)}
-      className="bg-blue-500 p-5 text-white w-fit rounded">
-      Continue
-    </button>
-  )
-}
 
 export function CitySlider() {
   const updateNCities = useStore(state => state.updateNCities)

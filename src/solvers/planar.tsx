@@ -3,7 +3,7 @@ import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationType, Positions, Store } from "../state";
-import { computeRealDistances, getDistances } from "../distances";
+import { computeRealDistances, getDistancesLazy } from "../distances";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -121,7 +121,7 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const { trueDistance, currDistance } = getDistances(cityName, hoveredCity.name, 'plane', citiesRef);
+  const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'plane', citiesRef);
   const base = new Vector3().copy(baseMesh.position);
   const dest = new Vector3().copy(destMesh.position);
   const pos = new Vector3().lerpVectors(base, dest, trueDistance / currDistance);

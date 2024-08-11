@@ -4,7 +4,7 @@ import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vect
 import { GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
-import { getDistances } from "../distances";
+import { getDistancesLazy } from "../distances";
 
 
 function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
@@ -48,7 +48,7 @@ function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, 
     ref.current.geometry.dispose();
     ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
 
-    const { currDistance, trueDistance } = getDistances(baseName, cityName, type, citiesRef);
+    const { currDistance, trueDistance } = getDistancesLazy(baseName, cityName, type, citiesRef);
     const delta = Math.abs(currDistance - trueDistance);
     const color = delta < THRESH ? GREEN : ORANGE;
     const material = new MeshBasicMaterial({ color });

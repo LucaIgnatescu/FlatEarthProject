@@ -15,6 +15,7 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: EarthMesh }) { // TODO:
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
   const updateControls = useStore(state => state.updateControlsEnabled);
+
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
     if (!isDragging || !hoveredCityRef.current) return;
     const meshes = event.intersections.filter((intersection) => intersection.object instanceof Mesh);

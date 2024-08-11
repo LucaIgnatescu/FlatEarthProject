@@ -5,12 +5,12 @@ import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { CitySlider, ContinueButton, TotalError, UIWrapper } from "../components/UI";
+import { CitySlider, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { ContextMenu } from "../components/ContextMenu";
 import { AnchorPrompt } from "../components/AnchorPrompt";
 import { PerspectiveCamera } from "@react-three/drei";
-
+import { ContinueButton } from "../components/ContinueButton.tsx";
 
 export function Tutorial4() {
   const updateRoute = useStore(state => state.updateRoute);

@@ -4,10 +4,10 @@ import { useStore } from "../state";
 import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { CitySlider, ContinueButton, TotalError, UIWrapper } from "../components/UI";
+import { CitySlider, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-
+import { ContinueButton } from "../components/ContinueButton.tsx";
 
 export function Tutorial1() {
   const updateRoute = useStore(state => state.updateRoute);

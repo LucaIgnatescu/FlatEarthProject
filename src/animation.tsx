@@ -51,7 +51,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const truePositions = useStore(state => state.truePositions);
   const isAnimating = useStore(state => state.isAnimating);
   const updateIsAnimating = useStore(state => state.updateIsAnimating);
-  const updateTotalError = useStore(state => state.updateTotalError);
+  const updateCurrentPositions = useStore(state => state.updateCurrentPositions);
 
   const animation = animations[cityName] ?? null;
   const animationData = useRef<AnimationData | null>(null);
@@ -78,13 +78,13 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
       animationData.current = null;
       updateIsAnimating(false);
       updateAnimationState(null, cityName);
-      updateTotalError();
+      updateCurrentPositions();
       return
     }
     const pos = getIntermediatePoint(animationData.current.source, animationData.current.dest, animationData.current.elapsed / ANIMATION_TIME, type);
     meshRef.current.position.copy(pos);
     animationData.current.elapsed += delta;
-    updateTotalError();
+    updateCurrentPositions();
   });
 }
 

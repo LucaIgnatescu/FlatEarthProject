@@ -5,7 +5,7 @@ import { CityName, positions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, slerp } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
-import { getDistances } from "../distances";
+import { getDistancesLazy } from "../distances";
 
 export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
 export type CityProps = {
@@ -134,7 +134,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
         citiesRef.current[cityName] === undefined ||
         citiesRef.current[other] === undefined
       ) continue;
-      const { trueDistance, currDistance } = getDistances(cityName, other, type, citiesRef);
+      const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
       if (fixTarget === other) {
         if (delta > THRESH_FAR) {

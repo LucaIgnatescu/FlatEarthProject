@@ -1,32 +1,44 @@
-import { Mesh } from "three";
+import { Vector3 } from "three";
 import { CityName, PolarCoords, positions } from "./coordinates";
-import { Distances, Positions, Store } from "./state";
+import { CurrentPositions, Distances, Positions, Store } from "./state";
 import { cartesianToPolar, EARTH_RADIUS, ObjectType, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from "./utils";
 
 
-export function getDistances(city1: CityName, city2: CityName, type: ObjectType, citiesRef: Store['citiesRef']) {
+export function getDistancesLazy(city1: CityName, city2: CityName, type: ObjectType, citiesRef: Store['citiesRef']) {
   const trueDistance = sphericalDistance(positions[city1], positions[city2], EARTH_RADIUS);
   const mesh1 = citiesRef.current[city1];
   const mesh2 = citiesRef.current[city2];
   if (mesh1 === undefined || mesh2 === undefined) throw new Error(`${city1} or ${city2} does not exist`);
 
   const calculateDistances = type === 'plane' ? calculateDistancesPlane : calculateDistancesSphere;
-  const currDistance = calculateDistances(mesh1, mesh2);
+  const currDistance = calculateDistances(mesh1.position, mesh2.position);
   return { trueDistance, currDistance };
 }
 
-export function computeTotalError(type: ObjectType, citiesRef: Store['citiesRef']) {
+export function getDistancesFast(city1: CityName, city2: CityName, type: ObjectType, currentPositions: CurrentPositions) {
+  const trueDistance = sphericalDistance(positions[city1], positions[city2], EARTH_RADIUS);
+  const v1 = currentPositions[city1];
+  const v2 = currentPositions[city2];
+  if (v1 === undefined || v2 === undefined) throw new Error(`${city1} or ${city2} does not exist`);
+
+  const calculateDistances = type === 'plane' ? calculateDistancesPlane : calculateDistancesSphere;
+  const currDistance = calculateDistances(v1, v2);
+  return { trueDistance, currDistance };
+}
+
+export function computeTotalError(type: ObjectType, currentPositions: CurrentPositions) {
   let error = 0;
-  const cities = Object.keys(citiesRef.current) as CityName[];
+  const cities = Object.keys(currentPositions) as CityName[];
   for (const city1 of cities) {
     for (const city2 of cities) {
       if (city1 === city2) continue;
-      const { trueDistance, currDistance } = getDistances(city1, city2, type, citiesRef);
+      const { trueDistance, currDistance } = getDistancesFast(city1, city2, type, currentPositions);
       error += Math.abs(trueDistance - currDistance);
     }
   }
   return error;
 }
+
 
 export function computeRealDistances(pos?: Positions): Distances {
   if (pos === undefined) pos = positions;
@@ -43,13 +55,13 @@ export function computeRealDistances(pos?: Positions): Distances {
   return realDistances;
 }
 
-const calculateDistancesPlane = (mesh1: Mesh, mesh2: Mesh) => {
-  return planarDistance(mesh1, mesh2) * SCALE_FACTOR;
+const calculateDistancesPlane = (v1: Vector3, v2: Vector3) => {
+  return planarDistance(v1, v2) * SCALE_FACTOR;
 }
 
 
-const calculateDistancesSphere = (mesh1: Mesh, mesh2: Mesh) => {
-  const p1 = cartesianToPolar(mesh1.position, SPHERE_RADIUS);
-  const p2 = cartesianToPolar(mesh2.position, SPHERE_RADIUS);
+const calculateDistancesSphere = (v1: Vector3, v2: Vector3) => {
+  const p1 = cartesianToPolar(v1, SPHERE_RADIUS);
+  const p2 = cartesianToPolar(v2, SPHERE_RADIUS);
   return sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
 }

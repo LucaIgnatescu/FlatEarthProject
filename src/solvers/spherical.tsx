@@ -2,14 +2,14 @@ import { AnimationType, Store } from "../state";
 import { CityName, positions } from "../coordinates";
 import { polarToCartesian, slerp, SPHERE_RADIUS } from "../utils";
 import { Vector3 } from "three";
-import { getDistances } from "../distances";
+import { getDistancesLazy } from "../distances";
 
 const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
   const destMesh = citiesRef.current[cityName];
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const { trueDistance, currDistance } = getDistances(cityName, hoveredCity.name, 'plane', citiesRef);
+  const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'plane', citiesRef);
   const base = new Vector3().copy(baseMesh.position).normalize();
   const dest = new Vector3().copy(destMesh.position).normalize();
   const pos = slerp(base, dest, trueDistance / currDistance).multiplyScalar(SPHERE_RADIUS);
