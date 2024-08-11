@@ -34,7 +34,7 @@ export type ContextMenu = {
 };
 
 export type Positions = { [key in CityName]?: PolarCoords };
-export type CurrentPositions = { [key in CityName]?: Vector3 };
+export type CurrPositions = { [key in CityName]?: Vector3 };
 
 
 export type Store = {
@@ -43,7 +43,6 @@ export type Store = {
   citiesRef: MutableRefObject<CityTable>;
   hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
   isDragging: boolean;
-  currDistances: Distances;
   animations: Animations;
   contextMenu: ContextMenu;
   isPicking: boolean;
@@ -53,7 +52,7 @@ export type Store = {
   nRenderedCities: number;
   controlsEnabled: boolean;
   moveLock: boolean;
-  currentPositions: CurrentPositions;
+  currPositions: CurrPositions;
   updateRoute: (route: Route) => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -66,14 +65,13 @@ export type Store = {
   updateIsAnimating: (isAnimating: boolean) => void;
   updateControlsEnabled: (controlsEnabled: boolean) => void;
   updateMoveLock: (moveLock: boolean) => void;
-  updateCurrentPositions: () => void;
+  updateCurrPositions: () => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
 
 
 
-const currDistances = {};
 const isDragging = false;
 const citiesRef = createRef() as MutableRefObject<CityTable>;
 const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
@@ -88,7 +86,7 @@ const nRenderedCities = 0;
 const controls = true;
 const moveLock = false;
 const objectType: ObjectType = 'plane';
-const currentPositions = {};
+const currPositions = {};
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -96,7 +94,6 @@ export const useStore = create<Store>((set, get) => ({
   citiesRef,
   hoveredCityRef,
   isDragging,
-  currDistances,
   animations,
   contextMenu,
   isPicking,
@@ -107,7 +104,7 @@ export const useStore = create<Store>((set, get) => ({
   controlsEnabled: controls,
   moveLock: moveLock,
   objectType,
-  currentPositions,
+  currPositions,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   updateRoute: (route: Route) => {
     get().hoveredCityRef.current = null;
@@ -128,7 +125,7 @@ export const useStore = create<Store>((set, get) => ({
       cities[name] = city;
       set(state => ({ nRenderedCities: state.nRenderedCities + 1 }))
     }
-    get().updateCurrentPositions();
+    get().updateCurrPositions();
   },
   updateHoveredCity: (name: CityName | null) => {
     if (name === null) {
@@ -148,7 +145,7 @@ export const useStore = create<Store>((set, get) => ({
     if (lock !== undefined) {
       set({ moveLock: lock })
     }
-    get().updateCurrentPositions();
+    get().updateCurrPositions();
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
   updateAnimationState: (status: AnimationType, cityName?: CityName) => {
@@ -185,12 +182,12 @@ export const useStore = create<Store>((set, get) => ({
   },
   updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
   updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled }),
-  updateCurrentPositions: () => {
-    const currentPositions: CurrentPositions = {};
+  updateCurrPositions: () => {
+    const currPositions: CurrPositions = {};
     const cities = get().citiesRef.current;
     for (const cityName of Object.keys(cities) as CityName[]) {
-      currentPositions[cityName] = citiesRef.current[cityName]?.position;
+      currPositions[cityName] = citiesRef.current[cityName]?.position;
     }
-    set({ currentPositions })
+    set({ currPositions })
   }
 }));

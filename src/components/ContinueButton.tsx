@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Store, useStore } from "../state";
 
-export function ContinueButton({ dest, disabled }: { dest: string, disabled: boolean }) {
+export function ContinueButton({ dest, disabled }: { dest: string, disabled?: boolean }) {
   const navigate = useNavigate();
-
+  if (disabled === undefined) disabled = false;
   return (
     <button onClick={() => navigate(dest)} disabled={disabled}
       className={"bg-blue-500 p-5 text-white w-fit rounded " + (disabled ? "opacity-75" : "")}>
@@ -16,16 +16,22 @@ export function ContinueButton({ dest, disabled }: { dest: string, disabled: boo
 export type ButtonProps<T> = {
   dest: string;
   useSnapshot: () => T;
-  useCompareSnapshot: (data: T | null) => boolean;
+  compareSnapshot?: (current: T | null, saved: T | null) => boolean;
 }
 
-export function DynamicContinueButton<T>({ dest, useSnapshot, useCompareSnapshot }: ButtonProps<T>) {
+function defaultCompareSnapshot<T>(current: T | null, saved: T | null) {
+  if (current === null || saved === null) return false;
+  return JSON.stringify(current) === JSON.stringify(saved);
+}
 
+export function DynamicContinueButton<T>({ dest, useSnapshot, compareSnapshot }: ButtonProps<T>) {
   const data = useSnapshot();
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
   const snapshotRef = useRef<T | null>(null);
-  const disabled = useCompareSnapshot(snapshotRef.current);
+  if (compareSnapshot === undefined) compareSnapshot = defaultCompareSnapshot;
+
+  const disabled = !compareSnapshot(data, snapshotRef.current);
 
   useEffect(() => {
     if (snapshotRef.current === null && nCities === nRenderedCities) {
@@ -37,16 +43,4 @@ export function DynamicContinueButton<T>({ dest, useSnapshot, useCompareSnapshot
   return <ContinueButton dest={dest} disabled={disabled} />
 }
 
-
-type ConditionsConfig = {
-  initData: Partial<Store>
-  hasChanged: (data: Partial<Store>) => boolean;
-}
-
-class Conditions {
-  data: Partial<Store>;
-  constructor(config: ConditionsConfig) {
-    this.data = { ...config.initData }
-  }
-}
 

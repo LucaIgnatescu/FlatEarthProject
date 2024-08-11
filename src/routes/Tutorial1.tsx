@@ -7,7 +7,7 @@ import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { CitySlider, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ContinueButton } from "../components/ContinueButton.tsx";
+import { ContinueButton, DynamicContinueButton } from "../components/ContinueButton.tsx";
 
 export function Tutorial1() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -32,7 +32,7 @@ export function Tutorial1() {
         <div className="flex w-full justify-center" >
           <div className="*:my-10 p-10">
             <Prompt />
-            <ContinueButton dest="/tutorial/2" />
+            <DynamicContinueButton dest="/tutorial/2" useSnapshot={useSnapshot} />
           </div>
         </div>
       </div>
@@ -52,5 +52,11 @@ function Prompt() {
       </p>
     </div>
   );
+}
+
+
+function useSnapshot() {
+  const currPositions = useStore(state => state.currPositions);
+  return { currPositions }
 }
 

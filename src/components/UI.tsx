@@ -5,10 +5,10 @@ import { computeTotalError } from "../distances";
 export function TotalError() {
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
-  const currentPositions = useStore(state => state.currentPositions);
+  const currPositions = useStore(state => state.currPositions);
   const type = useStore(state => state.objectType);
 
-  const totalError = Math.round(computeTotalError(type, currentPositions) / 100) * 100;
+  const totalError = Math.round(computeTotalError(type, currPositions) / 100) * 100;
   if (nCities !== nRenderedCities) return null;
   return (
     <div className="text-white p-10 text-xl">

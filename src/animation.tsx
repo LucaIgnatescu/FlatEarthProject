@@ -6,6 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { useStore, AnimationType, Store, Positions, ContextMenu } from "./state";
 import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
+
 type AnimationData = {
   source: Vector3,
   dest: Vector3,
@@ -51,7 +52,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const truePositions = useStore(state => state.truePositions);
   const isAnimating = useStore(state => state.isAnimating);
   const updateIsAnimating = useStore(state => state.updateIsAnimating);
-  const updateCurrentPositions = useStore(state => state.updateCurrentPositions);
+  const updateCurrPositions = useStore(state => state.updateCurrPositions);
 
   const animation = animations[cityName] ?? null;
   const animationData = useRef<AnimationData | null>(null);
@@ -78,13 +79,13 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
       animationData.current = null;
       updateIsAnimating(false);
       updateAnimationState(null, cityName);
-      updateCurrentPositions();
+      updateCurrPositions();
       return
     }
     const pos = getIntermediatePoint(animationData.current.source, animationData.current.dest, animationData.current.elapsed / ANIMATION_TIME, type);
     meshRef.current.position.copy(pos);
     animationData.current.elapsed += delta;
-    updateCurrentPositions();
+    updateCurrPositions();
   });
 }
 

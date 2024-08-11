@@ -1,6 +1,6 @@
 import { Vector3 } from "three";
 import { CityName, PolarCoords, positions } from "./coordinates";
-import { CurrentPositions, Distances, Positions, Store } from "./state";
+import { CurrPositions, Distances, Positions, Store } from "./state";
 import { cartesianToPolar, EARTH_RADIUS, ObjectType, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from "./utils";
 
 
@@ -15,10 +15,10 @@ export function getDistancesLazy(city1: CityName, city2: CityName, type: ObjectT
   return { trueDistance, currDistance };
 }
 
-export function getDistancesFast(city1: CityName, city2: CityName, type: ObjectType, currentPositions: CurrentPositions) {
+export function getDistancesFast(city1: CityName, city2: CityName, type: ObjectType, currPositions: CurrPositions) {
   const trueDistance = sphericalDistance(positions[city1], positions[city2], EARTH_RADIUS);
-  const v1 = currentPositions[city1];
-  const v2 = currentPositions[city2];
+  const v1 = currPositions[city1];
+  const v2 = currPositions[city2];
   if (v1 === undefined || v2 === undefined) throw new Error(`${city1} or ${city2} does not exist`);
 
   const calculateDistances = type === 'plane' ? calculateDistancesPlane : calculateDistancesSphere;
@@ -26,13 +26,13 @@ export function getDistancesFast(city1: CityName, city2: CityName, type: ObjectT
   return { trueDistance, currDistance };
 }
 
-export function computeTotalError(type: ObjectType, currentPositions: CurrentPositions) {
+export function computeTotalError(type: ObjectType, currPositions: CurrPositions) {
   let error = 0;
-  const cities = Object.keys(currentPositions) as CityName[];
+  const cities = Object.keys(currPositions) as CityName[];
   for (const city1 of cities) {
     for (const city2 of cities) {
       if (city1 === city2) continue;
-      const { trueDistance, currDistance } = getDistancesFast(city1, city2, type, currentPositions);
+      const { trueDistance, currDistance } = getDistancesFast(city1, city2, type, currPositions);
       error += Math.abs(trueDistance - currDistance);
     }
   }
