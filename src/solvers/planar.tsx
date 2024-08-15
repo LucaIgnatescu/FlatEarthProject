@@ -1,4 +1,4 @@
-import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
+import { dotMultiply, eigs, identity, Matrix, matrix, multiply, multiplyScalarDependencies, ones, sqrt, subtract, transpose } from "mathjs"
 import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
@@ -163,3 +163,18 @@ export const getFinalPositionPlane = (
   return getPosition(cityName, citiesRef, hoveredCityRef);
 }
 
+// source: https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect
+export const getPositionFromCenters = (c1: Vector2, c2: Vector2, r1: number, r2: number) => {
+  const x1 = c1.x, y1 = c1.y;
+  const x2 = c2.x, y2 = c2.y;
+  if (c1.equals(c2)) throw new Error('centers must be different');
+
+  const R2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+  const v1 = new Vector2(x1 + x2, y1 + y2).multiplyScalar(1 / 2);
+  const v2 = new Vector2(x2 - x1, y2 - y1).multiplyScalar((r1 * r1 - r2 * r2) / (2 * R2));
+  const c = 1 / 2 * Math.sqrt(2 * (r1 * r1 + r2 * r2) / R2 - (r1 * r1 - r2 * r2) * (r1 * r1 - r2 * r2) / (R2 * R2) - 1);
+  const v3 = new Vector2(y2 - y1, x1 - x2).multiplyScalar(c);
+  const sol1 = v1.clone().add(v2).add(v3);
+  const sol2 = v1.clone().add(v2).sub(v3);
+  return { sol1, sol2 };
+}

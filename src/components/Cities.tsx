@@ -1,11 +1,12 @@
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
-import { Mesh, Vector3 } from "three";
+import { Mesh, Vector2, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, slerp } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
 import { getDistancesLazy } from "../distances";
+import { getPositionFromCenters } from "../solvers/planar";
 
 export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
 export type CityProps = {
@@ -152,6 +153,35 @@ function useSnapping(type: ObjectType, cityName: CityName) {
         return;
       }
       if (delta < THRESH_CLOSE) {
+        for (const other1 of otherCities) {
+          if (other1 === other || citiesRef.current[other1] === undefined) continue;
+          const newDistances = getDistancesLazy(cityName, other1, type, citiesRef);
+          const trueDistance1 = newDistances.trueDistance;
+          const currDistance1 = newDistances.currDistance;
+          const delta1 = Math.abs(trueDistance1 - currDistance1);
+          if (delta1 < THRESH_CLOSE * 3) {
+            const targetPosition = citiesRef.current[cityName].position;
+            const position = citiesRef.current[other].position;
+            const position1 = citiesRef.current[other1].position;
+            const c1 = new Vector2(position.x, position.z);
+            const c2 = new Vector2(position1.x, position1.z);
+            const r1 = trueDistance / SCALE_FACTOR;
+            const r2 = trueDistance1 / SCALE_FACTOR;
+
+            const { sol1, sol2 } = getPositionFromCenters(c1, c2, r1, r2);
+
+            const s1 = new Vector3(sol1.x, 0, sol1.y);
+            const s2 = new Vector3(sol2.x, 0, sol2.y);
+
+            const { x, y, z } = targetPosition.distanceTo(s1) < targetPosition.distanceTo(s2) ? s1 : s2;
+
+            moveHoveredCity(x, y, z, true);
+            setFixTarget(other);
+            updateControls(false);
+            return;
+          }
+        }
+
         const dest = citiesRef.current[cityName].position;
         const base = citiesRef.current[other].position;
         const pos = new Vector3().lerpVectors(base, dest, trueDistance / currDistance);

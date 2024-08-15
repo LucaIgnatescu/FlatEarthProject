@@ -60,7 +60,7 @@ function Prompt() {
       </p>
       <p>
         To assist you, we provide two kinds of solvers.
-        One matches all the distances to a single point, while the other constructs the global solution that minimizes the total error.
+        One matches all the distances to a single point, while the other constructs the best overall solution.
       </p>
       <p>
         Try seeing how they work.
