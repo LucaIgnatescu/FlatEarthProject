@@ -28,7 +28,6 @@ function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: Cit
   const meshRef = useRef<Mesh>(null!);
   const props = useCreateHandlers(cityName, meshRef);
   const type = useStore(state => state.objectType);
-
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
   useSnapping(type, cityName);

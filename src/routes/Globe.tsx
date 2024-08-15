@@ -10,7 +10,7 @@ import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
-import { TotalError, UIWrapper } from "../components/UI";
+import { TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
 import { AnchorPrompt } from "../components/AnchorPrompt";
 
@@ -32,7 +32,7 @@ export default function Globe() {
         <Curves />
         <Sprites />
       </Canvas>
-      <UIWrapper>
+      <UIContainer>
         <div className="w-full flex justify-center text-white text-center">
           <div className="flex flex-col">
             <TotalError />
@@ -40,7 +40,7 @@ export default function Globe() {
           </div>
         </div>
         <ContextMenu />
-      </UIWrapper>
+      </UIContainer>
     </>
   );
 }

@@ -17,7 +17,7 @@ export function TotalError() {
   );
 }
 
-export function UIWrapper({ children }: { children: React.ReactNode }) {
+export function UIContainer({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full h-full absolute top-0 pointer-events-none">
       {children}

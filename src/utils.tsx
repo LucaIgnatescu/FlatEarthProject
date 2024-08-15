@@ -1,6 +1,5 @@
-import { Object3D, Vector3 } from "three";
-import { CityName, PolarCoords, positions } from "./coordinates";
-import { useStore, Distances, Positions } from "./state";
+import { Vector3 } from "three";
+import { PolarCoords } from "./coordinates";
 
 export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
@@ -8,6 +7,7 @@ export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
 export const ORANGE = 0xff8400;
 export const GREEN = 0x3acabb;
+export const RED = 0xff0000;
 
 export type ObjectType = 'plane' | 'sphere';
 

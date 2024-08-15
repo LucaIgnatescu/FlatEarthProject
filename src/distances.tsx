@@ -33,6 +33,7 @@ export function computeTotalError(type: ObjectType, currPositions: CurrPositions
     for (const city2 of cities) {
       if (city1 === city2) continue;
       const { trueDistance, currDistance } = getDistancesFast(city1, city2, type, currPositions);
+      console.log(trueDistance, currDistance, city1, city2);
       error += Math.abs(trueDistance - currDistance);
     }
   }

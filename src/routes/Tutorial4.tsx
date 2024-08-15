@@ -5,23 +5,24 @@ import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { CitySlider, TotalError, UIWrapper } from "../components/UI";
-import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
-import { ContextMenu } from "../components/ContextMenu";
-import { AnchorPrompt } from "../components/AnchorPrompt";
+import { TotalError, UIContainer } from "../components/UI";
+import { TutorialCityMesh, TutorialContainer, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ContinueButton } from "../components/ContinueButton.tsx";
+import { DynamicContinueButton } from "../components/ContinueButton.tsx";
+import { computeTotalError } from "../distances.tsx";
+import { ContextMenu } from "../components/ContextMenu.tsx";
+import { AnchorPrompt } from "../components/AnchorPrompt.tsx";
 
 export function Tutorial4() {
   const updateRoute = useStore(state => state.updateRoute);
   const updateNCities = useStore(state => state.updateNCities);
   useLayoutEffect(() => {
     updateRoute('tutorial');
-    updateNCities(7);
+    updateNCities(3);
   })
   return (
     <div className="flex h-full">
-      <div className="w-1/2 relative">
+      <div className="w-3/5 relative">
         <Canvas className="bg-black w-full" >
           <TutorialControls />
           <ambientLight color={0xffffff} intensity={2} />
@@ -31,39 +32,55 @@ export function Tutorial4() {
           <Curves radius={0.2} />
           <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
         </Canvas>
-        <UIWrapper>
+        <UIContainer>
           <div className="w-full flex justify-center">
-            <div className="flex flex-col text-white text-center">
-              <TotalError />
-              <AnchorPrompt />
-            </div>
+            <TotalError />
             <ContextMenu />
+            <AnchorPrompt />
           </div>
-        </UIWrapper>
+        </UIContainer>
       </div>
-      <div className="w-1/2 flex flex-col justify-center">
-        <div className="flex w-full justify-center" >
-          <div className="*:my-10 p-10">
-            <Prompt />
-            <ContinueButton dest="/plane" />
-            <CitySlider />
-          </div>
-        </div>
+      <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
+        <Prompt />
+        <DynamicContinueButton
+          dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
+        />
       </div>
     </div>
   );
 }
-
 
 
 
 function Prompt() {
   return (
-    <div className="*:my-2 text-lg">
-      <p>That was much harder, right?</p>
-      <p>To assist you, right-clicking on a city will prompt a helper menu, with individual and global solvers.</p>
-      <p>Try seeing how they work!</p>
+    <div className="*:my-2 text-xl">
+      <p>
+        That was much harder, right?
+      </p>
+      <p>
+        To assist you, we provide two kinds of solvers.
+        One matches all the distances to a single point, while the other constructs the global solution that minimizes the total error.
+      </p>
+      <p>
+        Try seeing how they work.
+      </p>
     </div>
   );
 }
 
+type T = { totalError: number }
+
+function useSnapshot(): T {
+  const currPositions = useStore(state => state.currPositions);
+  const type = useStore(state => state.objectType);
+  const totalError = computeTotalError(type, currPositions);
+  return { totalError };
+}
+
+function compareSnapshot(current: T | null) {
+  if (current === null) return false;
+  const THRESH = 50;
+  const { totalError } = current;
+  return totalError < THRESH;
+}

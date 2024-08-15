@@ -42,3 +42,11 @@ export const TutorialCityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => 
     </mesh >);
 });
 
+export function TutorialContainer({ children }: { children: JSX.Element | JSX.Element[] }) {
+  return (
+    <div className="w-full h-full flex flex-col justify-center p-12">
+      {children}
+    </div>
+  );
+}
+
