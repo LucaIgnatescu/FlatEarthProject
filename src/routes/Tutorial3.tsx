@@ -8,7 +8,9 @@ import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ContinueButton } from "../components/ContinueButton.tsx";
+import { ContinueButton, DynamicContinueButton } from "../components/ContinueButton.tsx";
+import { CityName } from "../coordinates.ts";
+import { getDistancesFast } from "../distances.tsx";
 
 export function Tutorial3() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -39,7 +41,7 @@ export function Tutorial3() {
         <div className="flex w-full justify-center" >
           <div className="*:my-10 p-10" >
             <Prompt />
-            <ContinueButton dest="/tutorial/4" />
+            <DynamicContinueButton dest="/tutorial/4" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
           </div>
         </div>
       </div>
@@ -59,3 +61,20 @@ function Prompt() {
   );
 }
 
+type T = { delta: number }
+
+function useSnapshot(): T | null {
+  const currPositions = useStore(state => state.currPositions);
+  const cities = Object.keys(currPositions) as CityName[];
+  const type = useStore(state => state.objectType);
+  if (cities.length < 2) return null;
+  const { trueDistance, currDistance } = getDistancesFast(cities[0], cities[1], type, currPositions);
+  return { delta: Math.abs(trueDistance - currDistance) };
+}
+
+function compareSnapshot(current: T | null) {
+  if (current === null) return false;
+  const THRESH = 50;
+  const { delta } = current;
+  return delta < THRESH;
+}

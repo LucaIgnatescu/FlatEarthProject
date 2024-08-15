@@ -1,4 +1,4 @@
-import { ThreeEvent, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { Mesh, RepeatWrapping, TextureLoader } from "three";
 import { CIRCLE_RADIUS } from "../utils";
 import { useStore } from "../state";
@@ -6,25 +6,24 @@ import { MapControls } from "@react-three/drei";
 import { TextSpriteFactory } from "./TextSprite";
 import { forwardRef } from "react";
 import { CityProps } from "./Cities";
+import { EarthProps } from "./Earth";
 
-export function TutorialEarthMesh({ onPointerMove, onPointerUp }: {
-  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
-  onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
-}) {
+
+export const TutorialEarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
   const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
   const texture = useLoader(TextureLoader, "../../static/img/grid.jpg");
   texture.repeat.set(1, 1);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
   return (
-    <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
+    <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]} ref={ref}
       onPointerUp={onPointerUp}
-      onPointerMove={onPointerMove}>
+      onPointerMove={onPointerMove} >
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />
-    </mesh>
+    </mesh >
   );
-}
+});
 
 
 export function TutorialControls() {

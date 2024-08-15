@@ -11,8 +11,8 @@ export function TotalError() {
   const totalError = Math.round(computeTotalError(type, currPositions) / 100) * 100;
   if (nCities !== nRenderedCities) return null;
   return (
-    <div className="text-white p-10 text-xl">
-      Total Error: {totalError} km
+    <div className="text-white p-10 text-4xl">
+      {totalError}
     </div>
   );
 }

@@ -8,7 +8,9 @@ import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ContinueButton } from "../components/ContinueButton.tsx";
+import { DynamicContinueButton } from "../components/ContinueButton.tsx";
+import { computeTotalError, getDistancesFast } from "../distances.tsx";
+import { CityName } from "../coordinates.ts";
 
 export function Tutorial2() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -39,7 +41,7 @@ export function Tutorial2() {
         <div className="flex w-full justify-center" >
           <div className="*:my-10 p-10">
             <Prompt />
-            <ContinueButton dest="/tutorial/3" />
+            <DynamicContinueButton dest="/tutorial/3" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
           </div>
         </div>
       </div>
@@ -68,5 +70,20 @@ function Prompt() {
       </p>
     </div>
   );
+}
+
+
+function useSnapshot() {
+  const currPositions = useStore(state => state.currPositions);
+  const type = useStore(state => state.objectType);
+  const totalError = computeTotalError(type, currPositions);
+  return { totalError };
+}
+
+function compareSnapshot(current: { totalError: number } | null) {
+  if (current === null) return false;
+  const THRESH = 100;
+  const { totalError } = current;
+  return totalError < THRESH;
 }
 

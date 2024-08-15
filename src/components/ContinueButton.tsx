@@ -15,7 +15,7 @@ export function ContinueButton({ dest, disabled }: { dest: string, disabled?: bo
 
 export type ButtonProps<T> = {
   dest: string;
-  useSnapshot: () => T;
+  useSnapshot: () => T | null;
   compareSnapshot?: (current: T | null, saved: T | null) => boolean;
 }
 
@@ -25,11 +25,12 @@ function defaultCompareSnapshot<T>(current: T | null, saved: T | null) {
 }
 
 export function DynamicContinueButton<T>({ dest, useSnapshot, compareSnapshot }: ButtonProps<T>) {
+  if (compareSnapshot === undefined) compareSnapshot = defaultCompareSnapshot;
+
+  const snapshotRef = useRef<T | null>(null);
   const data = useSnapshot();
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
-  const snapshotRef = useRef<T | null>(null);
-  if (compareSnapshot === undefined) compareSnapshot = defaultCompareSnapshot;
 
   const disabled = !compareSnapshot(data, snapshotRef.current);
 

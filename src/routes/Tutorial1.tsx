@@ -4,10 +4,9 @@ import { useStore } from "../state";
 import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { CitySlider, TotalError, UIWrapper } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
-import { ContinueButton, DynamicContinueButton } from "../components/ContinueButton.tsx";
+import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 
 export function Tutorial1() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -29,7 +28,7 @@ export function Tutorial1() {
         </Canvas>
       </div>
       <div className="w-1/2 flex flex-col justify-center">
-        <div className="flex w-full justify-center" >
+        <div className="flex w-full justify-center text-xl" >
           <div className="*:my-10 p-10">
             <Prompt />
             <DynamicContinueButton dest="/tutorial/2" useSnapshot={useSnapshot} />
@@ -45,7 +44,7 @@ export function Tutorial1() {
 
 function Prompt() {
   return (
-    <div className="text-lg">
+    <div>
       <p>
         On the left, there are two points, highlighed in <span className="text-[#ff8400]">orange</span>.
         You can click and drag to move them.

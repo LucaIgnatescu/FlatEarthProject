@@ -1,12 +1,12 @@
 import { Line, PerspectiveCamera } from "@react-three/drei";
 import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
-import { useLayoutEffect, useMemo } from "react";
-import { TextureLoader, Vector3 } from "three";
+import { forwardRef, useLayoutEffect, useMemo } from "react";
+import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { useStore } from "../state";
-import { EarthWrapper } from "../components/Earth";
+import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites } from "../components/TextSprite";
@@ -50,20 +50,18 @@ export default function Plane() {
 }
 
 
-function EarthMesh({ onPointerMove, onPointerUp }: {
-  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
-  onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
-}) {
+const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
   const texture = useLoader(TextureLoader, '../../static/img/disk.png');
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}
-      onPointerMove={onPointerMove}>
+      onPointerMove={onPointerMove}
+      ref={ref}>
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />
     </mesh>
   );
-}
+});
 
 function EarthWireframe() {
   const wireframe = [];
