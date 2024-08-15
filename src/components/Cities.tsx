@@ -123,16 +123,26 @@ function useSnapping(type: ObjectType, cityName: CityName) {
 
   const THRESH_CLOSE = 200;
   const THRESH_FAR = 500;
+  const THRESH_CLOSE_GLOBE = .5;
   useFrame(() => {
-    if (hoveredCityRef.current?.name !== cityName || !isDragging) {
-      return
+    if (
+      hoveredCityRef.current?.name !== cityName || !isDragging ||
+      truePositions[cityName] === undefined ||
+      citiesRef.current[cityName] === undefined
+    ) return;
+    if (type === 'sphere') {
+      const truePosition = polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
+      const currPosition = citiesRef.current[cityName].position;
+      if (currPosition.distanceTo(truePosition) < THRESH_CLOSE_GLOBE) {
+        setFixTarget(cityName);
+        moveHoveredCity(truePosition.x, truePosition.y, truePosition.z, true);
+        updateControls(false);
+      }
+      return;
     }
     const otherCities = Object.keys(truePositions).filter(key => key !== cityName) as CityName[];
     for (const other of otherCities) {
-      if (
-        citiesRef.current[cityName] === undefined ||
-        citiesRef.current[other] === undefined
-      ) continue;
+      if (citiesRef.current[other] === undefined) continue;
       const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
       if (fixTarget === other) {
@@ -144,9 +154,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
       if (delta < THRESH_CLOSE) {
         const dest = citiesRef.current[cityName].position;
         const base = citiesRef.current[other].position;
-        const pos = (type === 'plane') ?
-          new Vector3().lerpVectors(base, dest, trueDistance / currDistance) :
-          slerp(base, dest, trueDistance / currDistance);
+        const pos = new Vector3().lerpVectors(base, dest, trueDistance / currDistance);
         const { x, y, z } = pos;
         moveHoveredCity(x, y, z, true);
         setFixTarget(other);
