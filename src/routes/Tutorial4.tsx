@@ -63,7 +63,7 @@ function Prompt() {
         One matches all the distances to a single point, while the other constructs the best overall solution.
       </p>
       <p>
-        Try seeing how they work.
+        Try right-clicking on a point to see how they work.
       </p>
     </div>
   );

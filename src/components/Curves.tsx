@@ -1,7 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vector3 } from "three";
-import { GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS } from "../utils";
+import { GREEN, ObjectType, ORANGE, PURPLE, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 import { getDistancesLazy } from "../distances";
@@ -49,8 +49,10 @@ function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, 
     ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
 
     const { currDistance, trueDistance } = getDistancesLazy(baseName, cityName, type, citiesRef);
-    const delta = Math.abs(currDistance - trueDistance);
-    const color = delta < THRESH ? GREEN : ORANGE;
+    const delta = currDistance - trueDistance;
+    let color = GREEN;
+    if (delta > THRESH) color = ORANGE;
+    if (delta < -THRESH) color = YELLOW;
     const material = new MeshBasicMaterial({ color });
 
     (ref.current.material as Material).dispose();

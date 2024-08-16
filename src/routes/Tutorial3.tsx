@@ -52,6 +52,9 @@ function Prompt() {
       <p>
         Now, attempt to do the same with three points.
       </p>
+      <p>
+        All lines should be <span className="text-green">green</span>, and the number at the top should be 0.
+      </p>
     </div>
   );
 }

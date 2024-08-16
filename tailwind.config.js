@@ -10,7 +10,8 @@ export default {
       colors: {
         'orange': '#ff8400',
         'red': '#ff0000',
-        'green': '#3acabb'
+        'green': '#3acabb',
+        'yellow': '#faff00'
       }
     },
   },

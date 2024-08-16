@@ -55,8 +55,9 @@ function Prompt() {
       </p>
       <p>
         As such, there is a line connecting this pair of points.
-        It is <span className="text-green">green</span> when the pairwise distance is matched, and otherwise
-        <span className="text-orange"> orange</span>.
+        It is <span className="text-green ">green</span> when the pairwise distance is matched,
+        <span className="text-[#ffc300]"> yellow</span>  if too small,
+        and <span className="text-orange "> orange</span> if too large.
       </p>
       <p>
         Try to match the distance again, using the line as a guide.

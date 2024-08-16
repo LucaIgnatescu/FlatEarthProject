@@ -8,10 +8,10 @@ export function TotalError() {
   const currPositions = useStore(state => state.currPositions);
   const type = useStore(state => state.objectType);
 
-  const totalError = Math.round(computeTotalError(type, currPositions) / 100) * 100;
+  const totalError = Math.round(computeTotalError(type, currPositions) / 10) * 10;
   if (nCities !== nRenderedCities) return null;
   return (
-    <div className="text-white p-10 text-4xl">
+    <div className="text-white p-10 text-4xl pointer-events-none">
       {totalError}
     </div>
   );

@@ -1,8 +1,8 @@
 import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
-import { Mesh, Vector2, Vector3 } from "three";
+import { Material, Mesh, MeshBasicMaterial, Vector2, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR, GREEN } from "../utils";
 import { useStore } from "../state";
 import { startAnimation, useAnimation } from "../animation";
 import { getDistancesLazy } from "../distances";
@@ -31,7 +31,7 @@ function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: Cit
   const type = useStore(state => state.objectType);
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
-  useSnapping(type, cityName);
+  useSnapping(type, cityName, meshRef);
 
   useFrame(() => {
     const pos = meshRef.current.position;
@@ -113,13 +113,14 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   return { onPointerMove, onPointerDown, onPointerLeave, onContextMenu };
 }
 
-function useSnapping(type: ObjectType, cityName: CityName) {
+function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
   const truePositions = useStore(state => state.truePositions);
   const citiesRef = useStore(state => state.citiesRef);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateControls = useStore(state => state.updateControlsEnabled);
   const isDragging = useStore(state => state.isDragging);
+  const updateIsDragging = useStore(state => state.updateIsDragging);
   const [fixTarget, setFixTarget] = useState<CityName | null>(null);
 
   const THRESH_CLOSE = 200;
@@ -137,7 +138,11 @@ function useSnapping(type: ObjectType, cityName: CityName) {
       if (currPosition.distanceTo(truePosition) < THRESH_CLOSE_GLOBE) {
         setFixTarget(cityName);
         moveHoveredCity(truePosition.x, truePosition.y, truePosition.z, true);
+        updateIsDragging(false);
         updateControls(false);
+        (meshRef.current.material as Material).dispose();
+        const newMaterial = new MeshBasicMaterial({ color: GREEN });
+        meshRef.current.material = newMaterial;
       }
       return;
     }
@@ -159,7 +164,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
           const trueDistance1 = newDistances.trueDistance;
           const currDistance1 = newDistances.currDistance;
           const delta1 = Math.abs(trueDistance1 - currDistance1);
-          if (delta1 < THRESH_CLOSE * 3) {
+          if (delta1 < THRESH_CLOSE * 4) {
             const targetPosition = citiesRef.current[cityName].position;
             const position = citiesRef.current[other].position;
             const position1 = citiesRef.current[other1].position;
@@ -178,6 +183,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
             moveHoveredCity(x, y, z, true);
             setFixTarget(other);
             updateControls(false);
+            updateIsDragging(false);
             return;
           }
         }
@@ -189,6 +195,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
         moveHoveredCity(x, y, z, true);
         setFixTarget(other);
         updateControls(false);
+        updateIsDragging(false);
         return;
       }
     }

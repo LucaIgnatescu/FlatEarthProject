@@ -34,7 +34,7 @@ export function TutorialControls() {
 
 export const TutorialTextSprite = TextSpriteFactory({ fontsize: 50, scale: [20, 10, 1] });
 export const TutorialCityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {
-  const radius = 1;
+  const radius = 2;
   return (
     <mesh ref={meshRef} position={[0, 0, 0]} {...props} >
       <sphereGeometry args={[radius]} />

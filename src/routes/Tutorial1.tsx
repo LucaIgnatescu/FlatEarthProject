@@ -52,14 +52,16 @@ function Prompt() {
     <div className="*:my-2 text-xl">
       <p>
         The points on the left represent two cities,
-        Atlanta and Beijing.
-        They are known to be <span className="text-red">11550 km</span> apart.
+        <span className="text-red"> Atlanta </span>
+        and
+        <span className="text-red"> Beijing</span>.
+        They are known to be  11550 km apart.
       </p>
       <p>
-        The number at the top indicates how far off the current distance is from this value.
+        The number at the top indicates how far off their current distance is from this value.
       </p>
       <p>
-        Move the points around such that the error decreases to <span className="text-green">0</span>.
+        Move the points around such that the number at the top becomes <span className="text-green">0</span>.
       </p>
     </div>
   );
