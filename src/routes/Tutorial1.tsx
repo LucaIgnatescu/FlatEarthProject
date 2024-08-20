@@ -27,7 +27,6 @@ export function Tutorial1() {
           <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
           <EarthWrapper EarthMesh={TutorialEarthMesh} />
           <Cities CityMesh={TutorialCityMesh} />
-          <Curves radius={0.2} />
           <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
         </Canvas>
         <UIContainer>
@@ -55,13 +54,11 @@ function Prompt() {
         <span className="text-red"> Atlanta </span>
         and
         <span className="text-red"> Beijing</span>.
-        They are known to be  11550 km apart.
+        They are known to be  11550 km apart in reality.
       </p>
       <p>
-        The number at the top indicates how far off their current distance is from this value.
-      </p>
-      <p>
-        Move the points around such that the number at the top becomes <span className="text-green">0</span>.
+        On the left, these cities are now currval(match line color) apart.
+        Can you make the representation match reality by dragging the cities around?
       </p>
     </div>
   );

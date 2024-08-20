@@ -54,10 +54,13 @@ function Prompt() {
         There are many ways to do this.
       </p>
       <p>
-        As such, there is a line connecting this pair of points.
-        It is <span className="text-green ">green</span> when the pairwise distance is matched,
-        <span className="text-[#ffc300]"> yellow</span>  if too small,
-        and <span className="text-orange "> orange</span> if too large.
+        To help you align the cities to reality, there is a line connecting the points.
+        It is <span className="text-green ">green</span> when the distance is matched,
+        <span className="text-[#ffc300]"> yellow</span>  if too short,
+        and <span className="text-orange "> orange</span> if too long. CHANGE COLORS
+      </p>
+      <p>
+        In addition, the number that hovers above the line tells you how how far off you are.
       </p>
       <p>
         Try to match the distance again, using the line as a guide.

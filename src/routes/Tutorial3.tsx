@@ -45,12 +45,22 @@ export function Tutorial3() {
 }
 
 
-
+// NOTE: NO
 function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        Now, attempt to do the same with three points.
+        Now, we are adding another city. (C for chicago?)
+      </p>
+      <p>
+        Each city has two distances to other cities.
+      </p>
+      <p>
+        Like before, the lines between the points and numbers above them represent how close you are to reality.
+      </p>
+      <p>
+        Now, the number on top is the sum of all discrepancies between representation and reality. The goal, is to make THAT number go to 0, so that your representation
+        matches reality completely.
       </p>
       <p>
         All lines should be <span className="text-green">green</span>, and the number at the top should be 0.
