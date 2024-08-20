@@ -35,7 +35,7 @@ export type ContextMenu = {
 
 export type Positions = { [key in CityName]?: PolarCoords };
 export type CurrPositions = { [key in CityName]?: Vector3 };
-
+export type HoverPositions = { [key in CityName]?: [number, number] };
 
 export type Store = {
   route: null | Route
@@ -53,6 +53,7 @@ export type Store = {
   controlsEnabled: boolean;
   moveLock: boolean;
   currPositions: CurrPositions;
+  hoverPositions: HoverPositions;
   updateRoute: (route: Route) => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -66,6 +67,7 @@ export type Store = {
   updateControlsEnabled: (controlsEnabled: boolean) => void;
   updateMoveLock: (moveLock: boolean) => void;
   updateCurrPositions: () => void;
+  updateHoverPositions: (cityName: CityName, newPosition: [number, number] | null) => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -87,6 +89,7 @@ const controls = true;
 const moveLock = false;
 const objectType: ObjectType = 'plane';
 const currPositions = {};
+const hoverPositions = {};
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -105,6 +108,7 @@ export const useStore = create<Store>((set, get) => ({
   moveLock: moveLock,
   objectType,
   currPositions,
+  hoverPositions,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   updateRoute: (route: Route) => {
     get().hoveredCityRef.current = null;
@@ -157,7 +161,7 @@ export const useStore = create<Store>((set, get) => ({
     }
     if (status === 'fixed') {
       const animations = fillAnimationTable('moving');
-      animations[cityName] = 'fixed';
+      animations[cityName] = null;
       set({ animations });
       return true;
     }
@@ -189,5 +193,11 @@ export const useStore = create<Store>((set, get) => ({
       currPositions[cityName] = citiesRef.current[cityName]?.position;
     }
     set({ currPositions })
+  },
+  updateHoverPositions: (cityName: CityName, newPosition: [number, number] | null) => {
+    if (newPosition === null) {
+      return;// TODO: remove city
+    }
+    set((state) => ({ hoverPositions: { ...state.hoverPositions, [cityName]: newPosition } }))
   }
 }));

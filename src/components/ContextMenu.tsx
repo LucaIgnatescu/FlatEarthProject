@@ -6,15 +6,14 @@ export function ContextMenu() {
   const contextMenu = useStore(state => state.contextMenu);
   const updateContextMenu = useStore(state => state.updateContextMenu);
   const ref = useRef<HTMLDivElement>(null!);
-  const route = useStore(state => state.route);
   const updateAnimationState = useStore(state => state.updateAnimationState);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const updateIsPicking = useStore(state => state.updateIsPicking);
   const isAnimating = useStore(state => state.isAnimating);
-
+  const type = useStore(state => state.objectType);
   const { cityName } = contextMenu;
-
   if (isAnimating || contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
+    console.log(isAnimating, contextMenu)
     return null;
   }
 
@@ -38,8 +37,8 @@ export function ContextMenu() {
       </button>
       <button className="border-l border-l-gray-500"
         onClick={() => {
-          if (route === 'sphere') {
-            startAnimation(updateAnimationState, updateHoveredCity, 'global', cityName);
+          if (type === 'sphere') {
+            startAnimation(updateAnimationState, updateHoveredCity, 'global');
             closeMenu();
           } else {
             updateIsPicking(true);

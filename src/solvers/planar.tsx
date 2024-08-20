@@ -3,7 +3,7 @@ import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationType, Positions, Store } from "../state";
-import { computeRealDistances, getDistancesLazy } from "../distances";
+import { calculateDistancesPlane, computeRealDistances, getDistancesLazy } from "../distances";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],

@@ -24,7 +24,7 @@ export function sphericalDistance(x: PolarCoords, y: PolarCoords, r: number) {
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = r * c; // in metres
-  return Math.round(d / 10) / 100;
+  return d / 1000;
 }
 
 export function planarDistance(p1: Vector3, p2: Vector3) {
@@ -47,7 +47,6 @@ export function cartesianToPolar(v: Vector3, r: number) {
   const { x, y, z } = v;
   const lat = Math.asin(y / r) * (180 / Math.PI);
   const lon = -1 * Math.atan2(z, x) * (180 / Math.PI);
-
   return { lat, lon }
 }
 
@@ -59,8 +58,8 @@ export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assume
   base = new Vector3().copy(base);
   dest = new Vector3().copy(dest);
   const theta = Math.acos(base.dot(dest));
-  return base.multiplyScalar(Math.sin((1 - t) * theta) / Math.sin(theta)).add(
-    dest.multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
+  return base.clone().multiplyScalar(Math.sin((1 - t) * theta) / Math.sin(theta)).add(
+    dest.clone().multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
   );
 }
 

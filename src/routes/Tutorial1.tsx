@@ -3,7 +3,6 @@ import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
 import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
-import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";

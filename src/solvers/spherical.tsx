@@ -9,7 +9,7 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
   const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'plane', citiesRef);
+  const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'sphere', citiesRef);
   const base = new Vector3().copy(baseMesh.position).normalize();
   const dest = new Vector3().copy(destMesh.position).normalize();
   const pos = slerp(base, dest, trueDistance / currDistance).multiplyScalar(SPHERE_RADIUS);

@@ -43,7 +43,6 @@ export function getFinalPosition({ type, animation, cityName, citiesRef, hovered
 
 export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const ANIMATION_TIME = 5;
-
   const updateAnimationState = useStore(state => state.updateAnimationState);
   const citiesRef = useStore(state => state.citiesRef);
   const hoveredCityRef = useStore(state => state.hoveredCityRef);
@@ -56,7 +55,6 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
 
   const animation = animations[cityName] ?? null;
   const animationData = useRef<AnimationData | null>(null);
-
   useEffect(() => {
     if (isAnimating || animation === null) return;
     if (citiesRef.current[cityName] === undefined) return;
@@ -65,7 +63,6 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCityRef, contextMenu, positions: truePositions })
     const elapsed = 0;
     if (source.distanceTo(dest) < 0.01) dest = source.clone();
-
     animationData.current = { source, dest, elapsed };
     updateIsAnimating(true);
 

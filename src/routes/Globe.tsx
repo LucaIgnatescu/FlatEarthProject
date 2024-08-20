@@ -12,7 +12,6 @@ import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
 import { TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
-import { AnchorPrompt } from "../components/AnchorPrompt";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -36,7 +35,6 @@ export default function Globe() {
         <div className="w-full flex justify-center text-white text-center">
           <div className="flex flex-col">
             <TotalError />
-            <AnchorPrompt />
           </div>
         </div>
         <ContextMenu />

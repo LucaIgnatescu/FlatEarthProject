@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vector3 } from "three";
 import { GREEN, ObjectType, ORANGE, PURPLE, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
@@ -22,6 +22,27 @@ function generatePoints(type: ObjectType, base: Vector3, dest: Vector3) {
   }
   return pts;
 }
+//
+// function getMidpoint(type: ObjectType, base: Vector3, dest: Vector3) {
+//   if (type === 'plane') {
+//     const midpoint = new Vector3().lerpVectors(base, dest, 1 / 2);
+//     midpoint.add({ x: 2, y: 0, z: 2 });
+//     return midpoint;
+//   }
+//   const midpoint = slerp(new Vector3().copy(base).normalize(), new Vector3().copy(dest).normalize(), 1 / 2);
+//   return midpoint.multiplyScalar(SPHERE_RADIUS + 5);
+// }
+//
+// function useHoveringDistance(type: ObjectType, cityName: CityName, dest: Vector3) {
+//   const hoveredCityRef = useStore(state => state.hoveredCityRef);
+//   const updateHoverPositions = useStore(state => state.updateHoverPositions);
+//   useFrame(() => {
+//     if (hoveredCityRef.current === null) return; // TODO: Reset hovered
+//
+//     const midpoint = getMidpoint(type, hoveredCityRef.current.mesh.position, dest);
+//
+//   })
+// }
 
 function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, radius?: number }) {
   const ref = useRef<Mesh>(null!);
@@ -47,7 +68,6 @@ function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, 
 
     ref.current.geometry.dispose();
     ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
-
     const { currDistance, trueDistance } = getDistancesLazy(baseName, cityName, type, citiesRef);
     const delta = currDistance - trueDistance;
     let color = GREEN;

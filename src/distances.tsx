@@ -9,7 +9,6 @@ export function getDistancesLazy(city1: CityName, city2: CityName, type: ObjectT
   const mesh1 = citiesRef.current[city1];
   const mesh2 = citiesRef.current[city2];
   if (mesh1 === undefined || mesh2 === undefined) throw new Error(`${city1} or ${city2} does not exist`);
-
   const calculateDistances = type === 'plane' ? calculateDistancesPlane : calculateDistancesSphere;
   const currDistance = calculateDistances(mesh1.position, mesh2.position);
   return { trueDistance, currDistance };
@@ -55,12 +54,12 @@ export function computeRealDistances(pos?: Positions): Distances {
   return realDistances;
 }
 
-const calculateDistancesPlane = (v1: Vector3, v2: Vector3) => {
+export const calculateDistancesPlane = (v1: Vector3, v2: Vector3) => {
   return planarDistance(v1, v2) * SCALE_FACTOR;
 }
 
 
-const calculateDistancesSphere = (v1: Vector3, v2: Vector3) => {
+export const calculateDistancesSphere = (v1: Vector3, v2: Vector3) => {
   const p1 = cartesianToPolar(v1, SPHERE_RADIUS);
   const p2 = cartesianToPolar(v2, SPHERE_RADIUS);
   return sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
