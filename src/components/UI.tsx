@@ -19,7 +19,7 @@ export function TotalError() {
 
 export function UIContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full h-full absolute top-0 pointer-events-none">
+    <div className="overflow-hidden w-full h-full absolute top-0 pointer-events-none">
       {children}
     </div>
   );

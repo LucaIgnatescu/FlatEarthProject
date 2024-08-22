@@ -35,7 +35,6 @@ export type ContextMenu = {
 
 export type Positions = { [key in CityName]?: PolarCoords };
 export type CurrPositions = { [key in CityName]?: Vector3 };
-export type HoverPositions = { [key in CityName]?: [number, number] };
 
 export type Store = {
   route: null | Route
@@ -53,7 +52,8 @@ export type Store = {
   controlsEnabled: boolean;
   moveLock: boolean;
   currPositions: CurrPositions;
-  hoverPositions: HoverPositions;
+  hoverPositions: { [key in CityName]?: { position: [number, number], rotation: number } };
+  earthUUID: string | null;
   updateRoute: (route: Route) => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -67,7 +67,8 @@ export type Store = {
   updateControlsEnabled: (controlsEnabled: boolean) => void;
   updateMoveLock: (moveLock: boolean) => void;
   updateCurrPositions: () => void;
-  updateHoverPositions: (cityName: CityName, newPosition: [number, number] | null) => void;
+  updateHoverPositions: (cityName: CityName, position: [number, number] | null, rotation?: number) => void;
+  updateEarthUUID: (uuid: string) => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
@@ -90,6 +91,7 @@ const moveLock = false;
 const objectType: ObjectType = 'plane';
 const currPositions = {};
 const hoverPositions = {};
+const earthUUID = null;
 citiesRef.current = {};
 
 export const useStore = create<Store>((set, get) => ({
@@ -109,6 +111,7 @@ export const useStore = create<Store>((set, get) => ({
   objectType,
   currPositions,
   hoverPositions,
+  earthUUID,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   updateRoute: (route: Route) => {
     get().hoveredCityRef.current = null;
@@ -117,7 +120,7 @@ export const useStore = create<Store>((set, get) => ({
     get().citiesRef.current = {};
 
     const objectType: ObjectType = route === 'sphere' ? 'sphere' : 'plane';
-    set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType });
+    set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType, earthUUID, hoverPositions });
   },
   updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
     const cities = get().citiesRef.current;
@@ -182,7 +185,7 @@ export const useStore = create<Store>((set, get) => ({
     get().hoveredCityRef.current = null;
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
-    set({ nCities, isAnimating, isDragging, contextMenu, route, truePositions })
+    set({ nCities, isAnimating, isDragging, contextMenu, route, truePositions, hoverPositions })
   },
   updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
   updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled }),
@@ -194,10 +197,8 @@ export const useStore = create<Store>((set, get) => ({
     }
     set({ currPositions })
   },
-  updateHoverPositions: (cityName: CityName, newPosition: [number, number] | null) => {
-    if (newPosition === null) {
-      return;// TODO: remove city
-    }
-    set((state) => ({ hoverPositions: { ...state.hoverPositions, [cityName]: newPosition } }))
-  }
+  updateHoverPositions: (cityName: CityName, position: [number, number] | null, rotation: number = 0) => {
+    set((state) => ({ hoverPositions: { ...state.hoverPositions, [cityName]: { position, rotation } } }))
+  },
+  updateEarthUUID: (earthUUID: string) => set({ earthUUID })
 }));

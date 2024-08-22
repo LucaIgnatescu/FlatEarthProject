@@ -3,7 +3,7 @@ import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
 import { AnimationType, Positions, Store } from "../state";
-import { calculateDistancesPlane, computeRealDistances, getDistancesLazy } from "../distances";
+import { computeRealDistances, getDistancesLazy } from "../distances";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -12,6 +12,7 @@ const rotate = (theta: number) => matrix(
 );
 
 const translate = (x: number, y: number) => matrix([[1, 0, x], [0, 1, y], [0, 0, 1]]);
+
 const getAngle = (v1: Vector2, v2: Vector2) => {
   const theta = Math.atan((v2.y - v1.y) / (v2.x - v1.x));
   return v1.x > v2.x ? Math.PI + theta : theta;

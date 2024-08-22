@@ -12,6 +12,7 @@ import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
 import { TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
+import { Distances } from "../components/Distances";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -38,6 +39,7 @@ export default function Globe() {
           </div>
         </div>
         <ContextMenu />
+        <Distances />
       </UIContainer>
     </>
   );

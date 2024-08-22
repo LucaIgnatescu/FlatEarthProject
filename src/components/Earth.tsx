@@ -2,7 +2,7 @@ import { ThreeEvent } from "@react-three/fiber";
 import { Mesh } from "three";
 import { useStore } from "../state";
 import { TutorialEarthMesh } from "./TutorialDefaults";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 
 export type EarthProps = {
@@ -15,6 +15,7 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: typeof TutorialEarthMes
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
   const updateControls = useStore(state => state.updateControlsEnabled);
+  const updateEarthUUID = useStore(state => state.updateEarthUUID);
   const meshRef = useRef<Mesh>(null!);
 
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
@@ -30,6 +31,8 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: typeof TutorialEarthMes
     updateIsDragging(false)
     updateControls(true)
   };
+
+  useEffect(() => updateEarthUUID(meshRef.current.uuid), [updateEarthUUID]);
 
   return (
     <EarthMesh onPointerMove={onPointerMove} onPointerUp={onPointerUp} ref={meshRef} />

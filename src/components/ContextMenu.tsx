@@ -13,7 +13,6 @@ export function ContextMenu() {
   const type = useStore(state => state.objectType);
   const { cityName } = contextMenu;
   if (isAnimating || contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
-    console.log(isAnimating, contextMenu)
     return null;
   }
 
