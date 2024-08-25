@@ -4,9 +4,8 @@ import { polarToCartesian, slerp, SPHERE_RADIUS } from "../utils";
 import { Vector3 } from "three";
 import { getDistancesLazy } from "../distances";
 
-const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
+const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCity: Store['hoveredCity']) => {
   const destMesh = citiesRef.current[cityName];
-  const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
   const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'sphere', citiesRef);
@@ -20,7 +19,7 @@ export const getFinalPositionSphere = (
   animation: AnimationType,
   cityName: CityName,
   citiesRef: Store['citiesRef'],
-  hoveredCityRef: Store['hoveredCityRef']
+  hoveredCity: Store['hoveredCity']
 ) => {
   if (animation === null) throw new Error("animation should not be null in getFinalPosition");
   if (animation === 'global') {
@@ -32,5 +31,5 @@ export const getFinalPositionSphere = (
     if (pos === undefined) throw new Error("City does not exist")
     return pos;
   }
-  return getPosition(cityName, citiesRef, hoveredCityRef);
+  return getPosition(cityName, citiesRef, hoveredCity);
 }

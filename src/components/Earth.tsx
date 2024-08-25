@@ -11,7 +11,7 @@ export type EarthProps = {
 }
 export function EarthWrapper({ EarthMesh }: { EarthMesh: typeof TutorialEarthMesh }) { // TODO: Better wireframe
   const isDragging = useStore(state => state.isDragging);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
   const updateControls = useStore(state => state.updateControlsEnabled);
@@ -19,7 +19,7 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: typeof TutorialEarthMes
   const meshRef = useRef<Mesh>(null!);
 
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
-    if (!isDragging || !hoveredCityRef.current) return;
+    if (!isDragging || !hoveredCity) return;
     const earthIntersection = event.intersections.find((intersection) => intersection.object.uuid === meshRef.current.uuid);
     if (earthIntersection === undefined) throw new Error("Didn't intersect earth");
     const { x, y, z } = earthIntersection.point;

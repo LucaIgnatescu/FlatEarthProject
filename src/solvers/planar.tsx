@@ -1,4 +1,4 @@
-import { dotMultiply, eigs, identity, Matrix, matrix, multiply, multiplyScalarDependencies, ones, sqrt, subtract, transpose } from "mathjs"
+import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
 import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
@@ -49,9 +49,6 @@ const centerSolution = (numbers: number[][], citiesArray: CityName[], params: Co
 
   const thetaMDS = getAngle(p1MDS, p2MDS);
   const theta = getAngle(p1, p2);
-  // if (p1.x > p2.x) {
-  //   theta = Math.PI + theta;
-  // }
 
   const row = Array.from({ length: numbers[0].length }).map(() => 1);
   const m = matrix([...numbers, row]);
@@ -117,9 +114,8 @@ const getPositionMDS = (cityName: CityName, params: ConfigParams) => {
   return singleton.solution[cityName];
 };
 
-const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCityRef: Store['hoveredCityRef']) => {
+const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCity: Store['hoveredCity']) => {
   const destMesh = citiesRef.current[cityName];
-  const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
   const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'plane', citiesRef);
@@ -133,7 +129,7 @@ export const getFinalPositionPlane = (
   animation: AnimationType,
   cityName: CityName,
   citiesRef: Store['citiesRef'],
-  hoveredCityRef: Store['hoveredCityRef'],
+  hoveredCity: Store['hoveredCity'],
   positions: Positions,
   anchors: [CityName | null, CityName | null]
 ) => {
@@ -161,7 +157,7 @@ export const getFinalPositionPlane = (
     if (pos === undefined) throw new Error("City does not exist")
     return pos;
   }
-  return getPosition(cityName, citiesRef, hoveredCityRef);
+  return getPosition(cityName, citiesRef, hoveredCity);
 }
 
 // source: https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect

@@ -21,9 +21,9 @@ export function CityRealDistances() {
   const citiesRef = useStore(state => state.citiesRef)
   const nRenderedCities = useStore(state => state.nRenderedCities);
   const type = useStore(state => state.objectType);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
 
-  const cityName = hoveredCityRef.current?.name;
+  const cityName = hoveredCity?.name;
 
   if (nRenderedCities === 0 || cityName === undefined) {
     return null; // TODO: Add some fallback component?

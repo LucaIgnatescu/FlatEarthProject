@@ -68,7 +68,7 @@ function useSetupPosition(type: ObjectType, cityName: CityName, meshRef: Mutable
 
 
 function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>): CityProps {
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const isDragging = useStore(state => state.isDragging);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
@@ -104,7 +104,7 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   const onPointerMove: MouseEventHandler = (event) => {
     if (
       event.intersections.find(intersection => intersection.object.uuid === meshRef.current.uuid) &&
-      cityName !== hoveredCityRef.current?.name &&
+      cityName !== hoveredCity?.name &&
       isDragging === false
     ) {
       updateHoveredCity(cityName);
@@ -114,7 +114,7 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
 }
 
 function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const truePositions = useStore(state => state.truePositions);
   const citiesRef = useStore(state => state.citiesRef);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
@@ -128,7 +128,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
   const THRESH_CLOSE_GLOBE = .5;
   useFrame(() => {
     if (
-      hoveredCityRef.current?.name !== cityName || !isDragging ||
+      hoveredCity?.name !== cityName || !isDragging ||
       truePositions[cityName] === undefined ||
       citiesRef.current[cityName] === undefined
     ) return;

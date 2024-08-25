@@ -28,24 +28,24 @@ type FinalPositionParams = {
   type: ObjectType,
   cityName: CityName,
   citiesRef: Store['citiesRef'],
-  hoveredCityRef: Store['hoveredCityRef']
+  hoveredCity: Store['hoveredCity']
   positions: Positions,
   contextMenu: ContextMenu
 }
 
 // Unfortunately, these computations requre a lot of state data
-export function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCityRef, contextMenu, positions }: FinalPositionParams) {
+export function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCity, contextMenu, positions }: FinalPositionParams) {
   if (type === 'sphere') {
-    return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
+    return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCity);
   }
-  return getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, positions, [contextMenu.cityName, contextMenu.anchor])
+  return getFinalPositionPlane(animation, cityName, citiesRef, hoveredCity, positions, [contextMenu.cityName, contextMenu.anchor])
 }
 
 export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
   const ANIMATION_TIME = 5;
   const updateAnimationState = useStore(state => state.updateAnimationState);
   const citiesRef = useStore(state => state.citiesRef);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const contextMenu = useStore(state => state.contextMenu);
   const animations = useStore(state => state.animations);
   const truePositions = useStore(state => state.truePositions);
@@ -60,13 +60,13 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     if (citiesRef.current[cityName] === undefined) return;
 
     const source = citiesRef.current[cityName].position.clone();
-    let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCityRef, contextMenu, positions: truePositions })
+    let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCity, contextMenu, positions: truePositions })
     const elapsed = 0;
     if (source.distanceTo(dest) < 0.01) dest = source.clone();
     animationData.current = { source, dest, elapsed };
     updateIsAnimating(true);
 
-  }, [updateIsAnimating, citiesRef, cityName, isAnimating, animation, type, contextMenu, hoveredCityRef, truePositions]);
+  }, [updateIsAnimating, citiesRef, cityName, isAnimating, animation, type, contextMenu, hoveredCity, truePositions]);
 
 
   useFrame((_, delta) => {

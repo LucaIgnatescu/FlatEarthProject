@@ -40,7 +40,7 @@ export type Store = {
   route: null | Route
   objectType: ObjectType
   citiesRef: MutableRefObject<CityTable>;
-  hoveredCityRef: MutableRefObject<HoveredCityInfo | null>; // TODO: remove this in facor of hoveredCity
+  hoveredCity: HoveredCityInfo | null;
   isDragging: boolean;
   animations: Animations;
   contextMenu: ContextMenu;
@@ -77,7 +77,7 @@ const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce
 
 const isDragging = false;
 const citiesRef = createRef() as MutableRefObject<CityTable>;
-const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
+const hoveredCity = null;
 const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
 const isPicking = false;
@@ -97,7 +97,7 @@ citiesRef.current = {};
 export const useStore = create<Store>((set, get) => ({
   route,
   citiesRef,
-  hoveredCityRef,
+  hoveredCity,
   isDragging,
   animations,
   contextMenu,
@@ -114,7 +114,7 @@ export const useStore = create<Store>((set, get) => ({
   earthUUID,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   updateRoute: (route: Route) => {
-    get().hoveredCityRef.current = null;
+    get().hoveredCity = null;
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
     get().citiesRef.current = {};
@@ -136,16 +136,16 @@ export const useStore = create<Store>((set, get) => ({
   },
   updateHoveredCity: (name: CityName | null) => {
     if (name === null) {
-      get().hoveredCityRef.current = null;
+      set({ hoveredCity: null });
       return;
     }
     const mesh = get().citiesRef.current[name];
     if (mesh === undefined) throw new Error("invalid city name");
-    get().hoveredCityRef.current = { name, mesh };
+    set({ hoveredCity: { name, mesh } });
   },
   moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => {
     if (get().moveLock === true && lock !== false) return;
-    const hoveredCity = get().hoveredCityRef.current;
+    const hoveredCity = get().hoveredCity;
     if (hoveredCity === null)
       throw new Error("Trying to move without selecting a city");
     hoveredCity.mesh.position.set(x, y, z);
@@ -182,7 +182,7 @@ export const useStore = create<Store>((set, get) => ({
       const key = keys[i];
       truePositions[key] = positions[key];
     }
-    get().hoveredCityRef.current = null;
+    set({ hoveredCity: null });
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
     set({ nCities, isAnimating, isDragging, contextMenu, route, truePositions, hoverPositions })

@@ -18,12 +18,12 @@ export function Distances() {
 
 export function Distance({ cityName, position, rotation }: { cityName: CityName, position: [number, number], rotation: number }) {
   const [x, y] = position;
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const citiesRef = useStore(state => state.citiesRef);
   const type = useStore(state => state.objectType);
-  if (hoveredCityRef.current === null || cityName === hoveredCityRef.current.name || citiesRef.current === null) return null;
+  if (hoveredCity === null || cityName === hoveredCity.name || citiesRef.current === null) return null;
 
-  const { currDistance, trueDistance } = getDistancesLazy(hoveredCityRef.current.name, cityName, type, citiesRef);
+  const { currDistance, trueDistance } = getDistancesLazy(hoveredCity.name, cityName, type, citiesRef);
   const delta = currDistance - trueDistance;
   const color = "#" + getColor(delta).toString(16);
   return (

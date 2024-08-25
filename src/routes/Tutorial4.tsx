@@ -5,8 +5,8 @@ import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { TotalError, UIContainer } from "../components/UI";
-import { TutorialCityMesh, TutorialContainer, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
+import { CityRealDistances, TotalError, UIContainer } from "../components/UI";
+import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError } from "../distances.tsx";
@@ -45,6 +45,7 @@ export function Tutorial4() {
         <DynamicContinueButton
           dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
         />
+        <CityRealDistances />
       </div>
     </div>
   );

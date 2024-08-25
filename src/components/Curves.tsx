@@ -72,14 +72,14 @@ function getTextAngle(type: ObjectType, base: Vector3, dest: Vector3, camera: Ca
 }
 
 function useHoveringDistance(type: ObjectType, cityName: CityName, dest: Vector3) {
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const updateHoverPositions = useStore(state => state.updateHoverPositions);
   const { camera, size, raycaster, scene } = useThree();
   const earthUUID = useStore(state => state.earthUUID);
   const earth = scene.getObjectByProperty('uuid', earthUUID);
   useFrame(() => { // NOTE: might need to move this somewhere else
-    if (hoveredCityRef.current === null) return; // TODO: Reset hovered
-    const base = hoveredCityRef.current.mesh.position;
+    if (hoveredCity === null) return; // TODO: Reset hovered
+    const base = hoveredCity.mesh.position;
     const midpoint = getMidpoint(type, base, dest);
     const [x, y] = project(midpoint, camera, size);
 
@@ -105,21 +105,19 @@ function useHoveringDistance(type: ObjectType, cityName: CityName, dest: Vector3
 
 function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, radius?: number }) {
   const ref = useRef<Mesh>(null!);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const citiesRef = useStore(state => state.citiesRef);
   const type = useStore(state => state.objectType);
-
-  const THRESH = 50;
 
   useHoveringDistance(type, cityName, dest);
 
   useFrame(() => {
-    if (hoveredCityRef.current === null) {
+    if (hoveredCity === null) {
       ref.current.visible = false;
       return;
     }
-    const base = hoveredCityRef.current.mesh.position;
-    const baseName = hoveredCityRef.current.name;
+    const base = hoveredCity.mesh.position;
+    const baseName = hoveredCity.name;
     ref.current.visible = true;
 
     const pts = generatePoints(type, base, dest);
