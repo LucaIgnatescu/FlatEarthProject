@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../state";
 
@@ -6,9 +6,10 @@ export function ContinueButton({ dest, text, disabled }: { dest: string, text?: 
   const navigate = useNavigate();
   if (text === undefined) text = 'Continue'
   if (disabled === undefined) disabled = false;
+
   return (
     <button onClick={() => navigate(dest)} disabled={disabled}
-      className={"bg-blue-500 p-5 text-white w-fit rounded " + (disabled ? "opacity-75" : "")}>
+      className={"bg-blue-500 p-5 text-white w-fit rounded " + (disabled ? "opacity-0" : "animate-fade")}>
       {text}
     </button>
   );
@@ -32,8 +33,7 @@ export function DynamicContinueButton<T>({ dest, text, useSnapshot, compareSnaps
   const data = useSnapshot();
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
-
-  const disabled = !compareSnapshot(data, snapshotRef.current);
+  const disabled = nRenderedCities == nCities ? !compareSnapshot(data, snapshotRef.current) : true;
 
   useEffect(() => {
     if (snapshotRef.current === null && nCities === nRenderedCities) {

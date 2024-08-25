@@ -40,7 +40,7 @@ export type Store = {
   route: null | Route
   objectType: ObjectType
   citiesRef: MutableRefObject<CityTable>;
-  hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
+  hoveredCityRef: MutableRefObject<HoveredCityInfo | null>; // TODO: remove this in facor of hoveredCity
   isDragging: boolean;
   animations: Animations;
   contextMenu: ContextMenu;

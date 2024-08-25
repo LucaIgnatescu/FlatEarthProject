@@ -1,7 +1,7 @@
 import { Size, useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Raycaster, TubeGeometry, Vector2, Vector3 } from "three";
-import { GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
+import { getColor, GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 import { getDistancesLazy } from "../distances";
@@ -30,7 +30,7 @@ function getMidpoint(type: ObjectType, base: Vector3, dest: Vector3) {
     return midpoint;
   }
   const midpoint = slerp(new Vector3().copy(base).normalize(), new Vector3().copy(dest).normalize(), 1 / 2);
-  const OFFSET = 2;
+  const OFFSET = 2; // TODO: Add a mapping function for the offset
   return midpoint.multiplyScalar(SPHERE_RADIUS + OFFSET);
 }
 
@@ -131,9 +131,7 @@ function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, 
     ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
     const { currDistance, trueDistance } = getDistancesLazy(baseName, cityName, type, citiesRef);
     const delta = currDistance - trueDistance;
-    let color = GREEN;
-    if (delta > THRESH) color = ORANGE;
-    if (delta < -THRESH) color = YELLOW;
+    const color = getColor(delta);
     const material = new MeshBasicMaterial({ color });
 
     (ref.current.material as Material).dispose();

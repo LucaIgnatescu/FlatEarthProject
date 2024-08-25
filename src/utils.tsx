@@ -63,3 +63,10 @@ export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assume
   );
 }
 
+
+export function getColor(delta: number) {
+  const THRESH = 50;
+  if (delta > THRESH) return ORANGE;
+  if (delta < -THRESH) return YELLOW;
+  return GREEN;
+}

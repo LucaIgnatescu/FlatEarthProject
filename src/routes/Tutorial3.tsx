@@ -10,6 +10,7 @@ import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSpri
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError } from "../distances.tsx";
+import { Distances } from "../components/Distances.tsx";
 
 export function Tutorial3() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -34,6 +35,7 @@ export function Tutorial3() {
           <div className="w-full flex justify-center">
             <TotalError />
           </div>
+          <Distances />
         </UIContainer>
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">

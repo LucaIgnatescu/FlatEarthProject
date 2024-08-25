@@ -4,11 +4,12 @@ import { useStore } from "../state";
 import { useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { TotalError, UIContainer } from "../components/UI";
+import { CityRealDistances, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
-import { computeTotalError } from "../distances.tsx";
+import { computeTotalError, getDistancesFast } from "../distances.tsx";
+import { getColor } from "../utils.tsx";
 
 export function Tutorial1() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -30,20 +31,35 @@ export function Tutorial1() {
         </Canvas>
         <UIContainer>
           <div className="w-full flex justify-center">
-            <TotalError />
+            <CurrentDistance />
           </div>
         </UIContainer>
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
         <Prompt />
+        <CityRealDistances />
         <DynamicContinueButton dest="/tutorial/2" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
       </div>
     </div>
   );
 }
 
+function CurrentDistance() {
+  const currPositions = useStore(state => state.currPositions);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  const type = useStore(state => state.objectType);
 
+  if (nRenderedCities !== 2) {
+    return (
+      <div className="text-white p-10 text-4xl pointer-events-none">
+        0
+      </div>
+    );
+  }
+  const { currDistance } = getDistancesFast('atlanta', 'beijing', type, currPositions);
 
+  return <div className="text-white p-10 text-4xl pointer-events-none">{Math.round(Math.abs(currDistance) / 10) * 10}</div>
+}
 
 function Prompt() {
   return (
@@ -56,11 +72,24 @@ function Prompt() {
         They are known to be  11550 km apart in reality.
       </p>
       <p>
-        On the left, these cities are now currval(match line color) apart.
+        On the left, these cities are now <PromptDistance /> km apart.
         Can you make the representation match reality by dragging the cities around?
       </p>
     </div>
   );
+}
+
+function PromptDistance() {
+  const currPositions = useStore(state => state.currPositions);
+  const nCities = useStore(state => state.nRenderedCities);
+  const type = useStore(state => state.objectType);
+  if (nCities !== 2) return <>0</>;
+
+  const { trueDistance, currDistance } = getDistancesFast('atlanta', 'beijing', type, currPositions);
+  const delta = trueDistance - currDistance;
+  const color = getColor(delta);
+
+  return <span style={{ color: `#${color.toString(16)}` }}>{Math.round(Math.abs(currDistance) / 10) * 10}</span>
 }
 
 

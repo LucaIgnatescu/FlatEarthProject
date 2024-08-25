@@ -1,6 +1,7 @@
 import { CityName } from "../coordinates";
 import { getDistancesLazy } from "../distances";
 import { useStore } from "../state";
+import { getColor } from "../utils";
 
 export function Distances() {
   const hoverPositions = useStore(state => state.hoverPositions);
@@ -23,17 +24,19 @@ export function Distance({ cityName, position, rotation }: { cityName: CityName,
   if (hoveredCityRef.current === null || cityName === hoveredCityRef.current.name || citiesRef.current === null) return null;
 
   const { currDistance, trueDistance } = getDistancesLazy(hoveredCityRef.current.name, cityName, type, citiesRef);
-  const delta = Math.round(Math.abs(currDistance - trueDistance));
+  const delta = currDistance - trueDistance;
+  const color = "#" + getColor(delta).toString(16);
   return (
     <p
       style={{ // NOTE: Cannot use tailwind here because pixel values are dynamic
         top: y,
         left: x,
-        transform: `rotate(${rotation}rad)`
+        transform: `rotate(${rotation}rad)`,
+        color: color
       }}
-      className="text-white absolute"
+      className="absolute"
     >
-      {delta}
+      {Math.round(Math.abs(delta))}
     </p>
   );
 }
