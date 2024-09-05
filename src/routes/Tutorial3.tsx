@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { EarthWrapper } from "../components/Earth";
-import { useStore } from "../state";
+import { CurrPositions, useStore } from "../state";
 import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { AllCurves, Curves } from "../components/Curves";
@@ -9,8 +9,10 @@ import { RealDistances, TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
-import { computeTotalError } from "../distances.tsx";
+import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { Distances } from "../components/Distances.tsx";
+import { CityName } from "../coordinates.ts";
+import { ObjectType } from "../utils.tsx";
 
 export function Tutorial3() {
 
@@ -65,13 +67,16 @@ function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        Now, we are adding another city, <span className="text-red">Cape Town</span>. Thus, each city has two distances to other cities.
+        Now, we are adding another city, <span className="text-red">Cape Town</span>.
       </p>
       <p>
         Like before, the lines and numbers between the points represent how close you are to matching the real distances between the cities they represent.
       </p>
       <p>
-        In addition, the number on top represents the total discrepancy, i.e. the sum of all discrepancies.
+        In addition, the number on top represents the total discrepancy, which is the sum of all discrepancies.
+      </p>
+      <TotalErrorWrapper />
+      <p>
         The goal of this challenge is to make that number go to
         <span className="text-[#4824DB]"> 0</span>, completely matching reality.
       </p>
@@ -79,6 +84,35 @@ function Prompt() {
       <p className="italic">Hint: as you have seen in the previous two sections,
         there are multiple ways to correctly place just two of the dots at a time.</p>
     </div>
+  );
+}
+
+function useDelta(city1: CityName, city2: CityName) {
+  const type = useStore(state => state.objectType);
+  const currPositions = useStore(state => state.currPositions);
+  const { currDistance, trueDistance } = getDistancesFast(city1, city2, type, currPositions);
+  return Math.round(Math.abs(currDistance - trueDistance));
+}
+
+function TotalErrorWrapper() {
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  if (nRenderedCities !== 3) return null;
+  return <TotalErrorExplanation />
+}
+function TotalErrorExplanation() {
+  const d1 = useDelta('atlanta', 'beijing');
+  const d2 = useDelta('atlanta', 'cape');
+  const d3 = useDelta('beijing', 'cape');
+  const totalError = d1 + d2 + d3;
+  return (
+    <>
+      <p>
+        For example, the current total discrepancy is computed as
+      </p>
+      <p className="text-center text-red">
+        {totalError} = {d1} + {d2} + {d3}
+      </p>
+    </>
   );
 }
 
