@@ -1,25 +1,35 @@
 import { Canvas } from "@react-three/fiber";
 import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { CityRealDistances, TotalError, UIContainer } from "../components/UI";
+import { RealDistances, TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError } from "../distances.tsx";
 import { ContextMenu } from "../components/ContextMenu.tsx";
-import { AnchorPrompt } from "../components/AnchorPrompt.tsx";
+import { Distances } from "../components/Distances.tsx";
 
 export function Tutorial4() {
+
   const updateRoute = useStore(state => state.updateRoute);
   const updateNCities = useStore(state => state.updateNCities);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  const updateHoveredCity = useStore(state => state.updateHoveredCity);
+  const route = useStore(state => state.route);
   useLayoutEffect(() => {
-    updateRoute('tutorial');
+    updateRoute('tutorial4');
     updateNCities(3);
-  })
+  }, [updateRoute, updateNCities]);
+
+  useEffect(() => {
+    if (nRenderedCities === 2 && route === 'tutorial4') {
+      updateHoveredCity('atlanta');
+    }
+  }, [nRenderedCities, updateHoveredCity, route])
   return (
     <div className="flex h-full">
       <div className="w-3/5 relative">
@@ -35,9 +45,12 @@ export function Tutorial4() {
         <UIContainer>
           <div className="w-full flex justify-center">
             <TotalError />
-            <ContextMenu />
-            <AnchorPrompt />
           </div>
+          <div className="px-10">
+            <RealDistances />
+          </div>
+          <Distances />
+          <ContextMenu />
         </UIContainer>
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
@@ -45,7 +58,7 @@ export function Tutorial4() {
         <DynamicContinueButton
           dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
         />
-        <CityRealDistances />
+        <RealDistances />
       </div>
     </div>
   );
@@ -57,11 +70,14 @@ function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        That was much harder, right?
+        As you may have noticed, the more cities are added, the harder this task becomes.
       </p>
       <p>
-        To assist you, we provide two kinds of solvers.
-        One matches all the distances to a single point, while the other constructs the best overall solution.
+        Therefore, to assist you, we provide two kinds of solvers.
+      </p>
+      <p>
+        The first, indicated by the <span className="font-bold">Solve City</span> button, ensures that all distances to the selected city are matched.<br />
+        The second, indicated by the <span className="font-bold">Solve Globally</span> button, constructs the configuration that will ensure the smallest possible discrepancy. Note that this is not necessarily 0.
       </p>
       <p>
         Try right-clicking on a point to see how they work.

@@ -35,7 +35,7 @@ export function computeTotalError(type: ObjectType, currPositions: CurrPositions
       error += Math.abs(trueDistance - currDistance);
     }
   }
-  return error;
+  return error / 2;
 }
 
 

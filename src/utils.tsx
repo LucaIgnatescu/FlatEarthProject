@@ -6,11 +6,10 @@ export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
 
-export const ORANGE = 0xff8400;
-export const GREEN = 0x3acabb;
-export const PURPLE = 0xbb3aca;
+export const RED = 0xDB4824;
+export const GREEN = 0x24DB48;
+export const BLUE = 0x4824DB;
 export const YELLOW = 0xfaff00;
-export const RED = 0xff0000;
 
 export type ObjectType = 'plane' | 'sphere';
 
@@ -65,8 +64,10 @@ export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assume
 
 
 export function getColor(delta: number) {
-  const THRESH = 50;
-  if (delta > THRESH) return ORANGE;
-  if (delta < -THRESH) return YELLOW;
+  const THRESH = 5;
+  if (delta > THRESH) return RED;
+  if (delta < -THRESH) return BLUE;
   return GREEN;
 }
+
+export const capitalize = (key: string) => key.charAt(0).toUpperCase() + key.slice(1);

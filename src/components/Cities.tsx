@@ -86,7 +86,7 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
     updateMoveLock(false);
     if (isPicking) {
       if (contextMenu.cityName === cityName) return;
-      updateContextMenu({ ...contextMenu, anchor: cityName });
+      updateContextMenu({ ...contextMenu, anchor: cityName, visible: false });
       updateIsPicking(false);
       startAnimation(updateAnimationState, updateHoveredCity, 'global');
     }

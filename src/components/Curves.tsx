@@ -1,7 +1,7 @@
 import { Size, useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Raycaster, TubeGeometry, Vector2, Vector3 } from "three";
-import { getColor, GREEN, ObjectType, ORANGE, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
+import { getColor, GREEN, ObjectType, RED, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { useStore } from "../state";
 import { getDistancesLazy } from "../distances";

@@ -3,6 +3,7 @@ import { Sprite, Texture } from "three";
 import { useStore } from "../state";
 import { CityName } from "../coordinates";
 import { useFrame } from "@react-three/fiber";
+import { capitalize } from "../utils";
 
 type Color = { r: number, g: number, b: number, a: number };
 
@@ -77,7 +78,7 @@ const createTexture = (message: SpriteArguments['message'], parameters: SpriteAr
 export const directLabelStrategy: GenerateLabelsStrategy = (cities) => {
   const ans: Labels = {};
   for (const key of Object.keys(cities) as CityName[]) {
-    ans[key] = key.charAt(0).toUpperCase() + key.slice(1);
+    ans[key] = capitalize(key);
   }
   return ans;
 }

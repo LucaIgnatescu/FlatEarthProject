@@ -10,7 +10,7 @@ import { Tutorial2 } from './routes/Tutorial2.tsx';
 import { Tutorial3 } from './routes/Tutorial3.tsx';
 import { Tutorial4 } from './routes/Tutorial4.tsx';
 
-export type Route = 'tutorial' | 'sphere' | 'plane'
+export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'sphere' | 'plane'
 
 const router = createBrowserRouter([
   {

@@ -126,10 +126,10 @@ export const useStore = create<Store>((set, get) => ({
     const cities = get().citiesRef.current;
     if (remove === true) {
       if (cities[name] === undefined) return;
-      delete cities[name];
+      get().citiesRef.current[name];
       set(state => ({ nRenderedCities: state.nRenderedCities - 1 }))
     } else {
-      cities[name] = city;
+      get().citiesRef.current[name] = city;
       set(state => ({ nRenderedCities: state.nRenderedCities + 1 }))
     }
     get().updateCurrPositions();
@@ -182,10 +182,10 @@ export const useStore = create<Store>((set, get) => ({
       const key = keys[i];
       truePositions[key] = positions[key];
     }
-    set({ hoveredCity: null });
+    set({ hoveredCity: null }); n
     get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
-    set({ nCities, isAnimating, isDragging, contextMenu, route, truePositions, hoverPositions })
+    set({ nCities, isAnimating, isDragging, contextMenu, truePositions, hoverPositions })
   },
   updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
   updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled }),
