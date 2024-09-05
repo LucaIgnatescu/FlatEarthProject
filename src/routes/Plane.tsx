@@ -4,7 +4,7 @@ import { forwardRef, useLayoutEffect, useMemo } from "react";
 import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
 import { Cities } from "../components/Cities";
-import { Curves } from "../components/Curves";
+import { AllCurves, Curves } from "../components/Curves";
 import { useStore } from "../state";
 import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";

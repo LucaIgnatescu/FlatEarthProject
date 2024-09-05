@@ -3,7 +3,7 @@ import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
 import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
-import { Curves } from "../components/Curves";
+import { AllCurves, Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { RealDistances, TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
@@ -38,7 +38,7 @@ export function Tutorial3() {
           <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
           <EarthWrapper EarthMesh={TutorialEarthMesh} />
           <Cities CityMesh={TutorialCityMesh} />
-          <Curves radius={0.2} />
+          <AllCurves radius={0.2} />
           <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
         </Canvas>
         <UIContainer>

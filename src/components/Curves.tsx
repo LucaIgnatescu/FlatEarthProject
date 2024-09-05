@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Raycaster, TubeGeometry, Vector2, Vector3 } from "three";
 import { getColor, GREEN, ObjectType, RED, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
-import { useStore } from "../state";
+import { CityInfo, useStore } from "../state";
 import { getDistancesLazy } from "../distances";
 
 
@@ -71,16 +71,16 @@ function getTextAngle(type: ObjectType, base: Vector3, dest: Vector3, camera: Ca
   return getAngle(new Vector2(x1, y1), new Vector2(x2, y2));
 }
 
-function useHoveringDistance(type: ObjectType, cityName: CityName, dest: Vector3) {
-  const hoveredCity = useStore(state => state.hoveredCity);
+
+function useHoveringDistance(type: ObjectType, baseInfo: CityInfo, destInfo: CityInfo) {
+  // function useHoveringDistance(type: ObjectType, destName: CityName, base: Vector3, dest: Vector3) {
   const updateHoverPositions = useStore(state => state.updateHoverPositions);
   const { camera, size, raycaster, scene } = useThree();
   const earthUUID = useStore(state => state.earthUUID);
   const earth = scene.getObjectByProperty('uuid', earthUUID);
   useFrame(() => { // NOTE: might need to move this somewhere else
-    if (hoveredCity === null) return; // TODO: Reset hovered
-    const base = hoveredCity.mesh.position;
-    const midpoint = getMidpoint(type, base, dest);
+    // if (hoveredCity === null) return; // TODO: Reset hovered
+    const midpoint = getMidpoint(type, baseInfo.mesh.position, destInfo.mesh.position);
     const [x, y] = project(midpoint, camera, size);
 
     const proj = midpoint.clone().project(camera);
@@ -93,31 +93,29 @@ function useHoveringDistance(type: ObjectType, cityName: CityName, dest: Vector3
       const THRESH = 10; // NOTE: This is a harcoded value because intersections behave weirdly
 
       if (firstPoint.distanceTo(midpoint) > THRESH) {
-        updateHoverPositions(cityName, null);
+        updateHoverPositions(`${baseInfo.name}_${destInfo.name}`, null);
         return;
       }
     }
 
-    const rotation = getTextAngle(type, base, dest, camera, size);
-    updateHoverPositions(cityName, [x, y], rotation);
+    const rotation = getTextAngle(type, baseInfo.mesh.position, destInfo.mesh.position, camera, size);
+    updateHoverPositions(`${baseInfo.name}_${destInfo.name}`, [x, y], rotation);
   })
 }
 
-function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, radius?: number }) {
+function Curve({ baseInfo, destInfo, radius }: { baseInfo: CityInfo, destInfo: CityInfo, radius?: number }) {
   const ref = useRef<Mesh>(null!);
-  const hoveredCity = useStore(state => state.hoveredCity);
   const citiesRef = useStore(state => state.citiesRef);
   const type = useStore(state => state.objectType);
 
-  useHoveringDistance(type, cityName, dest);
+  const base = baseInfo.mesh.position;
+  const baseName = baseInfo.name;
+  const dest = destInfo.mesh.position;
+  const destName = destInfo.name;
+
+  useHoveringDistance(type, baseInfo, destInfo);
 
   useFrame(() => {
-    if (hoveredCity === null) {
-      ref.current.visible = false;
-      return;
-    }
-    const base = hoveredCity.mesh.position;
-    const baseName = hoveredCity.name;
     ref.current.visible = true;
 
     const pts = generatePoints(type, base, dest);
@@ -127,7 +125,7 @@ function Curve({ dest, cityName, radius }: { dest: Vector3, cityName: CityName, 
 
     ref.current.geometry.dispose();
     ref.current.geometry = new TubeGeometry(curve, 64, radius ?? 0.07, 50, false);
-    const { currDistance, trueDistance } = getDistancesLazy(baseName, cityName, type, citiesRef);
+    const { currDistance, trueDistance } = getDistancesLazy(baseName, destName, type, citiesRef);
     const delta = currDistance - trueDistance;
     const color = getColor(delta);
     const material = new MeshBasicMaterial({ color });
@@ -147,9 +145,53 @@ export function Curves({ radius }: { radius?: number }) {
   const citiesRef = useStore(state => state.citiesRef);
   const nRenderedCities = useStore(state => state.nRenderedCities);
   const nCities = useStore(state => state.nCities);
+  const hoveredCity = useStore(state => state.hoveredCity);
+  const clearHoverPositions = useStore(state => state.clearHoverPositions);
+  if (nCities !== nRenderedCities || hoveredCity === null) return null;
+  clearHoverPositions(); // TODO: Change this
+  const curves = [];
+  for (const cityName of Object.keys(citiesRef.current) as CityName[]) {
+    if (cityName === hoveredCity.name) continue;
+    const destInfo: CityInfo = { mesh: citiesRef.current[cityName] as Mesh, name: cityName };
+    curves.push(
+      <Curve
+        baseInfo={hoveredCity}
+        destInfo={destInfo}
+        key={cityName}
+        radius={radius}
+      />
+    )
+  }
+
+  return curves;
+}
+
+export function AllCurves({ radius }: { radius?: number }) {
+  const citiesRef = useStore(state => state.citiesRef);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  const nCities = useStore(state => state.nCities);
   if (nCities !== nRenderedCities) return null;
 
-  return Object.keys(citiesRef.current).map(cityName =>
-    <Curve dest={citiesRef.current[cityName as CityName]?.position ?? new Vector3(0, 0, 0)} key={cityName} radius={radius} cityName={cityName as CityName} />
-  )
+  const cities = Object.keys(citiesRef.current) as CityName[];
+
+  const curves = [];
+  for (let i = 0; i < cities.length; i++) {
+    for (let j = 0; j < i; j++) {
+      const baseName = cities[i];
+      const destName = cities[j];
+      const baseInfo: CityInfo = { name: baseName, mesh: citiesRef.current[baseName] as Mesh };
+      const destInfo: CityInfo = { name: destName, mesh: citiesRef.current[destName] as Mesh };
+
+      curves.push(
+        <Curve
+          baseInfo={baseInfo}
+          destInfo={destInfo}
+          key={baseName + destName}
+          radius={radius}
+        />
+
+      )
+    }
+  }
+  return curves;
 }
