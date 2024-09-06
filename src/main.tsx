@@ -9,8 +9,10 @@ import { Tutorial1 } from './routes/Tutorial1.tsx';
 import { Tutorial2 } from './routes/Tutorial2.tsx';
 import { Tutorial3 } from './routes/Tutorial3.tsx';
 import { Tutorial4 } from './routes/Tutorial4.tsx';
+import { Tutorial5 } from './routes/Tutorial5.tsx';
 
-export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'sphere' | 'plane'
+export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
+  'sphere' | 'plane';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/tutorial/4",
     element: <Tutorial4 />
+  },
+  {
+    path: "/tutorial/5",
+    element: <Tutorial5 />
   },
   {
     path: "/globe",

@@ -29,6 +29,8 @@ function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: Cit
   const meshRef = useRef<Mesh>(null!);
   const props = useCreateHandlers(cityName, meshRef);
   const type = useStore(state => state.objectType);
+  const hoveredCity = useStore(state => state.hoveredCity);
+  const isDragging = useStore(state => state.isDragging);
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
   useSnapping(type, cityName, meshRef);
@@ -39,6 +41,11 @@ function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: Cit
       pos.multiplyScalar((CIRCLE_RADIUS - 1) / pos.length());
     }
   })
+
+  useEffect(() => {
+    const material = meshRef.current.material as MeshBasicMaterial;
+    material.color.set(cityName === hoveredCity?.name && isDragging ? 0xffaaaa : 0xff0000)
+  }, [hoveredCity, cityName, isDragging]);
 
 
   return (<CityMesh {...props} ref={meshRef} />);
@@ -151,12 +158,14 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       if (citiesRef.current[other] === undefined) continue;
       const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
+      if (delta === 0) continue;
       if (fixTarget === other) {
         if (delta > THRESH_FAR) {
           setFixTarget(null);
         }
         return;
       }
+
       if (delta < THRESH_CLOSE) {
         for (const other1 of otherCities) {
           if (other1 === other || citiesRef.current[other1] === undefined) continue;

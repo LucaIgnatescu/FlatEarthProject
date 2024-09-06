@@ -13,7 +13,7 @@ export function TotalError() {
   const totalError = Math.round(computeTotalError(type, currPositions));
   if (nCities !== nRenderedCities) return null;
   return (
-    <div className="text-white p-10 text-4xl pointer-events-none">
+    <div className="text-white p-10 text-4xl pointer-events-none select-none">
       {totalError}
     </div>
   );
@@ -54,7 +54,7 @@ export function RealDistances() {
 }
 
 export function RealDistancesContainer() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="text-white pointer-events-auto">
@@ -72,7 +72,7 @@ export function RealDistancesContainer() {
             "px-0"}`}>
         <div className={`align-middle inline-block leading-none hover:cursor-pointer text-center w-fit px-1 py-2 transition-all ease-linear duration-500 rounded-r ${isOpen ?
           "rotate-180 " :
-          "rotate-0 bg-gray-900"}`}>
+          "rotate-0"}`}>
           <img src="../../static/icons/arrow.svg" />
         </div>
       </div>

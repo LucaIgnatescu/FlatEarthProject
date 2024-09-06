@@ -46,9 +46,6 @@ export function Tutorial2() {
           <div className="w-full flex justify-center invisible">
             <TotalError />
           </div>
-          <div className="px-10">
-            <RealDistances />
-          </div>
           <Distances />
         </UIContainer>
       </div>

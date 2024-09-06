@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { RealDistances, TotalError, UIContainer } from "../components/UI";
+import { RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
@@ -26,7 +26,7 @@ export function Tutorial4() {
   }, [updateRoute, updateNCities]);
 
   useEffect(() => {
-    if (nRenderedCities === 2 && route === 'tutorial4') {
+    if (nRenderedCities === 3 && route === 'tutorial4') {
       updateHoveredCity('atlanta');
     }
   }, [nRenderedCities, updateHoveredCity, route])
@@ -46,9 +46,8 @@ export function Tutorial4() {
           <div className="w-full flex justify-center">
             <TotalError />
           </div>
-          <div className="px-10">
-            <RealDistances />
-          </div>
+
+          <RealDistancesContainer />
           <Distances />
           <ContextMenu />
         </UIContainer>
@@ -56,9 +55,8 @@ export function Tutorial4() {
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
         <Prompt />
         <DynamicContinueButton
-          dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
+          dest="/tutorial/5" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
         />
-        <RealDistances />
       </div>
     </div>
   );
@@ -70,17 +68,13 @@ function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        As you may have noticed, the more cities are added, the harder this task becomes.
+        From now on, to reduce clutter, only the lines originating from the hovered city will be shown.
       </p>
       <p>
-        Therefore, to assist you, we provide two kinds of solvers.
+        Additionally, for your reference, the menu in the top left shows the real distances between the hovered city and the rest. It can be toggled on or off by clicking the arrow.
       </p>
       <p>
-        The first, indicated by the <span className="font-bold">Solve City</span> button, ensures that all distances to the selected city are matched.<br />
-        The second, indicated by the <span className="font-bold">Solve Globally</span> button, constructs the configuration that will ensure the smallest possible discrepancy. Note that this is not necessarily 0.
-      </p>
-      <p>
-        Try right-clicking on a point to see how they work.
+        Match the cities again, just as you did in the previous section.
       </p>
     </div>
   );
