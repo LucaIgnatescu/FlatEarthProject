@@ -1,156 +1,208 @@
 import { create } from 'zustand';
 import { createRef, MutableRefObject } from 'react';
-import { CityName, truePositions } from './coordinates';
-import { Mesh } from 'three';
-import { cartesianToPolar, EARTH_RADIUS, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from './utils';
+import { PolarCoords, positions, CityName } from './coordinates';
+import { Mesh, Vector3 } from 'three';
+import { Route } from './main';
+import { ObjectType } from './utils';
 
 export type Distances = {
-  [key in CityName]?: {
-    [key in CityName]?: number;
+  [key in string]?: {
+    [key in string]?: number;
   }
 }
 
 export type CityTable = {
-  [key in CityName]?: Mesh;
+  [key in string]?: Mesh;
 };
 
-export type HoveredCityInfo = {
+export type CityInfo = {
   name: CityName;
   mesh: Mesh;
 }
 
-export type AnimationStatus = 'fixed' | 'moving' | 'global' | null;
+export type AnimationType = 'fixed' | 'moving' | 'global' | null;
 
 export type Animations = {
-  [key in CityName]: AnimationStatus;
+  [key in string]: AnimationType;
 };
 
 export type ContextMenu = {
-  cityName: CityName | null;
+  cityName: string | null;
   mousePosition: [number, number] | null;
-  anchor: CityName | null;
+  anchor: string | null;
   visible: boolean
 };
 
+export type Positions = { [key in string]?: PolarCoords };
+export type CurrPositions = { [key in string]?: Vector3 };
+export type CityPair = `${CityName}_${CityName}`;
 export type Store = {
-  route: null | 'plane' | 'sphere'
+  route: null | Route
+  objectType: ObjectType
   citiesRef: MutableRefObject<CityTable>;
-  hoveredCityRef: MutableRefObject<HoveredCityInfo | null>;
+  hoveredCity: CityInfo | null;
   isDragging: boolean;
-  currDistances: Distances;
   animations: Animations;
   contextMenu: ContextMenu;
   isPicking: boolean;
-  updateRoute: (route: 'plane' | 'sphere') => void;
-  updateCurrDistances: () => void;
-  updateCities: (name: CityName, city: Mesh) => void;
-  updateHoveredCity: (name: CityName | null) => void;
-  moveHoveredCity: (x: number, y: number, z: number) => void;
+  nCities: number;
+  isAnimating: boolean;
+  truePositions: Positions;
+  nRenderedCities: number;
+  controlsEnabled: boolean;
+  moveLock: boolean;
+  currPositions: CurrPositions;
+  hoverPositions: { [key in CityPair]?: { position: [number, number] | null, rotation: number } };
+  earthUUID: string | null;
+  updateRoute: (route: Route) => void;
+  updateCities: (name: string, city: Mesh, remove?: boolean) => void;
+  updateHoveredCity: (name: string | null) => void;
+  moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => void;
   updateIsDragging: (isDragging: boolean) => void;
-  updateAnimationState: (status: AnimationStatus, cityName?: CityName) => void;
+  updateAnimationState: (status: AnimationType, cityName?: string) => boolean;
   updateContextMenu: (menu: ContextMenu) => void;
   updateIsPicking: (isPicking: boolean) => void;
+  updateNCities: (nCities: number) => void;
+  updateIsAnimating: (isAnimating: boolean) => void;
+  updateControlsEnabled: (controlsEnabled: boolean) => void;
+  updateMoveLock: (moveLock: boolean) => void;
+  updateCurrPositions: () => void;
+  updateHoverPositions: (key: CityPair, position: [number, number] | null, rotation?: number) => void;
+  clearHoverPositions: () => void;
+  updateEarthUUID: (uuid: string) => void;
 }
 
-const fillAnimationTable = (val: AnimationStatus) => Object.keys(truePositions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
+const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as string]: val }), {}) as Animations;
 
 
-const calculateDistancesPlane = (cities: CityTable) => {
-  const currDistaces: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-      const distance = planarDistance(cityMesh1, cityMesh2) * SCALE_FACTOR;
-      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-      currDistaces[cityName1][cityName2] = distance;
-      currDistaces[cityName2][cityName1] = distance;
-    }
-  }
-  return currDistaces;
-}
 
-
-const calculateDistancesSphere = (cities: CityTable) => { // FIX:
-  const currDistaces: Distances = {};
-  for (const [cityName1, cityMesh1] of Object.entries(cities) as [CityName, Mesh][]) {
-    for (const [cityName2, cityMesh2] of Object.entries(cities) as [CityName, Mesh][]) {
-      const p1 = cartesianToPolar(cityMesh1.position, SPHERE_RADIUS);
-      const p2 = cartesianToPolar(cityMesh2.position, SPHERE_RADIUS);
-      const distance = sphericalDistance(p1, p2, EARTH_RADIUS); //compute distances as if on the earth
-      if (currDistaces[cityName1] === undefined) currDistaces[cityName1] = {};
-      if (currDistaces[cityName2] === undefined) currDistaces[cityName2] = {};
-      currDistaces[cityName1][cityName2] = distance;
-      currDistaces[cityName2][cityName1] = distance;
-    }
-  }
-  return currDistaces;
-}
-
-const currDistances = {};
 const isDragging = false;
 const citiesRef = createRef() as MutableRefObject<CityTable>;
-const hoveredCityRef = createRef() as MutableRefObject<HoveredCityInfo | null>;
+const hoveredCity = null;
 const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
 const isPicking = false;
+const isAnimating = false;
+const nCities = 7;
+const route = null;
+const truePositions = {};
+const nRenderedCities = 0;
+const controls = true;
+const moveLock = false;
+const objectType: ObjectType = 'plane';
+const currPositions = {};
+const hoverPositions = {};
+const earthUUID = null;
 citiesRef.current = {};
+
 export const useStore = create<Store>((set, get) => ({
-  route: null,
+  route,
   citiesRef,
-  hoveredCityRef,
+  hoveredCity,
   isDragging,
-  currDistances,
   animations,
   contextMenu,
   isPicking,
-  updateRoute: (route: 'plane' | 'sphere') => {
-    get().citiesRef.current = {};
-    get().hoveredCityRef.current = null;
-    get().updateIsDragging(false);
+  nCities,
+  isAnimating,
+  nRenderedCities,
+  truePositions: truePositions,
+  controlsEnabled: controls,
+  moveLock: moveLock,
+  objectType,
+  currPositions,
+  hoverPositions,
+  earthUUID,
+  updateMoveLock: (moveLock: boolean) => set({ moveLock }),
+  updateRoute: (route: Route) => {
+    get().hoveredCity = null;
+    get().updateIsDragging(isDragging);
     get().updateAnimationState(null);
-    const calculateDistances = (route === 'plane') ? calculateDistancesPlane : calculateDistancesSphere;
-    const updateCurrDistances = () => {
-      const cities = get().citiesRef.current;
-      if (!cities) return;
-      set({ currDistances: calculateDistances(cities) });
+    get().citiesRef.current = {};
+
+    const objectType: ObjectType = route === 'sphere' ? 'sphere' : 'plane';
+    set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType, earthUUID, hoverPositions });
+  },
+  updateCities: (name: string, city: Mesh, remove: boolean = false) => {
+    const cities = get().citiesRef.current;
+    if (remove === true) {
+      if (cities[name] === undefined) return;
+      get().citiesRef.current[name];
+      set(state => ({ nRenderedCities: state.nRenderedCities - 1 }))
+    } else {
+      get().citiesRef.current[name] = city;
+      set(state => ({ nRenderedCities: state.nRenderedCities + 1 }))
     }
-    set({ updateCurrDistances, route });
+    get().updateCurrPositions();
   },
-  updateCurrDistances: () => { throw new Error('route not set properly') },
-  updateCities: (name: CityName, city: Mesh) => {
-    get().citiesRef.current[name] = city;
-    get().updateCurrDistances();
-  },
-  updateHoveredCity: (name: CityName | null) => {
+  updateHoveredCity: (name: string | null) => {
     if (name === null) {
-      get().hoveredCityRef.current = null;
+      set({ hoveredCity: null });
       return;
     }
     const mesh = get().citiesRef.current[name];
     if (mesh === undefined) throw new Error("invalid city name");
-    get().hoveredCityRef.current = { name, mesh };
+    set({ hoveredCity: { name, mesh } });
   },
-
-  moveHoveredCity: (x: number, y: number, z: number) => {
-    const hoveredCity = get().hoveredCityRef.current
+  moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => {
+    if (get().moveLock === true && lock !== false) return;
+    const hoveredCity = get().hoveredCity;
     if (hoveredCity === null)
       throw new Error("Trying to move without selecting a city");
     hoveredCity.mesh.position.set(x, y, z);
-    get().updateCurrDistances();
+    if (lock !== undefined) {
+      set({ moveLock: lock })
+    }
+    get().updateCurrPositions();
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
-  updateAnimationState: (status: AnimationStatus, cityName?: CityName) => {
+  updateAnimationState: (status: AnimationType, cityName?: string) => {
+    if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined)
+      return false;
     if (cityName === undefined) {
-      return set({ animations: fillAnimationTable(status) });
-    } else if (status === 'fixed') {
-      const animations = fillAnimationTable('moving');
-      animations[cityName] = 'fixed';
-      set({ animations });
-    } else {
-      return set((state) =>
-        ({ animations: { ...state.animations, [cityName]: status } }));
+      set({ animations: fillAnimationTable(status) });
+      return true;
     }
+    if (status === 'fixed') {
+      const animations = fillAnimationTable('moving');
+      animations[cityName] = null;
+      set({ animations });
+      return true;
+    }
+    set((state) => ({ animations: { ...state.animations, [cityName]: status } }));
+    return true;
   },
   updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
-  updateIsPicking: (isPicking: boolean) => set({ isPicking })
+  updateIsPicking: (isPicking: boolean) => set({ isPicking }),
+  updateNCities: (nCities: number) => {
+    const n = nCities;
+    if (n === undefined) return positions;
+    const keys = Object.keys(positions) as string[];
+    const truePositions: { [key in string]?: PolarCoords } = {};
+    for (let i = 0; i < n; i++) {
+      const key = keys[i];
+      truePositions[key] = positions[key];
+    }
+    set({ hoveredCity: null }); n
+    get().updateIsDragging(isDragging);
+    get().updateAnimationState(null);
+    set({ nCities, isAnimating, isDragging, contextMenu, truePositions, hoverPositions })
+  },
+  updateIsAnimating: (isAnimating: boolean) => set({ isAnimating }),
+  updateControlsEnabled: (controlsEnabled: boolean) => set({ controlsEnabled }),
+  updateCurrPositions: () => {
+    const currPositions: CurrPositions = {};
+    const cities = get().citiesRef.current;
+    for (const cityName of Object.keys(cities) as string[]) {
+      currPositions[cityName] = citiesRef.current[cityName]?.position;
+    }
+    set({ currPositions })
+  },
+  updateHoverPositions: (key: string, position: [number, number] | null, rotation: number = 0) => {
+    set((state) => ({ hoverPositions: { ...state.hoverPositions, [key]: { position, rotation } } }))
+  },
+  clearHoverPositions: () => {
+    set({ hoverPositions: {} })
+  },
+  updateEarthUUID: (earthUUID: string) => set({ earthUUID })
 }));

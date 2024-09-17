@@ -1,25 +1,26 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { Mesh } from "three";
 import { useStore } from "../state";
-
-export type EarthMesh = ({ dragCity, onPointerUp }:
-  {
-    dragCity: (event: ThreeEvent<PointerEvent>) => void,
-    onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
-  }) => React.JSX.Element;
+import { TutorialEarthMesh } from "./TutorialDefaults";
+import { useEffect, useRef } from "react";
 
 
-export function EarthWrapper({ EarthMesh }: { EarthMesh: EarthMesh }) { // TODO: Better wireframe
+export type EarthProps = {
+  onPointerMove: (event: ThreeEvent<PointerEvent>) => void,
+  onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
+}
+export function EarthWrapper({ EarthMesh }: { EarthMesh: typeof TutorialEarthMesh }) { // TODO: Better wireframe
   const isDragging = useStore(state => state.isDragging);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
   const updateIsDragging = useStore(state => state.updateIsDragging);
+  const updateControls = useStore(state => state.updateControlsEnabled);
+  const updateEarthUUID = useStore(state => state.updateEarthUUID);
+  const meshRef = useRef<Mesh>(null!);
 
-  const dragCity = (event: ThreeEvent<PointerEvent>) => {
-    if (!isDragging || !hoveredCityRef.current) return;
-    const meshes = event.intersections.filter((intersection) => intersection.object instanceof Mesh);
-    if (meshes.length === 0) return;
-    const earthIntersection = meshes[meshes.length - 1];
+  const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
+    if (!isDragging || !hoveredCity) return;
+    const earthIntersection = event.intersections.find((intersection) => intersection.object.uuid === meshRef.current.uuid);
     if (earthIntersection === undefined) throw new Error("Didn't intersect earth");
     const { x, y, z } = earthIntersection.point;
     moveHoveredCity(x, y, z);
@@ -28,9 +29,13 @@ export function EarthWrapper({ EarthMesh }: { EarthMesh: EarthMesh }) { // TODO:
 
   const onPointerUp = () => {
     updateIsDragging(false)
+    updateControls(true)
   };
+
+  useEffect(() => updateEarthUUID(meshRef.current.uuid), [updateEarthUUID]);
+
   return (
-    <EarthMesh dragCity={dragCity} onPointerUp={onPointerUp} />
+    <EarthMesh onPointerMove={onPointerMove} onPointerUp={onPointerUp} ref={meshRef} />
   );
 }
 

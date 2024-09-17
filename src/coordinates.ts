@@ -4,9 +4,7 @@
  *
  *
 */
-
-
-export const truePositions = {
+export const positions = {
   atlanta: {
     lat: 33.753746,
     lon: -84.386330
@@ -63,10 +61,11 @@ export const truePositions = {
   }
 };
 
-export type CityName = keyof typeof truePositions;
+export type CityName = keyof typeof positions;
 export type PolarCoords = {
   lat: number;
   lon: number;
 }
+
 
 

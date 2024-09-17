@@ -1,8 +1,9 @@
 import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subtract, transpose } from "mathjs"
-import { getRealDistances, planarDistance, SCALE_FACTOR } from "./../utils";
-import { CityName, truePositions } from "./../coordinates";
+import { SCALE_FACTOR } from "./../utils";
+import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
-import { AnimationStatus } from "../state";
+import { AnimationType, Positions, Store } from "../state";
+import { computeRealDistances, getDistancesLazy } from "../distances";
 
 const rotate = (theta: number) => matrix(
   [[Math.cos(theta), -Math.sin(theta), 0],
@@ -11,6 +12,7 @@ const rotate = (theta: number) => matrix(
 );
 
 const translate = (x: number, y: number) => matrix([[1, 0, x], [0, 1, y], [0, 0, 1]]);
+
 const getAngle = (v1: Vector2, v2: Vector2) => {
   const theta = Math.atan((v2.y - v1.y) / (v2.x - v1.x));
   return v1.x > v2.x ? Math.PI + theta : theta;
@@ -25,7 +27,7 @@ const MDS = (distances: number[][]) => {
   const B = multiply(-0.5, multiply(C, multiply(D, C)));
   const { eigenvectors } = eigs(B);
 
-  eigenvectors.sort(eigenvector => eigenvector.value as number);
+  eigenvectors.sort(eigenvector => eigenvector.value as number); // BUG: These are not always normalized
 
   const e1 = eigenvectors[eigenvectors.length - 1];
   const e2 = eigenvectors[eigenvectors.length - 2];
@@ -36,6 +38,7 @@ const MDS = (distances: number[][]) => {
 }
 
 const centerSolution = (numbers: number[][], citiesArray: CityName[], params: ConfigParams) => {
+  console.log(numbers);
   const i1 = citiesArray.findIndex(name => name === params.city1.name);
   const i2 = citiesArray.findIndex(name => name === params.city2.name);
   if (i1 === undefined || i2 === undefined) throw new Error("city does not exist");
@@ -47,9 +50,6 @@ const centerSolution = (numbers: number[][], citiesArray: CityName[], params: Co
 
   const thetaMDS = getAngle(p1MDS, p2MDS);
   const theta = getAngle(p1, p2);
-  // if (p1.x > p2.x) {
-  //   theta = Math.PI + theta;
-  // }
 
   const row = Array.from({ length: numbers[0].length }).map(() => 1);
   const m = matrix([...numbers, row]);
@@ -62,6 +62,32 @@ const centerSolution = (numbers: number[][], citiesArray: CityName[], params: Co
 }
 
 
+export const getPlanarSolution = (params: ConfigParams) => {
+  const distances = computeRealDistances(params.positions);
+  const citiesArray = Object.keys(distances) as CityName[]; // NOTE: used to match distance matrix to cities
+  const n = citiesArray.length;
+
+  const mat = Array.from({ length: n }).map(() => Array.from({ length: n }).map(() => 0));
+  for (let i = 0; i < citiesArray.length; i++) {
+    for (let j = 0; j < citiesArray.length; j++) {
+      // @ts-expect-error: Already checked length
+      mat[i][j] = distances[citiesArray[i]][citiesArray[j]] / SCALE_FACTOR;
+    }
+  }
+  // const sol = centerSolution(MDS(mat), citiesArray, params); // NOTE: This is using the prompt
+  const sol = transpose(MDS(mat));
+
+  // @ts-expect-error: avoid using reduce
+  const ans: Configuration = {};
+  for (let i = 0; i < citiesArray.length; i++) {
+    const cityName = citiesArray[i];
+    ans[cityName] = new Vector3(sol[i][0], 0, sol[i][1]);
+  }
+  return ans;
+}
+
+
+
 type Configuration = { [key in CityName]: Vector3 };
 
 type ConfigParams = {
@@ -72,37 +98,14 @@ type ConfigParams = {
   city2: {
     name: CityName,
     position: Vector3
-  }
+  },
+  positions: Positions
 };
-
-export const getPlanarSolution = (params: ConfigParams) => {
-  const distances = getRealDistances();
-  const citiesArray = Object.keys(distances) as CityName[]; // NOTE: used to match distance matrix to cities
-  const n = citiesArray.length;
-  if (n !== Object.keys(truePositions).length) throw Error("Not all cities have been loaded");
-
-  const mat = Array.from({ length: n }).map(() => Array.from({ length: n }).map(() => 0));
-  for (let i = 0; i < citiesArray.length; i++) {
-    for (let j = 0; j < citiesArray.length; j++) {
-      // @ts-expect-error: Already checked length
-      mat[i][j] = distances[citiesArray[i]][citiesArray[j]] / SCALE_FACTOR;
-    }
-  }
-  const sol = centerSolution(MDS(mat), citiesArray, params);
-  // @ts-expect-error: avoid using reduce
-  const ans: Configuration = {};
-  for (let i = 0; i < citiesArray.length; i++) {
-    const cityName = citiesArray[i];
-    ans[cityName] = new Vector3(sol[i][0], 0, sol[i][1]);
-  }
-  return ans;
-}
 
 type Singleton = { // NOTE: typescript error forced me to write it like this
   solution: Configuration | null;
   prevParams: ConfigParams | null;
 };
-
 
 const singleton: Singleton = { solution: null, prevParams: null };
 
@@ -114,30 +117,26 @@ const getPositionMDS = (cityName: CityName, params: ConfigParams) => {
   return singleton.solution[cityName];
 };
 
-const getPosition = (cityName: CityName, citiesRef: RenderContextState['citiesRef'], hoveredCityRef: RenderContextState['hoveredCityRef']) => {
+const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCity: Store['hoveredCity']) => {
   const destMesh = citiesRef.current[cityName];
-  const hoveredCity = hoveredCityRef.current;
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
-  const distance = planarDistance(baseMesh, destMesh) * SCALE_FACTOR;
-  // @ts-expect-error: getRealDistances returns a complete table
-  const trueDistance = getRealDistances()[cityName][hoveredCity.name] as number;
-
+  const { trueDistance, currDistance } = getDistancesLazy(cityName, hoveredCity.name, 'plane', citiesRef);
   const base = new Vector3().copy(baseMesh.position);
   const dest = new Vector3().copy(destMesh.position);
-  const pos = new Vector3().lerpVectors(base, dest, trueDistance / distance);
+  const pos = new Vector3().lerpVectors(base, dest, trueDistance / currDistance);
   return pos;
 }
 
 export const getFinalPositionPlane = (
-  animation: AnimationStatus,
+  animation: AnimationType,
   cityName: CityName,
-  citiesRef: RenderContextState['citiesRef'],
-  hoveredCityRef: RenderContextState['hoveredCityRef'],
-  anchors: [CityName | undefined, CityName | undefined]
+  citiesRef: Store['citiesRef'],
+  hoveredCity: Store['hoveredCity'],
+  positions: Positions,
+  anchors: [CityName | null, CityName | null]
 ) => {
   if (animation === 'global') {
-    if (anchors === undefined) throw new Error("no anchors set for global plane solution");
     const [city1, city2] = anchors;
     if (!city1 || !city2) throw new Error("animation should not be null in getFinalPosition");
     const pos1 = citiesRef.current[city1]?.position;
@@ -151,7 +150,8 @@ export const getFinalPositionPlane = (
       city2: {
         name: city2,
         position: new Vector3().copy(pos2)
-      }
+      },
+      positions
     };
     return getPositionMDS(cityName, params);
   }
@@ -160,6 +160,21 @@ export const getFinalPositionPlane = (
     if (pos === undefined) throw new Error("City does not exist")
     return pos;
   }
-  return getPosition(cityName, citiesRef, hoveredCityRef);
+  return getPosition(cityName, citiesRef, hoveredCity);
 }
 
+// source: https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect
+export const getPositionFromCenters = (c1: Vector2, c2: Vector2, r1: number, r2: number) => {
+  const x1 = c1.x, y1 = c1.y;
+  const x2 = c2.x, y2 = c2.y;
+  if (c1.equals(c2)) throw new Error('centers must be different');
+
+  const R2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+  const v1 = new Vector2(x1 + x2, y1 + y2).multiplyScalar(1 / 2);
+  const v2 = new Vector2(x2 - x1, y2 - y1).multiplyScalar((r1 * r1 - r2 * r2) / (2 * R2));
+  const c = 1 / 2 * Math.sqrt(2 * (r1 * r1 + r2 * r2) / R2 - (r1 * r1 - r2 * r2) * (r1 * r1 - r2 * r2) / (R2 * R2) - 1);
+  const v3 = new Vector2(y2 - y1, x1 - x2).multiplyScalar(c);
+  const sol1 = v1.clone().add(v2).add(v3);
+  const sol2 = v1.clone().add(v2).sub(v3);
+  return { sol1, sol2 };
+}

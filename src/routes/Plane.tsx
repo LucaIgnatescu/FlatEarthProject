@@ -1,56 +1,69 @@
-import { Line, MapControls, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
-import { useLayoutEffect, useMemo } from "react";
-import { TextureLoader, Vector3 } from "three";
-import { UIWrapper } from "../ui";
+import { Line, PerspectiveCamera } from "@react-three/drei";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { forwardRef, useLayoutEffect, useMemo } from "react";
+import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
-import { Stars } from "../components/shared";
 import { Cities } from "../components/Cities";
-import { Curves } from "../components/Curves";
+import { AllCurves, Curves } from "../components/Curves";
 import { useStore } from "../state";
-import { EarthWrapper } from "../components/Earth";
+import { EarthProps, EarthWrapper } from "../components/Earth";
+import { Controls } from "../components/Controls";
+import { Stars } from "../components/Stars";
+import { Sprites } from "../components/TextSprite";
+import { ContextMenu } from "../components/ContextMenu";
+import { TotalError, UIContainer } from "../components/UI";
+import { AnchorPrompt } from "../components/AnchorPrompt";
+import { Distances } from "../components/Distances";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
   const updateRoute = useStore(state => state.updateRoute);
-  useLayoutEffect(() => updateRoute('plane'));
+  const updateNCities = useStore(state => state.updateNCities);
+  useLayoutEffect(() => {
+    updateRoute('plane');
+    updateNCities(4);
+  })
   return (
     <>
       <Canvas gl={{ antialias: true }} className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
         <ambientLight color={0xffffff} intensity={2} />
-        <Cities type="plane" />
+        <Cities />
         <EarthWrapper EarthMesh={EarthMesh} />
         <EarthWireframe />
         <Stars />
-        <Curves type="plane" />
+        <Curves />
+        <Sprites />
       </Canvas>
-      <UIWrapper />
+      <UIContainer>
+        <div className="w-full flex justify-center text-white text-center">
+          <div className="flex flex-col">
+            <TotalError />
+            <AnchorPrompt />
+          </div>
+        </div>
+        <Distances />
+        <ContextMenu />
+      </UIContainer>
     </>
   );
 }
 
-function Controls() {
-  const isDragging = useStore(state => state.isDragging);
-  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={!isDragging} />
-}
 
-function EarthMesh({ dragCity, onPointerUp }: {
-  dragCity: (event: ThreeEvent<PointerEvent>) => void,
-  onPointerUp: (event?: ThreeEvent<PointerEvent>) => void
-}) {
-  const texture = useLoader(TextureLoader, '../../static/img/disk.png'); // BUG: Earth not receiving intersection without adding onPointerMove
+const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
+  const texture = useLoader(TextureLoader, '../../static/img/disk.png');
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}
-      onPointerMove={dragCity}>
+      onPointerMove={onPointerMove}
+      ref={ref}>
       <circleGeometry args={[CIRCLE_RADIUS, 64]} />
       <meshStandardMaterial map={texture} toneMapped={false} />
     </mesh>
   );
-}
+});
 
 function EarthWireframe() {
   const wireframe = [];

@@ -1,11 +1,15 @@
-import { Object3D, Vector3 } from "three";
-import { CityName, PolarCoords, truePositions } from "./coordinates";
-import { useStore, Distances } from "./state";
+import { Vector3 } from "three";
+import { PolarCoords } from "./coordinates";
 
 export const EARTH_RADIUS = 6371e3;
 export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
+
+export const RED = 0xf60836;
+export const GREEN = 0x36f808;
+export const BLUE = 0x3479f3;
+export const YELLOW = 0xfaff00;
 
 export type ObjectType = 'plane' | 'sphere';
 
@@ -19,47 +23,14 @@ export function sphericalDistance(x: PolarCoords, y: PolarCoords, r: number) {
     Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = r * c; // in metres
-  return Math.round(d / 10) / 100;
+  return d / 1000;
 }
 
-export function planarDistance(p1: Object3D, p2: Object3D) {
-  return p1.position.distanceTo(p2.position);
+export function planarDistance(p1: Vector3, p2: Vector3) {
+  return p1.distanceTo(p2);
 }
 
-export function totalDistance(distances: Distances) {
-  let totalSum = 0;
-  for (const city1 of Object.keys(distances) as CityName[]) {
-    for (const city2 of Object.keys(distances[city1]) as CityName[]) {
-      totalSum += distances[city1][city2]
-    }
-  }
-  return totalSum;
-}
 
-export function useDistanceInfo() {
-  const realDistances = getRealDistances();
-  const currDistances = useStore(state => state.currDistances);
-  const totalCurr = totalDistance(currDistances); //should be 5.018 in correct solve
-  const totalReal = totalDistance(realDistances);
-  return { realDistances, currDistances, totalCurr, totalReal };
-}
-
-const realDistances: Distances = {};
-
-export function getRealDistances(): Distances {
-  if (Object.keys(realDistances).length === 0) {
-    for (const [cityName1, cityMesh1] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-      for (const [cityName2, cityMesh2] of Object.entries(truePositions) as [CityName, PolarCoords][]) {
-        const distance = sphericalDistance(cityMesh1, cityMesh2, EARTH_RADIUS);
-        if (realDistances[cityName1] === undefined) realDistances[cityName1] = {};
-        if (realDistances[cityName2] === undefined) realDistances[cityName2] = {};
-        realDistances[cityName1][cityName2] = distance;
-        realDistances[cityName2][cityName1] = distance;
-      }
-    }
-  }
-  return realDistances;
-}
 
 export function polarToCartesian(lat: number, lon: number, r: number) {
   const latRad = lat * (Math.PI / 180);
@@ -75,7 +46,6 @@ export function cartesianToPolar(v: Vector3, r: number) {
   const { x, y, z } = v;
   const lat = Math.asin(y / r) * (180 / Math.PI);
   const lon = -1 * Math.atan2(z, x) * (180 / Math.PI);
-
   return { lat, lon }
 }
 
@@ -87,7 +57,17 @@ export function slerp(base: Vector3, dest: Vector3, t: number) { // NOTE: Assume
   base = new Vector3().copy(base);
   dest = new Vector3().copy(dest);
   const theta = Math.acos(base.dot(dest));
-  return base.multiplyScalar(Math.sin((1 - t) * theta) / Math.sin(theta)).add(
-    dest.multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
+  return base.clone().multiplyScalar(Math.sin((1 - t) * theta) / Math.sin(theta)).add(
+    dest.clone().multiplyScalar(Math.sin(t * theta) / Math.sin(theta))
   );
 }
+
+
+export function getColor(delta: number) {
+  const THRESH = 5;
+  if (delta > THRESH) return RED;
+  if (delta < -THRESH) return BLUE;
+  return GREEN;
+}
+
+export const capitalize = (key: string) => key.charAt(0).toUpperCase() + key.slice(1);

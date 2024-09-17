@@ -2,9 +2,9 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
-import { context, useFrame } from "@react-three/fiber";
-import { useStore, AnimationStatus } from "./state";
-import { getFinalPositionPlane, getPositionMDS } from "./solvers/planar";
+import { useFrame } from "@react-three/fiber";
+import { useStore, AnimationType, Store, Positions, ContextMenu } from "./state";
+import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
 type AnimationData = {
@@ -23,57 +23,77 @@ function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: O
   return new Vector3().lerpVectors(source, dest, t);
 }
 
-export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>, animation: AnimationStatus) {
-  const animationData = useRef<AnimationData | null>(null); // NOTE: Null means we should not be animating
-  const animationTime = 2;
-  const updateAnimationState = useStore(state => state.updateAnimationState);
-  const updateCurrDistances = useStore(state => state.updateCurrDistances);
-  const citiesRef = useStore(state => state.citiesRef);
-  const hoveredCityRef = useStore(state => state.hoveredCityRef);
-  const contextMenu = useStore(state => state.contextMenu);
+type FinalPositionParams = {
+  animation: AnimationType,
+  type: ObjectType,
+  cityName: CityName,
+  citiesRef: Store['citiesRef'],
+  hoveredCity: Store['hoveredCity']
+  positions: Positions,
+  contextMenu: ContextMenu
+}
 
+// Unfortunately, these computations requre a lot of state data
+export function getFinalPosition({ type, animation, cityName, citiesRef, hoveredCity, contextMenu, positions }: FinalPositionParams) {
+  if (type === 'sphere') {
+    return getFinalPositionSphere(animation, cityName, citiesRef, hoveredCity);
+  }
+  return getFinalPositionPlane(animation, cityName, citiesRef, hoveredCity, positions, [contextMenu.cityName, contextMenu.anchor])
+}
+
+export function useAnimation(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
+  const ANIMATION_TIME = 5;
+  const updateAnimationState = useStore(state => state.updateAnimationState);
+  const citiesRef = useStore(state => state.citiesRef);
+  const hoveredCity = useStore(state => state.hoveredCity);
+  const contextMenu = useStore(state => state.contextMenu);
+  const animations = useStore(state => state.animations);
+  const truePositions = useStore(state => state.truePositions);
+  const isAnimating = useStore(state => state.isAnimating);
+  const updateIsAnimating = useStore(state => state.updateIsAnimating);
+  const updateCurrPositions = useStore(state => state.updateCurrPositions);
+
+  const animation = animations[cityName] ?? null;
+  const animationData = useRef<AnimationData | null>(null);
   useEffect(() => {
-    if (animation !== null) {
-      const source = new Vector3().copy(meshRef.current.position);
-      let dest;
-      if (type === 'sphere') {
-        dest = getFinalPositionSphere(animation, cityName, citiesRef, hoveredCityRef);
-      } else {
-        dest = getFinalPositionPlane(animation, cityName, citiesRef, hoveredCityRef, [contextMenu.cityName, contextMenu.anchor])
-      }
-      if (source.distanceTo(dest) > 0.01) {
-        animationData.current = {
-          source,
-          dest,
-          elapsed: 0
-        };
-      } else {
-        updateAnimationState(null, cityName);
-      }
-    }
-    else {
-      animationData.current = null;
-    }
-  }, [animation, meshRef, cityName, type, contextMenu, citiesRef, hoveredCityRef, updateAnimationState]);
+    if (isAnimating || animation === null) return;
+    if (citiesRef.current[cityName] === undefined) return;
+
+    const source = citiesRef.current[cityName].position.clone();
+    let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCity, contextMenu, positions: truePositions })
+    const elapsed = 0;
+    if (source.distanceTo(dest) < 0.01) dest = source.clone();
+    animationData.current = { source, dest, elapsed };
+    updateIsAnimating(true);
+
+  }, [updateIsAnimating, citiesRef, cityName, isAnimating, animation, type, contextMenu, hoveredCity, truePositions]);
+
 
   useFrame((_, delta) => {
-    if (animationData.current === null) return;
-    if (animationData.current.elapsed > animationTime) {
+    if (!isAnimating || animationData.current === null) return;
+    if (animationData.current.elapsed > ANIMATION_TIME) {
       meshRef.current.position.copy(animationData.current.dest);
       animationData.current = null;
-      updateAnimationState(null);
-      updateCurrDistances();
+      updateIsAnimating(false);
+      updateAnimationState(null, cityName);
+      updateCurrPositions();
       return
     }
-    const pos = getIntermediatePoint(animationData.current.source, animationData.current.dest, animationData.current.elapsed / animationTime, type);
+    const pos = getIntermediatePoint(animationData.current.source, animationData.current.dest, animationData.current.elapsed / ANIMATION_TIME, type);
     meshRef.current.position.copy(pos);
-
     animationData.current.elapsed += delta;
-    updateCurrDistances();
+    updateCurrPositions();
   });
 }
 
-// export function useStartAnimation(status: AnimationStatus, cityName?: CityName) {
-//   const updateAnimationState = useStore(state => state.updateAnimationState);// NOTE: more will be added here
-//   updateAnimationState(status, cityName);
-// }
+export function startAnimation(
+  updateAnimationState: Store['updateAnimationState'],
+  updateHoveredCity: Store['updateHoveredCity'],
+  animation: AnimationType,
+  cityName?: CityName,
+) {
+
+  if (cityName) updateHoveredCity(cityName);
+  updateAnimationState(animation, cityName);
+}
+
