@@ -158,7 +158,10 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       if (citiesRef.current[other] === undefined) continue;
       const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
-      if (delta === 0) continue;
+      if (delta === 0) {
+        setFixTarget(other);
+        break;
+      }
       if (fixTarget === other) {
         if (delta > THRESH_FAR) {
           setFixTarget(null);

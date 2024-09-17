@@ -6,9 +6,9 @@ export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
 
-export const RED = 0xDB4824;
-export const GREEN = 0x24DB48;
-export const BLUE = 0x4824DB;
+export const RED = 0xf60836;
+export const GREEN = 0x36f808;
+export const BLUE = 0x3479f3;
 export const YELLOW = 0xfaff00;
 
 export type ObjectType = 'plane' | 'sphere';

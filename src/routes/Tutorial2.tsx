@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
-import { RealDistances, TotalError, UIContainer } from "../components/UI";
+import { TotalError, UIContainer } from "../components/UI";
 import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSprite } from "../components/TutorialDefaults";
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
@@ -83,16 +83,16 @@ function DynamicDistanceExplanation() {
   }
   if (color === RED) {
     return (<p>
-      More concretely, the line now indicates that the cities are <span className="text-[#DB4824]">{rounded}km too far apart</span>.
+      More concretely, the line now indicates that the cities are <span className="text-[#f30836]">{rounded}km too far apart</span>.
     </p>);
   }
   if (color === BLUE) {
     return (<p>
-      More concretely, the line now indicates that the cities are <span className="text-[#4824DB]">{rounded}km too close together</span>.
+      More concretely, the line now indicates that the cities are <span className="text-[#3479f3]">{rounded}km too close together</span>.
     </p>);
   }
   return (<p>
-    More concretely, the line now indicates that the cities are <span className="text-[#24DB48] ">correctly spaced</span>.
+    More concretely, the line now indicates that the cities are <span className="text-[#36f808]">correctly spaced</span>.
   </p>);
 }
 
@@ -104,9 +104,9 @@ function Prompt() {
       </p>
       <p>
         To help you align the cities to reality, there is a line connecting them.
-        It is <span className="text-[#24DB48] ">green</span> when the distance is correct,
-        <span className="text-[#4824DB]"> blue</span>  if too short,
-        and <span className="text-[#DB4824] "> red</span> if too long.
+        It is <span className="text-[#36f808]">green</span> when the distance is correct,
+        <span className="text-[#3479f3]"> blue</span>  if too short,
+        and <span className="text-[#f30836]"> red</span> if too long.
       </p>
       <p>
         The number above the line indicates how far off you are from matching the real distance.

@@ -1,5 +1,5 @@
 import { Line, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { forwardRef, useLayoutEffect, useMemo } from "react";
 import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";

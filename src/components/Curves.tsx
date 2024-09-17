@@ -1,5 +1,5 @@
 import { Size, useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Raycaster, TubeGeometry, Vector2, Vector3 } from "three";
 import { getColor, GREEN, ObjectType, RED, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
@@ -147,8 +147,10 @@ export function Curves({ radius }: { radius?: number }) {
   const nCities = useStore(state => state.nCities);
   const hoveredCity = useStore(state => state.hoveredCity);
   const clearHoverPositions = useStore(state => state.clearHoverPositions);
+  useEffect(() =>
+    clearHoverPositions() // TODO: Change this
+  );
   if (nCities !== nRenderedCities || hoveredCity === null) return null;
-  clearHoverPositions(); // TODO: Change this
   const curves = [];
   for (const cityName of Object.keys(citiesRef.current) as CityName[]) {
     if (cityName === hoveredCity.name) continue;
