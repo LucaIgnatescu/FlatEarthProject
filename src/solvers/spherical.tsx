@@ -1,10 +1,10 @@
-import { AnimationType, Store } from "../state";
+import { AnimationType, MainSlice } from "../state";
 import { CityName, positions } from "../coordinates";
 import { polarToCartesian, slerp, SPHERE_RADIUS } from "../utils";
 import { Vector3 } from "three";
 import { getDistancesLazy } from "../distances";
 
-const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredCity: Store['hoveredCity']) => {
+const getPosition = (cityName: CityName, citiesRef: MainSlice['citiesRef'], hoveredCity: MainSlice['hoveredCity']) => {
   const destMesh = citiesRef.current[cityName];
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
@@ -18,8 +18,8 @@ const getPosition = (cityName: CityName, citiesRef: Store['citiesRef'], hoveredC
 export const getFinalPositionSphere = (
   animation: AnimationType,
   cityName: CityName,
-  citiesRef: Store['citiesRef'],
-  hoveredCity: Store['hoveredCity']
+  citiesRef: MainSlice['citiesRef'],
+  hoveredCity: MainSlice['hoveredCity']
 ) => {
   if (animation === null) throw new Error("animation should not be null in getFinalPosition");
   if (animation === 'global') {

@@ -3,7 +3,7 @@ import { Mesh, Vector3 } from "three";
 import { CityName } from "./coordinates";
 import { ObjectType, slerp, SPHERE_RADIUS } from "./utils";
 import { useFrame } from "@react-three/fiber";
-import { useStore, AnimationType, Store, Positions, ContextMenu } from "./state";
+import { useStore, AnimationType, MainSlice, Positions, ContextMenu } from "./state";
 import { getFinalPositionPlane } from "./solvers/planar";
 import { getFinalPositionSphere } from "./solvers/spherical";
 
@@ -27,8 +27,8 @@ type FinalPositionParams = {
   animation: AnimationType,
   type: ObjectType,
   cityName: CityName,
-  citiesRef: Store['citiesRef'],
-  hoveredCity: Store['hoveredCity']
+  citiesRef: MainSlice['citiesRef'],
+  hoveredCity: MainSlice['hoveredCity']
   positions: Positions,
   contextMenu: ContextMenu
 }
@@ -87,8 +87,8 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
 }
 
 export function startAnimation(
-  updateAnimationState: Store['updateAnimationState'],
-  updateHoveredCity: Store['updateHoveredCity'],
+  updateAnimationState: MainSlice['updateAnimationState'],
+  updateHoveredCity: MainSlice['updateHoveredCity'],
   animation: AnimationType,
   cityName?: CityName,
 ) {

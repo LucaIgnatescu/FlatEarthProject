@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "@react-three/drei";
-import { Canvas, ThreeEvent, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { forwardRef, useLayoutEffect } from "react";
 import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";

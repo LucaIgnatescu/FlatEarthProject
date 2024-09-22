@@ -36,7 +36,7 @@ export type ContextMenu = {
 export type Positions = { [key in string]?: PolarCoords };
 export type CurrPositions = { [key in string]?: Vector3 };
 export type CityPair = `${CityName}_${CityName}`;
-export type Store = {
+export type MainSlice = {
   route: null | Route
   objectType: ObjectType
   citiesRef: MutableRefObject<CityTable>;
@@ -72,6 +72,13 @@ export type Store = {
   updateEarthUUID: (uuid: string) => void;
 }
 
+export type MetricsSlice = {
+  clicks: number,
+  joinTime: Date | null,
+  solveTime: Date | null,
+  incrementClicks: () => void,
+}
+
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as string]: val }), {}) as Animations;
 
 
@@ -95,7 +102,9 @@ const hoverPositions = {};
 const earthUUID = null;
 citiesRef.current = {};
 
-export const useStore = create<Store>((set, get) => ({
+//export const useStore = create<MainSlice>((set, get) => ({
+//@ts-expect-error: "Zustand types"
+const createMainStore = (set, get) => ({
   route,
   citiesRef,
   hoveredCity,
@@ -205,4 +214,24 @@ export const useStore = create<Store>((set, get) => ({
     set({ hoverPositions: {} })
   },
   updateEarthUUID: (earthUUID: string) => set({ earthUUID })
+});
+
+
+
+const clicks = 0;
+const joinTime = null;
+const solveTime = null;
+
+const createMetricsSlice = () => ({
+  clicks,
+  joinTime,
+  solveTime
+})
+
+
+export const useStore = create<MainSlice & MetricsSlice>((...a) => ({
+  ...createMainStore(...a),
+  ...createMetricsSlice(...a)
 }));
+
+// TODO: Fix Typescript Errors
