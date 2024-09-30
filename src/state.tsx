@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createRef, MutableRefObject } from 'react';
 import { PolarCoords, positions, CityName } from './coordinates';
 import { Mesh, Vector3 } from 'three';
-import { Route } from './main';
+import { Route } from './App';
 import { ObjectType } from './utils';
 
 export type Distances = {
