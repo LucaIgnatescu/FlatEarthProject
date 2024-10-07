@@ -46,20 +46,28 @@ function useDragEvents() {
   const [path, setPath] = useState<{ x: number, y: number }[]>([]);
   const [cityName, setCityName] = useState<string>('');
   const handleAddPoint = useCallback((event: Event) => {
-    const customEvent = event as CustomEvent<AddPointEvent>;
+    const customEvent = event as CustomEvent<PathEvent>;
     const x = customEvent.detail.mouseX;
     const y = customEvent.detail.mouseY;
     console.log('received drag: ', x, y);
     setPath((path) => [...path, { x, y }]);
   }, []);
 
-  const handleStartDrag = useCallback(() => {
+  const handleStartDrag = useCallback((event: Event) => {
     console.log('starting drag');
-    setPath([]);
+    const customEvent = event as CustomEvent<PathEvent>;
+    const x = customEvent.detail.mouseX;
+    const y = customEvent.detail.mouseY;
+    setPath([{ x, y }]);
     setCityName(hoveredCity?.name ?? '');
   }, [hoveredCity]);
 
-  const handleStopDrag = useCallback(() => {
+  const handleStopDrag = useCallback((event: Event) => {
+    const customEvent = event as CustomEvent<PathEvent>;
+    const x = customEvent.detail.mouseX;
+    const y = customEvent.detail.mouseY;
+    const finalPath = [...path, { x, y }];
+
     // TODO: send to db
     console.log('ending drag')
     console.log(path, cityName);
@@ -79,7 +87,7 @@ function useDragEvents() {
   }, [handleStartDrag, handleAddPoint, handleStopDrag]);
 }
 
-export type AddPointEvent = {
+export type PathEvent = {
   mouseX: number;
   mouseY: number;
 };
@@ -89,13 +97,16 @@ function useDragDispatcher() {
   const mouseRef = useStore(state => state.mouseRef);
   useEffect(() => {
     if (isDragging === true) {
-      window.dispatchEvent(new CustomEvent('startDrag'));
+      const { mouseX, mouseY } = mouseRef.current;
+      window.dispatchEvent(new CustomEvent('startDrag', {
+        detail: { mouseX, mouseY }
+      }));
     }
 
     const id = setInterval(() => {
       if (isDragging === true) {
         const { mouseX, mouseY } = mouseRef.current;
-        const dragEvent = new CustomEvent<AddPointEvent>('addPoint', {
+        const dragEvent = new CustomEvent<PathEvent>('addPoint', {
           detail: { mouseX, mouseY }
         });
         window.dispatchEvent(dragEvent);
@@ -104,9 +115,12 @@ function useDragDispatcher() {
 
     return () => {
       if (isDragging === true) {
-        window.dispatchEvent(new CustomEvent('stopDrag'));
+        const { mouseX, mouseY } = mouseRef.current;
+        window.dispatchEvent(new CustomEvent('stopDrag', {
+          detail: { mouseX, mouseY }
+        }));
       }
       clearInterval(id);
-    }
+    };
   }, [isDragging, mouseRef]);
 }
