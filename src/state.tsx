@@ -73,10 +73,10 @@ export type MainSlice = {
 }
 
 export type MetricsSlice = {
-  clicks: number,
-  joinTime: Date | null,
-  solveTime: Date | null,
-  incrementClicks: () => void,
+  mouseRef: MutableRefObject<{ mouseX: number, mouseY: number }>
+  jwt: string | null;
+  updateMousePosition: (x: number, y: number) => void;
+  setJwt: (jwt: string) => void;
 }
 
 const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as string]: val }), {}) as Animations;
@@ -104,7 +104,7 @@ citiesRef.current = {};
 
 //export const useStore = create<MainSlice>((set, get) => ({
 //@ts-expect-error: "Zustand types"
-const createMainStore = (set, get) => ({
+const createMainSlice = (set, get) => ({
   route,
   citiesRef,
   hoveredCity,
@@ -217,20 +217,25 @@ const createMainStore = (set, get) => ({
 });
 
 
+const mouseX = 0;
+const mouseY = 0;
+const mouseRef = createRef() as MutableRefObject<{ mouseX: number, mouseY: number }>;
+mouseRef.current = { mouseX, mouseY };
+const jwt = null;
 
-const clicks = 0;
-const joinTime = null;
-const solveTime = null;
-
-const createMetricsSlice = () => ({
-  clicks,
-  joinTime,
-  solveTime
-})
-
+//@ts-expect-error: not very ts friendly
+const createMetricsSlice = (set, get) => ({
+  jwt,
+  mouseRef,
+  updateMousePosition:
+    (mouseX: number, mouseY: number) => get().mouseRef.current = { mouseX, mouseY },
+  setJwt: (jwt: string) => set({ jwt })
+});
 
 export const useStore = create<MainSlice & MetricsSlice>((...a) => ({
-  ...createMainStore(...a),
+  //@ts-expect-error: not very ts friendly
+  ...createMainSlice(...a),
+  //@ts-expect-error: not very ts friendly
   ...createMetricsSlice(...a)
 }));
 

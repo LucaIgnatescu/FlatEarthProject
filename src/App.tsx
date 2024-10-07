@@ -6,6 +6,8 @@ import { Tutorial4 } from "./routes/Tutorial4";
 import { Tutorial5 } from "./routes/Tutorial5";
 import Globe from "./routes/Globe";
 import Plane from "./routes/Plane";
+import { useMouseTracker } from "./metrics/mouseTracker";
+import { useEvents } from "./metrics/useEvents";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
   'sphere' | 'plane';
@@ -45,7 +47,11 @@ const router = createBrowserRouter([
   }
 ])
 export default function App() {
+  useMouseTracker();
+  useEvents();
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+    </>
   );
 }
