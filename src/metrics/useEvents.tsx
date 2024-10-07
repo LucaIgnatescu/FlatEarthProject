@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStore } from '../state';
-
-const TIMEOUT = 200;
+import { sendClick, sendDrag, sendHandshake } from './sendMetrics';
 
 export function useEvents() {
   useDragEvents();
@@ -17,18 +16,31 @@ export function useSetupEvent() {
     if (jwt !== null) {
       return;
     }
-    const token = 'token';// TODO: make api request 
-    setJwt(token);
+
+    sendHandshake().then(token => {
+      if (token === null) {
+        console.error("could not reach server");
+        return;
+      }
+      setJwt(token);
+    });
   }, [jwt, setJwt]);
 }
 
 function useStaticEvents() {
+  const token = useStore(state => state.jwt);
+
   const handleClick = useCallback((event: MouseEvent) => {
-    console.log('clicked at', event.clientX, event.clientY);
-  }, []);
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    if (token === null) return;
+    sendClick(token, mouseX, mouseY);
+  }, [token]);
+
   const handleSolver = useCallback(() => {
-    console.log('used solver');
-  }, []);
+    if (token === null) return;
+  }, [token]);
 
   useEffect(() => {
     window.addEventListener('click', handleClick);
@@ -42,19 +54,17 @@ function useStaticEvents() {
 
 function useDragEvents() {
   const hoveredCity = useStore(state => state.hoveredCity);
-
+  const token = useStore(state => state.jwt);
   const [path, setPath] = useState<{ x: number, y: number }[]>([]);
   const [cityName, setCityName] = useState<string>('');
   const handleAddPoint = useCallback((event: Event) => {
     const customEvent = event as CustomEvent<PathEvent>;
     const x = customEvent.detail.mouseX;
     const y = customEvent.detail.mouseY;
-    console.log('received drag: ', x, y);
     setPath((path) => [...path, { x, y }]);
   }, []);
 
   const handleStartDrag = useCallback((event: Event) => {
-    console.log('starting drag');
     const customEvent = event as CustomEvent<PathEvent>;
     const x = customEvent.detail.mouseX;
     const y = customEvent.detail.mouseY;
@@ -67,13 +77,12 @@ function useDragEvents() {
     const x = customEvent.detail.mouseX;
     const y = customEvent.detail.mouseY;
     const finalPath = [...path, { x, y }];
-
-    // TODO: send to db
-    console.log('ending drag')
-    console.log(path, cityName);
+    if (token !== null) {
+      sendDrag(token, finalPath);
+    }
     setPath([]);
     setCityName('');
-  }, [cityName, path]);
+  }, [path, token]);
 
   useEffect(() => {
     window.addEventListener('startDrag', handleStartDrag);
@@ -95,6 +104,8 @@ export type PathEvent = {
 function useDragDispatcher() {
   const isDragging = useStore(state => state.isDragging);
   const mouseRef = useStore(state => state.mouseRef);
+  const TIMEOUT = 200;
+
   useEffect(() => {
     if (isDragging === true) {
       const { mouseX, mouseY } = mouseRef.current;
