@@ -1,3 +1,5 @@
+import { PathPoint } from "./dispatchers";
+
 const API_ENDPOINT = "http://localhost:8080";
 
 
@@ -28,7 +30,7 @@ export async function sendClick(token: string, x: number, y: number) {
   sendEvent(token, 'click', payload);
 }
 
-export async function sendDrag(token: string, path: { x: number, y: number }[]) {
+export async function sendDrag(token: string, path: PathPoint[]) {
   if (path.length <= 1) {
     console.error("Path length should not be <=1")
     return;
@@ -47,11 +49,9 @@ async function sendEvent(token: string, type: InteractionType, payload: object |
   const body: InteractionBody = {
     event_type: type,
   };
-
   if (payload !== null) {
     body.payload = payload;
   }
-  console.log('sending', type);
   try {
     const res = await fetch(API_ENDPOINT + '/log',
       {

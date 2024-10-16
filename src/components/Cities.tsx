@@ -139,6 +139,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       truePositions[cityName] === undefined ||
       citiesRef.current[cityName] === undefined
     ) return;
+
     if (type === 'sphere') {
       const truePosition = polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
       const currPosition = citiesRef.current[cityName].position;
@@ -153,8 +154,9 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       }
       return;
     }
-    const otherCities = Object.keys(truePositions).filter(key => key !== cityName) as CityName[];
-    for (const other of otherCities) {
+
+    const otherCities = Object.keys(truePositions).filter(key => key !== cityName);
+    for (const other of otherCities as CityName[]) {
       if (citiesRef.current[other] === undefined) continue;
       const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
       const delta = Math.abs(trueDistance - currDistance);
@@ -170,7 +172,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       }
 
       if (delta < THRESH_CLOSE) {
-        for (const other1 of otherCities) {
+        for (const other1 of otherCities as CityName[]) {
           if (other1 === other || citiesRef.current[other1] === undefined) continue;
           const newDistances = getDistancesLazy(cityName, other1, type, citiesRef);
           const trueDistance1 = newDistances.trueDistance;

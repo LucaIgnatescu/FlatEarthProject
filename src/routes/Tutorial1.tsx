@@ -10,6 +10,8 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { getColor, GREEN } from "../utils.tsx";
+import SetupEvents from "../components/SetupEvents.tsx";
+import CustomCanvas from "../components/CustomCanvas.tsx";
 
 export function Tutorial1() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -32,14 +34,14 @@ export function Tutorial1() {
   return (
     <div className="flex h-full ">
       <div className="w-3/5 relative">
-        <Canvas className="bg-black w-full " >
+        <CustomCanvas className="bg-black w-full " >
           <TutorialControls />
           <ambientLight color={0xffffff} intensity={2} />
           <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
           <EarthWrapper EarthMesh={TutorialEarthMesh} />
           <Cities CityMesh={TutorialCityMesh} />
           <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
-        </Canvas>
+        </CustomCanvas>
         <UIContainer>
           <div className="w-full flex justify-center invisible">
             <CurrentDistance />
