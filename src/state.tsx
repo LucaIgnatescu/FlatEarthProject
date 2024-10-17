@@ -6,13 +6,13 @@ import { Route } from './App';
 import { ObjectType } from './utils';
 
 export type Distances = {
-  [key in string]?: {
-    [key in string]?: number;
+  [key in CityName]?: {
+    [key in CityName]?: number;
   }
 }
 
 export type CityTable = {
-  [key in string]?: Mesh;
+  [key in CityName]?: Mesh;
 };
 
 export type CityInfo = {
@@ -23,18 +23,18 @@ export type CityInfo = {
 export type AnimationType = 'fixed' | 'moving' | 'global' | null;
 
 export type Animations = {
-  [key in string]: AnimationType;
+  [key in CityName]: AnimationType;
 };
 
 export type ContextMenu = {
-  cityName: string | null;
+  cityName: CityName | null;
   mousePosition: [number, number] | null;
-  anchor: string | null;
+  anchor: CityName | null;
   visible: boolean
 };
 
-export type Positions = { [key in string]?: PolarCoords };
-export type CurrPositions = { [key in string]?: Vector3 };
+export type Positions = { [key in CityName]?: PolarCoords };
+export type CurrPositions = { [key in CityName]?: Vector3 };
 export type CityPair = `${CityName}_${CityName}`;
 export type MainSlice = {
   route: null | Route
@@ -44,7 +44,6 @@ export type MainSlice = {
   isDragging: boolean;
   animations: Animations;
   contextMenu: ContextMenu;
-  isPicking: boolean;
   nCities: number;
   isAnimating: boolean;
   truePositions: Positions;
@@ -55,13 +54,12 @@ export type MainSlice = {
   hoverPositions: { [key in CityPair]?: { position: [number, number] | null, rotation: number } };
   earthUUID: string | null;
   updateRoute: (route: Route) => void;
-  updateCities: (name: string, city: Mesh, remove?: boolean) => void;
-  updateHoveredCity: (name: string | null) => void;
+  updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
+  updateHoveredCity: (name: CityName | null) => void;
   moveHoveredCity: (x: number, y: number, z: number, lock?: boolean) => void;
   updateIsDragging: (isDragging: boolean) => void;
-  updateAnimationState: (status: AnimationType, cityName?: string) => boolean;
+  updateAnimationState: (status: AnimationType, cityName?: CityName) => boolean;
   updateContextMenu: (menu: ContextMenu) => void;
-  updateIsPicking: (isPicking: boolean) => void;
   updateNCities: (nCities: number) => void;
   updateIsAnimating: (isAnimating: boolean) => void;
   updateControlsEnabled: (controlsEnabled: boolean) => void;
@@ -79,7 +77,7 @@ export type MetricsSlice = {
   setJwt: (jwt: string) => void;
 }
 
-const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as string]: val }), {}) as Animations;
+const fillAnimationTable = (val: AnimationType) => Object.keys(positions).reduce((obj, key) => ({ ...obj, [key as CityName]: val }), {}) as Animations;
 
 
 
@@ -88,7 +86,6 @@ const citiesRef = createRef() as MutableRefObject<CityTable>;
 const hoveredCity = null;
 const animations = fillAnimationTable(null);
 const contextMenu: ContextMenu = { cityName: null, anchor: null, mousePosition: null, visible: false };
-const isPicking = false;
 const isAnimating = false;
 const nCities = 7;
 const route = null;
@@ -111,7 +108,6 @@ const createMainSlice = (set, get) => ({
   isDragging,
   animations,
   contextMenu,
-  isPicking,
   nCities,
   isAnimating,
   nRenderedCities,
@@ -132,7 +128,7 @@ const createMainSlice = (set, get) => ({
     const objectType: ObjectType = route === 'sphere' ? 'sphere' : 'plane';
     set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType, earthUUID, hoverPositions });
   },
-  updateCities: (name: string, city: Mesh, remove: boolean = false) => {
+  updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
     const cities = get().citiesRef.current;
     if (remove === true) {
       if (cities[name] === undefined) return;
@@ -144,7 +140,7 @@ const createMainSlice = (set, get) => ({
     }
     get().updateCurrPositions();
   },
-  updateHoveredCity: (name: string | null) => {
+  updateHoveredCity: (name: CityName | null) => {
     if (name === null) {
       set({ hoveredCity: null });
       return;
@@ -165,7 +161,7 @@ const createMainSlice = (set, get) => ({
     get().updateCurrPositions();
   },
   updateIsDragging: (isDragging: boolean) => set({ isDragging }),
-  updateAnimationState: (status: AnimationType, cityName?: string) => {
+  updateAnimationState: (status: AnimationType, cityName?: CityName) => {
     if (status !== null && Object.values(get().animations).find(animation => animation === null) === undefined)
       return false;
     if (cityName === undefined) {
@@ -181,13 +177,12 @@ const createMainSlice = (set, get) => ({
     set((state) => ({ animations: { ...state.animations, [cityName]: status } }));
     return true;
   },
-  updateContextMenu: (menu: ContextMenu) => set({ contextMenu: menu }),
-  updateIsPicking: (isPicking: boolean) => set({ isPicking }),
+  updateContextMenu: (contextMenu: ContextMenu) => set({ contextMenu }),
   updateNCities: (nCities: number) => {
     const n = nCities;
     if (n === undefined) return positions;
-    const keys = Object.keys(positions) as string[];
-    const truePositions: { [key in string]?: PolarCoords } = {};
+    const keys = Object.keys(positions) as CityName[];
+    const truePositions: { [key in CityName]?: PolarCoords } = {};
     for (let i = 0; i < n; i++) {
       const key = keys[i];
       truePositions[key] = positions[key];
@@ -202,12 +197,12 @@ const createMainSlice = (set, get) => ({
   updateCurrPositions: () => {
     const currPositions: CurrPositions = {};
     const cities = get().citiesRef.current;
-    for (const cityName of Object.keys(cities) as string[]) {
+    for (const cityName of Object.keys(cities) as CityName[]) {
       currPositions[cityName] = citiesRef.current[cityName]?.position;
     }
     set({ currPositions })
   },
-  updateHoverPositions: (key: string, position: [number, number] | null, rotation: number = 0) => {
+  updateHoverPositions: (key: CityName, position: [number, number] | null, rotation: number = 0) => {
     set((state) => ({ hoverPositions: { ...state.hoverPositions, [key]: { position, rotation } } }))
   },
   clearHoverPositions: () => {

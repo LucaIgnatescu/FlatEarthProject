@@ -60,9 +60,15 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     if (citiesRef.current[cityName] === undefined) return;
 
     const source = citiesRef.current[cityName].position.clone();
+    const { anchor } = contextMenu;
+    if (anchor === null && type === 'plane') {
+      return;
+    }
     let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCity, contextMenu, positions: truePositions })
     const elapsed = 0;
-    if (source.distanceTo(dest) < 0.01) dest = source.clone();
+    if (source.distanceTo(dest) < 0.01) {
+      dest = source.clone();
+    }
     animationData.current = { source, dest, elapsed };
     updateIsAnimating(true);
 
@@ -84,16 +90,5 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
     animationData.current.elapsed += delta;
     updateCurrPositions();
   });
-}
-
-export function startAnimation(
-  updateAnimationState: MainSlice['updateAnimationState'],
-  updateHoveredCity: MainSlice['updateHoveredCity'],
-  animation: AnimationType,
-  cityName?: CityName,
-) {
-
-  if (cityName) updateHoveredCity(cityName);
-  updateAnimationState(animation, cityName);
 }
 

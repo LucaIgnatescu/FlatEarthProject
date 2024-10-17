@@ -23,7 +23,7 @@ export function useHandshake() {
       return;
     }
 
-    //sendHandshake().then(token => {
+    //postHandshake().then(token => {
     //  if (token === null) {
     //    console.error("could not reach server");
     //    return;

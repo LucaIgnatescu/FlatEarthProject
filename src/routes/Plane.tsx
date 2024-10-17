@@ -12,7 +12,6 @@ import { Stars } from "../components/Stars";
 import { Sprites } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
 import { TotalError, UIContainer } from "../components/UI";
-import { AnchorPrompt } from "../components/AnchorPrompt";
 import { Distances } from "../components/Distances";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
@@ -41,7 +40,6 @@ export default function Plane() {
         <div className="w-full flex justify-center text-white text-center">
           <div className="flex flex-col">
             <TotalError />
-            <AnchorPrompt />
           </div>
         </div>
         <Distances />

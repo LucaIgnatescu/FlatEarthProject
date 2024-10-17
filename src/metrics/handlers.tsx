@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStore } from '../state';
-import { sendClick, sendDrag } from './sendMetrics';
+import { postClick, postDrag } from './postMetrics';
 import { PathPoint } from './dispatchers';
 
 export function useRegisterUIHandlers() {
@@ -9,7 +9,7 @@ export function useRegisterUIHandlers() {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
     if (token === null) return;
-    sendClick(token, mouseX, mouseY);
+    postClick(token, mouseX, mouseY);
   }, [token]);
 
   const handleSolver = useCallback(() => {
@@ -47,7 +47,7 @@ export function useRegisterDragHandlers() {
     const customEvent = event as CustomEvent<PathPoint>;
     const finalPath = [...path, { ...customEvent.detail }];
     if (token !== null) {
-      sendDrag(token, finalPath);
+      postDrag(token, finalPath);
     }
     setPath([]);
     setCityName('');

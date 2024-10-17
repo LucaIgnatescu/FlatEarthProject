@@ -10,7 +10,7 @@ export type InteractionBody = {
   payload?: object;
 }
 
-export async function sendHandshake() {
+export async function postHandshake() {
   try {
     const res = await fetch(API_ENDPOINT + '/register').then(res => res.json());
     const token: string | undefined = res.token;
@@ -25,12 +25,12 @@ export async function sendHandshake() {
   }
 }
 
-export async function sendClick(token: string, x: number, y: number) {
+export async function postClick(token: string, x: number, y: number) {
   const payload = { x, y };
-  sendEvent(token, 'click', payload);
+  postEvent(token, 'click', payload);
 }
 
-export async function sendDrag(token: string, path: PathPoint[]) {
+export async function postDrag(token: string, path: PathPoint[]) {
   if (path.length <= 1) {
     console.error("Path length should not be <=1")
     return;
@@ -42,10 +42,10 @@ export async function sendDrag(token: string, path: PathPoint[]) {
     }
   }
   path.reverse();
-  sendEvent(token, 'drag', path);
+  postEvent(token, 'drag', path);
 }
 
-async function sendEvent(token: string, type: InteractionType, payload: object | null) {
+async function postEvent(token: string, type: InteractionType, payload: object | null) {
   const body: InteractionBody = {
     event_type: type,
   };

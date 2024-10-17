@@ -38,7 +38,6 @@ const MDS = (distances: number[][]) => {
 }
 
 const centerSolution = (numbers: number[][], citiesArray: CityName[], params: ConfigParams) => {
-  console.log(numbers);
   const i1 = citiesArray.findIndex(name => name === params.city1.name);
   const i2 = citiesArray.findIndex(name => name === params.city2.name);
   if (i1 === undefined || i2 === undefined) throw new Error("city does not exist");
@@ -74,8 +73,7 @@ export const getPlanarSolution = (params: ConfigParams) => {
       mat[i][j] = distances[citiesArray[i]][citiesArray[j]] / SCALE_FACTOR;
     }
   }
-  // const sol = centerSolution(MDS(mat), citiesArray, params); // NOTE: This is using the prompt
-  const sol = transpose(MDS(mat));
+  const sol = centerSolution(MDS(mat), citiesArray, params); // NOTE: This is using the prompt
 
   // @ts-expect-error: avoid using reduce
   const ans: Configuration = {};

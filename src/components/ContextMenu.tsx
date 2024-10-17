@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useStore } from "../state";
-import { startAnimation } from "../animation";
+import { CityName } from "../coordinates";
+import { getDistancesLazy } from "../distances";
 
 export function ContextMenu() {
   const contextMenu = useStore(state => state.contextMenu);
@@ -8,15 +9,38 @@ export function ContextMenu() {
   const ref = useRef<HTMLDivElement>(null!);
   const updateAnimationState = useStore(state => state.updateAnimationState);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
-  const updateIsPicking = useStore(state => state.updateIsPicking);
   const isAnimating = useStore(state => state.isAnimating);
   const type = useStore(state => state.objectType);
+  const citiesRef = useStore(state => state.citiesRef);
+
+  const cities = Object.keys(citiesRef.current) as CityName[];
   const { cityName } = contextMenu;
+
   if (isAnimating || contextMenu.visible === false || contextMenu.mousePosition === null || cityName === null) {
     return null;
   }
 
   const [x, y] = contextMenu.mousePosition;
+
+  const getClosestPoint = () => {
+    let minDistance = Infinity;
+    let minCity = null;
+    for (const otherCity of cities) {
+      if (otherCity === cityName) {
+        continue;
+      }
+      const { currDistance } = getDistancesLazy(cityName, otherCity, type, citiesRef);
+      if (currDistance < minDistance) {
+        minDistance = currDistance;
+        minCity = otherCity;
+      }
+    }
+    if (minCity === null) {
+      throw new Error("could not find closest city")
+    }
+    return minCity;
+  }
+
 
   const closeMenu = () => updateContextMenu({ ...contextMenu, visible: false });
   return (
@@ -29,18 +53,22 @@ export function ContextMenu() {
       ref={ref}
     >
       <button onClick={() => {
-        startAnimation(updateAnimationState, updateHoveredCity, 'fixed', cityName);
+        updateHoveredCity(cityName);
+        updateAnimationState('fixed', cityName);
         closeMenu();
       }}>
         Solve City
       </button>
       <button className="border-l border-l-gray-500"
         onClick={() => {
-          if (type === 'sphere') {
-            startAnimation(updateAnimationState, updateHoveredCity, 'global');
-            closeMenu();
+          updateHoveredCity(cityName);
+          updateAnimationState('global');
+          if (type === 'plane') {
+            const closestPoint = getClosestPoint();
+            const newMenu = { ...contextMenu, anchor: closestPoint, visible: false };
+            updateContextMenu(newMenu);
           } else {
-            updateIsPicking(true);
+            closeMenu();
           }
         }}
       >
