@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useStore } from '../state';
 import { useRegisterDragHandlers, useRegisterUIHandlers } from './handlers';
 import { useDragDispatcher } from './dispatchers';
+import { postHandshake } from './postMetrics';
 
 
 export function useGlobalEvents() {
@@ -22,14 +23,13 @@ export function useHandshake() {
     if (jwt !== null) {
       return;
     }
-
-    //postHandshake().then(token => {
-    //  if (token === null) {
-    //    console.error("could not reach server");
-    //    return;
-    //  }
-    //  setJwt(token);
-    //});
+    postHandshake().then(token => {
+      if (token === null) {
+        console.error("could not reach server");
+        return;
+      }
+      setJwt(token);
+    });
   }, [jwt, setJwt]);
 }
 

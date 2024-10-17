@@ -1,4 +1,3 @@
-import { Canvas } from "@react-three/fiber";
 import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
 import { useEffect, useLayoutEffect } from "react";
@@ -10,7 +9,6 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { getColor, GREEN } from "../utils.tsx";
-import SetupEvents from "../components/SetupEvents.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 
 export function Tutorial1() {

@@ -1,4 +1,3 @@
-import { Canvas } from "@react-three/fiber";
 import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
 import { useEffect, useLayoutEffect } from "react";
@@ -12,6 +11,7 @@ import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError } from "../distances.tsx";
 import { ContextMenu } from "../components/ContextMenu.tsx";
 import { Distances } from "../components/Distances.tsx";
+import CustomCanvas from "../components/CustomCanvas.tsx";
 
 export function Tutorial4() {
 
@@ -33,7 +33,7 @@ export function Tutorial4() {
   return (
     <div className="flex h-full">
       <div className="w-3/5 relative">
-        <Canvas className="bg-black w-full" >
+        <CustomCanvas className="bg-black w-full" >
           <TutorialControls />
           <ambientLight color={0xffffff} intensity={2} />
           <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
@@ -41,7 +41,7 @@ export function Tutorial4() {
           <Cities CityMesh={TutorialCityMesh} />
           <Curves radius={0.2} />
           <Sprites generateLabels={alphabeticLabelStrategy} TextSprite={TutorialTextSprite} />
-        </Canvas>
+        </CustomCanvas>
         <UIContainer>
           <div className="w-full flex justify-center">
             <TotalError />

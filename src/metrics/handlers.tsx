@@ -27,6 +27,7 @@ export function useRegisterUIHandlers() {
 }
 
 export function useRegisterDragHandlers() {
+  console.log('registeing handlers');
   const hoveredCity = useStore(state => state.hoveredCity);
   const token = useStore(state => state.jwt);
   const [path, setPath] = useState<PathPoint[]>([]);

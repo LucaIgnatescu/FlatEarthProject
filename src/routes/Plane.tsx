@@ -1,5 +1,5 @@
 import { Line, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { forwardRef, useLayoutEffect, useMemo } from "react";
 import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
@@ -13,6 +13,7 @@ import { Sprites } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
 import { TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
+import CustomCanvas from "../components/CustomCanvas";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
@@ -25,7 +26,7 @@ export default function Plane() {
   })
   return (
     <>
-      <Canvas gl={{ antialias: true }} className="bg-black">
+      <CustomCanvas className="bg-black">
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
         <ambientLight color={0xffffff} intensity={2} />
@@ -35,7 +36,7 @@ export default function Plane() {
         <Stars />
         <Curves />
         <Sprites />
-      </Canvas>
+      </CustomCanvas>
       <UIContainer>
         <div className="w-full flex justify-center text-white text-center">
           <div className="flex flex-col">

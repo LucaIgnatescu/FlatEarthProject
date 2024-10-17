@@ -37,11 +37,12 @@ export async function postDrag(token: string, path: PathPoint[]) {
   }
   if (path.length === 2) {
     const [p1, p2] = path;
-    if (p1.x === p2.x && p1.y === p2.y) {
+    if (p1.x === p2.x && p1.y === p2.y && p1.z == p2.z) {
       return;
     }
   }
   path.reverse();
+  console.log(path);
   postEvent(token, 'drag', path);
 }
 
@@ -51,6 +52,7 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   };
   if (payload !== null) {
     body.payload = payload;
+    console.log('payload: ', payload)
   }
   try {
     const res = await fetch(API_ENDPOINT + '/log',

@@ -1,5 +1,5 @@
 import { PerspectiveCamera } from "@react-three/drei";
-import { Canvas, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { forwardRef, useLayoutEffect } from "react";
 import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";
@@ -13,6 +13,7 @@ import { Sprites } from "../components/TextSprite";
 import { TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
 import { Distances } from "../components/Distances";
+import CustomCanvas from "../components/CustomCanvas";
 
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -23,7 +24,7 @@ export default function Globe() {
   })
   return (
     <>
-      <Canvas gl={{ antialias: true }} className="bg-black">
+      <CustomCanvas className="bg-black">
         <PerspectiveCamera makeDefault position={[15, 15, 15]} />
         <Controls />
         <EarthWrapper EarthMesh={EarthMesh} />
@@ -31,7 +32,7 @@ export default function Globe() {
         <Cities />
         <Curves />
         <Sprites />
-      </Canvas>
+      </CustomCanvas>
       <UIContainer>
         <div className="w-full flex justify-center text-white text-center">
           <div className="flex flex-col">
