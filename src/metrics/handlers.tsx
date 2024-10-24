@@ -27,11 +27,10 @@ export function useRegisterUIHandlers() {
 }
 
 export function useRegisterDragHandlers() {
-  console.log('registeing handlers');
   const hoveredCity = useStore(state => state.hoveredCity);
   const token = useStore(state => state.jwt);
   const [path, setPath] = useState<PathPoint[]>([]);
-  const [, setCityName] = useState<string>('');
+  //const [, setCityName] = useState<CityName | null>(null);
 
   const handleAddPoint = useCallback((event: Event) => {
     const customEvent = event as CustomEvent<PathPoint>;
@@ -41,18 +40,18 @@ export function useRegisterDragHandlers() {
   const handleStartDrag = useCallback((event: Event) => {
     const customEvent = event as CustomEvent<PathPoint>;
     setPath([{ ...customEvent.detail }]);
-    setCityName(hoveredCity?.name ?? '');
-  }, [hoveredCity]);
+    //setCityName(hoveredCity?.name ?? '');
+  }, []);
 
   const handleStopDrag = useCallback((event: Event) => {
     const customEvent = event as CustomEvent<PathPoint>;
     const finalPath = [...path, { ...customEvent.detail }];
-    if (token !== null) {
-      postDrag(token, finalPath);
+    if (token !== null && hoveredCity !== null) {
+      postDrag(token, finalPath, hoveredCity.name);
     }
     setPath([]);
-    setCityName('');
-  }, [path, token]);
+    //setCityName('');
+  }, [path, token, hoveredCity]);
 
   useEffect(() => {
     window.addEventListener('startDrag', handleStartDrag);

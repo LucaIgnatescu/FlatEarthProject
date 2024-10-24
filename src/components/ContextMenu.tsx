@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useStore } from "../state";
 import { CityName } from "../coordinates";
 import { getDistancesLazy } from "../distances";
+import { postSolve } from "../metrics/postMetrics";
 
 export function ContextMenu() {
   const contextMenu = useStore(state => state.contextMenu);
@@ -12,6 +13,7 @@ export function ContextMenu() {
   const isAnimating = useStore(state => state.isAnimating);
   const type = useStore(state => state.objectType);
   const citiesRef = useStore(state => state.citiesRef);
+  const token = useStore(state => state.jwt);
 
   const cities = Object.keys(citiesRef.current) as CityName[];
   const { cityName } = contextMenu;
@@ -56,6 +58,9 @@ export function ContextMenu() {
         updateHoveredCity(cityName);
         updateAnimationState('fixed', cityName);
         closeMenu();
+        if (token != null) {
+          postSolve(token, "fixed", cityName);
+        }
       }}>
         Solve City
       </button>
@@ -69,6 +74,9 @@ export function ContextMenu() {
             updateContextMenu(newMenu);
           } else {
             closeMenu();
+          }
+          if (token != null) {
+            postSolve(token, "global");
           }
         }}
       >

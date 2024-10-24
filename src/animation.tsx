@@ -52,7 +52,6 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
   const isAnimating = useStore(state => state.isAnimating);
   const updateIsAnimating = useStore(state => state.updateIsAnimating);
   const updateCurrPositions = useStore(state => state.updateCurrPositions);
-
   const animation = animations[cityName] ?? null;
   const animationData = useRef<AnimationData | null>(null);
   useEffect(() => {
@@ -61,7 +60,7 @@ export function useAnimation(type: ObjectType, cityName: CityName, meshRef: Muta
 
     const source = citiesRef.current[cityName].position.clone();
     const { anchor } = contextMenu;
-    if (anchor === null && type === 'plane') {
+    if (anchor === null && type === 'plane' && animation === 'global') {
       return;
     }
     let dest = getFinalPosition({ animation, type, cityName, citiesRef, hoveredCity, contextMenu, positions: truePositions })

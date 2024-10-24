@@ -9,7 +9,6 @@ export type PathPoint = {
 };
 
 export function useDragDispatcher() {
-  console.log('setting up');
   const isDragging = useStore(state => state.isDragging);
   const mouseRef = useStore(state => state.mouseRef);
   const pointer = useThree(state => state.pointer);
@@ -28,7 +27,10 @@ export function useDragDispatcher() {
         (intersection) => intersection.object.uuid === earthUUID
       );
       if (earthIntersection === undefined) return null
-      const { x, y, z } = earthIntersection.point;
+      let { x, y, z } = earthIntersection.point;
+      x = +x.toFixed(3);
+      y = +y.toFixed(3);
+      z = +z.toFixed(3);
       return { x, y, z };
     }
     if (isDragging === true) {
@@ -47,7 +49,7 @@ export function useDragDispatcher() {
         const dragEvent = new CustomEvent<PathPoint>('addPoint', {
           detail: { ...intersection }
         });
-        console.log('dispatching startDrag');
+        console.log('dispatching addPoint');
         window.dispatchEvent(dragEvent);
       }
     }, TIMEOUT);

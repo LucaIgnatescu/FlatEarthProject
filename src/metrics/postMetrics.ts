@@ -1,3 +1,4 @@
+import { CityName } from "../coordinates";
 import { PathPoint } from "./dispatchers";
 
 const API_ENDPOINT = "http://localhost:8080";
@@ -30,7 +31,7 @@ export async function postClick(token: string, x: number, y: number) {
   postEvent(token, 'click', payload);
 }
 
-export async function postDrag(token: string, path: PathPoint[]) {
+export async function postDrag(token: string, path: PathPoint[], cityName: CityName) {
   if (path.length <= 1) {
     console.error("Path length should not be <=1")
     return;
@@ -43,7 +44,22 @@ export async function postDrag(token: string, path: PathPoint[]) {
   }
   path.reverse();
   console.log(path);
-  postEvent(token, 'drag', path);
+  const payload = { path, city_name: cityName };
+  postEvent(token, 'drag', payload);
+}
+
+export async function postSolve(token: string, type: 'global' | 'fixed', cityName?: CityName) {
+  type Payload = {
+    solve_type: 'global' | 'fixed',
+    city_name?: CityName
+  }
+  const payload: Payload = {
+    solve_type: 'global'
+  };
+  if (type === 'fixed' && cityName !== undefined) {
+    payload.city_name = cityName;
+  }
+  postEvent(token, 'solve', payload);
 }
 
 async function postEvent(token: string, type: InteractionType, payload: object | null) {
@@ -71,7 +87,8 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   } catch (err) {
     console.error(err);
   }
-  console.log('succesful log');
+  console.log("successful log");
+  console.log(`type:${type}, body:${JSON.stringify(body)}`);
 }
 
 
