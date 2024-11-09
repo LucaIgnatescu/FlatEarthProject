@@ -1,10 +1,11 @@
+import { Route } from "../App";
 import { CityName } from "../coordinates";
 import { PathPoint } from "./dispatchers";
 
 const API_ENDPOINT = "http://localhost:8080";
 
 
-export type InteractionType = 'drag' | 'click' | 'solve';
+export type InteractionType = 'drag' | 'click' | 'solve' | 'route_change';
 
 export type InteractionBody = {
   event_type: InteractionType;
@@ -54,12 +55,19 @@ export async function postSolve(token: string, type: 'global' | 'fixed', cityNam
     city_name?: CityName
   }
   const payload: Payload = {
-    solve_type: 'global'
-  };
+    solve_type: type
+  }
   if (type === 'fixed' && cityName !== undefined) {
     payload.city_name = cityName;
   }
   postEvent(token, 'solve', payload);
+}
+
+export async function postRouteChange(token: string, route: Route) {
+  const payload = {
+    route_change: route
+  };
+  postEvent(token, 'route_change', payload);
 }
 
 async function postEvent(token: string, type: InteractionType, payload: object | null) {
@@ -68,7 +76,6 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   };
   if (payload !== null) {
     body.payload = payload;
-    console.log('payload: ', payload)
   }
   try {
     const res = await fetch(API_ENDPOINT + '/log',
@@ -87,8 +94,7 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   } catch (err) {
     console.error(err);
   }
-  console.log("successful log");
-  console.log(`type:${type}, body:${JSON.stringify(body)}`);
+  console.log(`logged type:${type}, body:${JSON.stringify(body)}`);
 }
 
 

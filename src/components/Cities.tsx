@@ -82,7 +82,11 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   const updateMenuInfo = useStore(state => state.updateContextMenu);
   const updateControls = useStore(state => state.updateControlsEnabled);
   const updateMoveLock = useStore(state => state.updateMoveLock);
-  const onPointerDown = () => {
+  const onPointerDown: MouseEventHandler = (ev) => {
+    const RIGHT_CLICK = 2;
+    if (ev.button === RIGHT_CLICK) {
+      return;
+    }
     updateIsDragging(true);
     updateControls(false);
     updateMoveLock(false);

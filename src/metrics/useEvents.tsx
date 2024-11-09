@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../state';
 import { useRegisterDragHandlers, useRegisterUIHandlers } from './handlers';
 import { useDragDispatcher } from './dispatchers';
-import { postHandshake } from './postMetrics';
+import { postHandshake, postRouteChange } from './postMetrics';
+import { Route } from '../App';
 
 
 export function useGlobalEvents() {
@@ -33,3 +34,17 @@ export function useHandshake() {
   }, [jwt, setJwt]);
 }
 
+
+export function useRouteTracker() {
+  const route = useStore(state => state.route);
+  const [seen, setSeen] = useState<Route[]>([]);
+  const jwt = useStore(state => state.jwt);
+  useEffect(() => {
+    if (route === null || seen.includes(route) || jwt === null) {
+      return;
+    }
+    postRouteChange(jwt, route);
+    setSeen([...seen, route]);
+    console.log("updating and sending route", route);
+  }, [seen, jwt, route]);
+}
