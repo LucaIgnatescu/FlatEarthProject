@@ -9,8 +9,10 @@ export default function Survey() {
   }, [updateRoute]);
 
   return (
-    <div className="px-32 py-10">
-      <Questions />
+    <div className="flex w-full h-fit min-h-screen justify-center items-center py-10 bg-gray-100">
+      <div className="w-1/3 rounded-xl border border-gray-300 p-5 bg-white">
+        <Questions />
+      </div>
     </div>
   );
 }
@@ -60,9 +62,11 @@ function Questions() {
   const active = answers.find(x => x === null) === undefined;
   return (
     <>
-      <div>
+      <div >
         {questions.map((question, i) =>
-          <MultipleChoiceQuestion  {...question} updateAnswer={updateAnswerFactory(i)} key={question.title} />
+          <div className={"py-5 " + (i !== 0 ? "border-t-gray-300 border-t" : "")}>
+            <MultipleChoiceQuestion  {...question} updateAnswer={updateAnswerFactory(i)} key={question.title} />
+          </div>
         )}
       </div>
       <SubmitButton
@@ -115,10 +119,10 @@ function MultipleChoiceQuestion({ title, answers, updateAnswer }: { title: strin
   };
 
   return (
-    <div className=" py-5"
+    <div
       onPointerLeave={() => setHovering(null)}
     >
-      <h2>{title}</h2>
+      <h2 className="font-semibold text-xl">{title}</h2>
       {
         answers.map((answer, i) => {
           let status: Status = 'default';
@@ -145,12 +149,12 @@ function MultipleChoiceQuestion({ title, answers, updateAnswer }: { title: strin
 
 function Checkbox({ status }: { status: Status }) {
   if (status === 'selected') {
-    return (<span className="inline-block border-black border rounded-full w-4 h-4 visible bg-black"></span>);
+    return (<span className="inline-block border-black transition ease-in duration-100 border rounded-full w-4 h-4 visible bg-black"></span>);
   }
   if (status === 'hovering') {
-    return (<span className="inline-block border-black border rounded-full w-4 h-4 visible bg-gray-200"></span>);
+    return (<span className="inline-block border-black transision ease-in duration-100 border rounded-full w-4 h-4 visible bg-gray-200"></span>);
   }
   return (
-    <span className="inline-block border-black border transition ease-in bg-white rounded-full w-4 h-4 visible"></span>
+    <span className="inline-block border-black border transition ease-in duration-100 bg-white rounded-full w-4 h-4 visible"></span>
   );
 }
