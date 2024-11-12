@@ -9,8 +9,11 @@ export default function Survey() {
   }, [updateRoute]);
 
   return (
-    <div className="flex w-full h-fit min-h-screen justify-center items-center py-10 bg-gray-100">
-      <div className="w-1/3 rounded-xl border border-gray-300 p-5 bg-white">
+    <div className="flex w-full h-fit min-h-screen justify-center  py-10 ">
+      <div className="w-3/5 rounded-xl p-5 bg-white h-fit">
+        <h1 className="text-2xl font-bold w-full border-b border-gray-300">
+          Intake Survey
+        </h1>
         <Questions />
       </div>
     </div>
@@ -155,6 +158,6 @@ function Checkbox({ status }: { status: Status }) {
     return (<span className="inline-block border-black transision ease-in duration-100 border rounded-full w-4 h-4 visible bg-gray-200"></span>);
   }
   return (
-    <span className="inline-block border-black border transition ease-in duration-100 bg-white rounded-full w-4 h-4 visible"></span>
+    <span className="inline-block border-black border transition ease-in  duration-100 bg-white rounded-full w-4 h-4 visible"></span>
   );
 }
