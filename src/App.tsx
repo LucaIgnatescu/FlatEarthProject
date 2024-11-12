@@ -5,12 +5,12 @@ import { Tutorial3 } from "./routes/Tutorial3";
 import { Tutorial4 } from "./routes/Tutorial4";
 import { Tutorial5 } from "./routes/Tutorial5";
 import Globe from "./routes/Globe";
-import Plane from "./routes/Plane";
 import { useMouseTracker } from "./metrics/mouseTracker";
 import { useGlobalEvents, useRouteTracker } from "./metrics/useEvents";
 import Survey from "./routes/Survey";
 import BugReport from "./routes/BugReport";
 import About from "./routes/About";
+import Plane from "./routes/Plane";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
   'sphere' | 'plane' | 'survey';

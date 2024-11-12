@@ -1,12 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function BugReport() {
   const [subject, setSubject] = useState("");
   const [report, setReport] = useState("");
-
-  const onSubmit = () => {
-    console.log(subject, report);
-  }
+  const navigate = useNavigate();
 
   return (
     <div className="flex w-full min-h-screen h-fit justify-center ">
@@ -20,7 +18,13 @@ export default function BugReport() {
             We thank you for your support!
           </p>
         </div >
-        <form className="my-5" onSubmit={onSubmit}>
+        <form
+          className="my-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            console.log(subject, report);
+          }}
+        >
           <label htmlFor='subject' className="my-1 font-semibold block">
             Subject
           </label>
@@ -40,13 +44,18 @@ export default function BugReport() {
             className="my-2 block border-gray-500 border rounded p-0.5 w-full font-normal min-h-32 h-fit"
           >
           </textarea>
-
-          <input
-            type='submit'
-            className="my-5 bg-blue-500 p-3 text-white w-fit rounded transition-opacity duration-500 "
-          />
+          <div className="flex w-full justify-between">
+            <input
+              type='submit'
+              className=" bg-blue-500 p-3 text-white w-fit rounded"
+            />
+            <button className="bg-blue-500 p-3 text-white w-fit rounded "
+              onClick={() => navigate(-1)}>
+              Back
+            </button>
+          </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

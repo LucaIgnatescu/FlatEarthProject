@@ -3,6 +3,7 @@ import { CityName, positions } from "../coordinates";
 import { computeTotalError, getDistancesLazy } from "../distances";
 import { capitalize } from "../utils";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function TotalError() {
   const nCities = useStore(state => state.nCities);
@@ -97,6 +98,27 @@ export function CitySlider() {
     <input type='range' min='1' max={Object.keys(positions).length} value={nCities}
       onChange={(event) => updateNCities(+event.target.value)}
     />
+  );
+}
+
+export function AboutMenu() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex justify-around text-white text-gray-xs pointer-events-auto">
+      <span
+        className="bg-blue-500 rounded-tl-xl p-2 hover:cursor-pointer"
+        onClick={() => navigate('/about')}
+      >
+        About
+      </span>
+      <span
+        className="bg-green p-2 text-white hover:cursor-pointer"
+        onClick={() => navigate('/bug-report')}
+      >
+        Report an Issue
+      </span>
+    </div>
   );
 }
 

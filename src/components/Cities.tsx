@@ -1,6 +1,6 @@
 import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
-import { Material, Mesh, MeshBasicMaterial, Vector2, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, Vector2, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR, GREEN } from "../utils";
 import { useStore } from "../state";

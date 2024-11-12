@@ -11,7 +11,7 @@ import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
-import { RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
+import { AboutMenu, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
 
@@ -51,8 +51,15 @@ export default function Plane() {
         <Sprites />
       </CustomCanvas>
       <UIContainer>
-        <div className="w-full flex justify-center">
+        <div className="w-full flex justify-center z-0">
           <TotalError />
+        </div>
+        <div className="top-0 left-0 fixed w-full h-full z-10">
+          <div className="flex w-full h-full flex-col justify-end">
+            <div className="flex justify-end w-full">
+              <AboutMenu />
+            </div>
+          </div>
         </div>
         <RealDistancesContainer />
         <Distances />

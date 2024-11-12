@@ -14,7 +14,7 @@ export default function About() {
         </div>
         <div className="flex w-full justify-end">
           <button className="bg-blue-500 py-2 px-4 text-white w-fit rounded "
-            onClick={() => navigate('/plane')}>
+            onClick={() => navigate(-1)}>
             Back
           </button>
         </div>
