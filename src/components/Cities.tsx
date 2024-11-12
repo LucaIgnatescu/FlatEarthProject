@@ -118,9 +118,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
   const truePositions = useStore(state => state.truePositions);
   const citiesRef = useStore(state => state.citiesRef);
   const moveHoveredCity = useStore(state => state.moveHoveredCity);
-  const updateControls = useStore(state => state.updateControlsEnabled);
   const isDragging = useStore(state => state.isDragging);
-  const updateIsDragging = useStore(state => state.updateIsDragging);
   const updateMoveLock = useStore(state => state.updateMoveLock);
   const pointer = useThree(state => state.pointer);
   const camera = useThree(state => state.camera);
@@ -132,6 +130,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
   const THRESH_CLOSE = 200;
   const THRESH_FAR = 500;
   const THRESH_CLOSE_GLOBE = .5;
+  const THRESH_FAR_GLOBE = 1.2;
 
   function computeIntersection() {
     raycaster.setFromCamera(pointer, camera);
@@ -144,7 +143,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
     x = +x.toFixed(3);
     y = +y.toFixed(3);
     z = +z.toFixed(3);
-    return { x, y, z };
+    return new Vector3(x, y, z);
   }
 
   useFrame(() => {
@@ -156,16 +155,19 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
 
     if (type === 'sphere') {
       const truePosition = polarToCartesian(truePositions[cityName].lat, truePositions[cityName].lon, SPHERE_RADIUS);
-      const currPosition = citiesRef.current[cityName].position;
-      if (currPosition.distanceTo(truePosition) < THRESH_CLOSE_GLOBE) {
+      const intersection = computeIntersection();
+      if (intersection === null) {
+        return;
+      }
+
+      const delta = intersection.distanceTo(truePosition);
+
+      if (delta < THRESH_CLOSE_GLOBE) {
         setFixTarget(cityName);
         moveHoveredCity(truePosition.x, truePosition.y, truePosition.z, true);
-        updateIsDragging(false);
-        updateControls(false);
-        (meshRef.current.material as Material).dispose();
-        const newMaterial = new MeshBasicMaterial({ color: GREEN });
-        meshRef.current.material = newMaterial;
       }
+      if (delta > THRESH_FAR_GLOBE)
+        updateMoveLock(false);
       return;
     }
 
@@ -180,7 +182,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       }
 
       const currDistance = calculateDistancesPlane(
-        new Vector3(intersection.x, intersection.y, intersection.z),
+        intersection,
         citiesRef.current[other].position
       );
       const delta = Math.abs(trueDistance - currDistance);
