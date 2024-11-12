@@ -10,6 +10,7 @@ import { useMouseTracker } from "./metrics/mouseTracker";
 import { useGlobalEvents, useRouteTracker } from "./metrics/useEvents";
 import Survey from "./routes/Survey";
 import BugReport from "./routes/BugReport";
+import About from "./routes/About";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
   'sphere' | 'plane' | 'survey';
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
   {
     path: "/bug-report",
     element: <BugReport />
+  },
+  {
+    path: "/about",
+    element: <About />
   }
 ])
 export default function App() {
