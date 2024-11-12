@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { forwardRef, useLayoutEffect } from "react";
+import { forwardRef, useEffect, useLayoutEffect } from "react";
 import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";
 import { Cities, } from "../components/Cities";
@@ -10,7 +10,7 @@ import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
-import { TotalError, UIContainer } from "../components/UI";
+import { RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
@@ -18,10 +18,23 @@ import CustomCanvas from "../components/CustomCanvas";
 export default function Globe() {
   const updateRoute = useStore(state => state.updateRoute);
   const updateNCities = useStore(state => state.updateNCities);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+  const route = useStore(state => state.route);
+  const citiesRef = useStore(state => state.citiesRef);
+  const nCities = useStore(state => state.nCities);
+  const updateHoveredCity = useStore(state => state.updateHoveredCity);
+
   useLayoutEffect(() => {
     updateRoute('sphere');
     updateNCities(8);
-  })
+  }, [updateNCities, updateRoute]);
+
+  useEffect(() => {
+    if (nRenderedCities === nCities && route === 'sphere') {
+      updateHoveredCity('atlanta');
+    }
+  }, [nCities, citiesRef, nRenderedCities, route]);
+
   return (
     <>
       <CustomCanvas className="bg-black">
@@ -34,13 +47,12 @@ export default function Globe() {
         <Sprites />
       </CustomCanvas>
       <UIContainer>
-        <div className="w-full flex justify-center text-white text-center">
-          <div className="flex flex-col">
-            <TotalError />
-          </div>
+        <div className="w-full flex justify-center">
+          <TotalError />
         </div>
-        <ContextMenu />
+        <RealDistancesContainer />
         <Distances />
+        <ContextMenu />
       </UIContainer>
     </>
   );
@@ -57,4 +69,3 @@ const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, 
     </mesh >
   );
 });
-

@@ -57,8 +57,8 @@ export function RealDistancesContainer() {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="text-white pointer-events-auto">
-      <div className={`overflow-hidden ease-linear duration-500 transition-all min-w-fit
+    <div className="text-white">
+      <div className={`overflow-hidden ease-linear duration-500 transition-all min-w-fit pointer-events-none
         ${isOpen ?
           "w-full opacity-100 px-10 " :
           "w-0 opacity-0 px-0"}`}>
@@ -70,7 +70,7 @@ export function RealDistancesContainer() {
           ${isOpen ?
             "px-10" :
             "px-0"}`}>
-        <div className={`align-middle inline-block leading-none hover:cursor-pointer text-center w-fit px-1 py-2 transition-all ease-linear duration-500 rounded-r ${isOpen ?
+        <div className={`pointer-events-auto align-middle inline-block leading-none hover:cursor-pointer text-center w-fit px-1 py-2 transition-all ease-linear duration-500 rounded-r ${isOpen ?
           "rotate-180 " :
           "rotate-0"}`}>
           <img src="../../static/icons/arrow.svg" />
