@@ -1,11 +1,11 @@
-import { ThreeEvent, useFrame } from "@react-three/fiber";
+import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
 import { Material, Mesh, MeshBasicMaterial, Vector2, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
 import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR, GREEN } from "../utils";
 import { useStore } from "../state";
-import { startAnimation, useAnimation } from "../animation";
-import { getDistancesLazy } from "../distances";
+import { useAnimation } from "../animation";
+import { calculateDistancesPlane, getDistancesLazy } from "../distances";
 import { getPositionFromCenters } from "../solvers/planar";
 
 export type MouseEventHandler = (event: ThreeEvent<MouseEvent>) => void;
@@ -121,11 +121,32 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
   const updateControls = useStore(state => state.updateControlsEnabled);
   const isDragging = useStore(state => state.isDragging);
   const updateIsDragging = useStore(state => state.updateIsDragging);
+  const updateMoveLock = useStore(state => state.updateMoveLock);
+  const pointer = useThree(state => state.pointer);
+  const camera = useThree(state => state.camera);
+  const raycaster = useThree(state => state.raycaster);
+  const scene = useThree(state => state.scene);
+  const earthUUID = useStore(state => state.earthUUID);
   const [fixTarget, setFixTarget] = useState<CityName | null>(null);
 
   const THRESH_CLOSE = 200;
   const THRESH_FAR = 500;
   const THRESH_CLOSE_GLOBE = .5;
+
+  function computeIntersection() {
+    raycaster.setFromCamera(pointer, camera);
+    const intersections = raycaster.intersectObjects(scene.children);
+    const earthIntersection = intersections.find(
+      (intersection) => intersection.object.uuid === earthUUID
+    );
+    if (earthIntersection === undefined) return null
+    let { x, y, z } = earthIntersection.point;
+    x = +x.toFixed(3);
+    y = +y.toFixed(3);
+    z = +z.toFixed(3);
+    return { x, y, z };
+  }
+
   useFrame(() => {
     if (
       hoveredCity?.name !== cityName || !isDragging ||
@@ -151,7 +172,17 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
     const otherCities = Object.keys(truePositions).filter(key => key !== cityName);
     for (const other of otherCities as CityName[]) {
       if (citiesRef.current[other] === undefined) continue;
-      const { trueDistance, currDistance } = getDistancesLazy(cityName, other, type, citiesRef);
+      const { trueDistance } = getDistancesLazy(cityName, other, type, citiesRef);
+      const intersection = computeIntersection();
+
+      if (intersection === null) {
+        return;
+      }
+
+      const currDistance = calculateDistancesPlane(
+        new Vector3(intersection.x, intersection.y, intersection.z),
+        citiesRef.current[other].position
+      );
       const delta = Math.abs(trueDistance - currDistance);
       if (delta === 0) {
         setFixTarget(other);
@@ -160,6 +191,7 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
       if (fixTarget === other) {
         if (delta > THRESH_FAR) {
           setFixTarget(null);
+          updateMoveLock(false);
         }
         return;
       }
@@ -189,8 +221,6 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
 
             moveHoveredCity(x, y, z, true);
             setFixTarget(other);
-            updateControls(false);
-            updateIsDragging(false);
             return;
           }
         }
@@ -201,8 +231,6 @@ function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefOb
         const { x, y, z } = pos;
         moveHoveredCity(x, y, z, true);
         setFixTarget(other);
-        updateControls(false);
-        updateIsDragging(false);
         return;
       }
     }
