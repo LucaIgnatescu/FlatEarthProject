@@ -4,6 +4,7 @@ import { PolarCoords, positions, CityName } from './coordinates';
 import { Mesh, Vector3 } from 'three';
 import { Route } from './App';
 import { ObjectType } from './utils';
+import Cookies from 'js-cookie';
 
 export type Distances = {
   [key in CityName]?: {
@@ -33,9 +34,12 @@ export type ContextMenu = {
   visible: boolean
 };
 
+
 export type Positions = { [key in CityName]?: PolarCoords };
 export type CurrPositions = { [key in CityName]?: Vector3 };
 export type CityPair = `${CityName}_${CityName}`;
+//export type Progression = null | 1 | 2 | 3 | 4 | 5 | 'plane' | 'globe';
+
 export type MainSlice = {
   route: null | Route
   objectType: ObjectType
@@ -53,6 +57,7 @@ export type MainSlice = {
   currPositions: CurrPositions;
   hoverPositions: { [key in CityPair]?: { position: [number, number] | null, rotation: number } };
   earthUUID: string | null;
+  progression: Route;
   updateRoute: (route: Route) => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -68,6 +73,7 @@ export type MainSlice = {
   updateHoverPositions: (key: CityPair, position: [number, number] | null, rotation?: number) => void;
   clearHoverPositions: () => void;
   updateEarthUUID: (uuid: string) => void;
+  updateProgression: (route: Route) => boolean;
 }
 
 export type MetricsSlice = {
@@ -97,6 +103,7 @@ const objectType: ObjectType = 'plane';
 const currPositions = {};
 const hoverPositions = {};
 const earthUUID = null;
+const progression = Cookies.get('progression') ?? null;
 citiesRef.current = {};
 
 //export const useStore = create<MainSlice>((set, get) => ({
@@ -118,6 +125,7 @@ const createMainSlice = (set, get) => ({
   currPositions,
   hoverPositions,
   earthUUID,
+  progression,
   updateMoveLock: (moveLock: boolean) => set({ moveLock }),
   updateRoute: (route: Route) => {
     get().hoveredCity = null;
@@ -125,7 +133,7 @@ const createMainSlice = (set, get) => ({
     get().updateAnimationState(null);
     get().citiesRef.current = {};
 
-    const objectType: ObjectType = route === 'sphere' ? 'sphere' : 'plane';
+    const objectType: ObjectType = route === 'globe' ? 'sphere' : 'plane';
     set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType, earthUUID, hoverPositions });
   },
   updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
@@ -208,7 +216,42 @@ const createMainSlice = (set, get) => ({
   clearHoverPositions: () => {
     set({ hoverPositions: {} })
   },
-  updateEarthUUID: (earthUUID: string) => set({ earthUUID })
+  updateEarthUUID: (earthUUID: string) => set({ earthUUID }),
+  updateProgression: (route: Route) => {
+    const sequence = [
+      null,
+      'tutorial1',
+      'tutorial2',
+      'tutorial3',
+      'tutorial4',
+      'tutorial5',
+      'plane',
+      'globe',
+      'survey'
+    ];
+
+    if (!sequence.includes(route)) {
+      throw Error(`Route ${route} should not be considered in the progression sequence`);
+    }
+
+    const currProgression = get().progression as Route;
+    const currIndex = sequence.indexOf(currProgression);
+    const nextIndex = sequence.indexOf(route);
+
+    if (currIndex === null) {
+      throw Error("currIndex should never be null");
+    }
+
+    if (nextIndex > currIndex + 1) {
+      return false;
+    }
+    if (nextIndex === currIndex + 1) {
+      set({ progression: route });
+      Cookies.set('progression', route, { expires: 0.25 });
+      return true;
+    }
+    return true;
+  }
 });
 
 

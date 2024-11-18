@@ -1,6 +1,5 @@
 import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
-import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { AllCurves } from "../components/Curves";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
@@ -12,24 +11,10 @@ import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { Distances } from "../components/Distances.tsx";
 import { CityName } from "../coordinates.ts";
 import CustomCanvas from "../components/CustomCanvas.tsx";
+import useSetupSection from "../hooks/useSetupSection.tsx";
 
 export function Tutorial3() {
-
-  const updateRoute = useStore(state => state.updateRoute);
-  const updateNCities = useStore(state => state.updateNCities);
-  const nRenderedCities = useStore(state => state.nRenderedCities);
-  const updateHoveredCity = useStore(state => state.updateHoveredCity);
-  const route = useStore(state => state.route);
-  useLayoutEffect(() => {
-    updateRoute('tutorial3');
-    updateNCities(3);
-  }, [updateRoute, updateNCities]);
-
-  useEffect(() => {
-    if (nRenderedCities === 3 && route === 'tutorial3') {
-      updateHoveredCity('atlanta');
-    }
-  }, [nRenderedCities, updateHoveredCity, route])
+  useSetupSection(3, 'tutorial3');
   return (
     <div className="flex h-full">
       <div className="w-3/5 relative">

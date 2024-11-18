@@ -10,25 +10,10 @@ import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { getColor, GREEN } from "../utils.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
+import useSetupSection from "../hooks/useSetupSection.tsx";
 
 export function Tutorial1() {
-  const updateRoute = useStore(state => state.updateRoute);
-  const updateNCities = useStore(state => state.updateNCities);
-  const nRenderedCities = useStore(state => state.nRenderedCities);
-  const updateHoveredCity = useStore(state => state.updateHoveredCity);
-  const route = useStore(state => state.route);
-  useLayoutEffect(() => {
-    updateRoute('tutorial1');
-    updateNCities(2);
-  }, [updateRoute, updateNCities]);
-
-  useEffect(() => {
-    if (nRenderedCities === 2 && route === 'tutorial1') {
-      updateHoveredCity('atlanta');
-    }
-  }, [nRenderedCities, updateHoveredCity, route])
-
-
+  useSetupSection(2, 'tutorial1');
   return (
     <div className="flex h-full ">
       <div className="w-3/5 relative">
@@ -90,7 +75,7 @@ function Prompt() {
         <span className="text-red"> Atlanta </span>
         and
         <span className="text-red"> Beijing</span>.
-        They are known to be  11550 km apart in reality.
+        They are 11550 km apart in reality.
       </p>
       <p>
         In the representation on the left, these cities are now <span style={{ color: `#${color.toString(16)}` }} className="text-2xl">{Math.round(Math.abs(currDistance) / 10) * 10}</span> km apart. You can click and drag to move them around.

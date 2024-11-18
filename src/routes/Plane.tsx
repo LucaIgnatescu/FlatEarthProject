@@ -1,11 +1,10 @@
 import { Line, PerspectiveCamera } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { forwardRef, useEffect, useLayoutEffect, useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
 import { Cities } from "../components/Cities";
 import { Curves } from "../components/Curves";
-import { useStore } from "../state";
 import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
@@ -14,29 +13,12 @@ import { ContextMenu } from "../components/ContextMenu";
 import { AboutMenu, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
+import useSetupSection from "../hooks/useSetupSection";
 
 const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
 
 export default function Plane() {
-  const updateRoute = useStore(state => state.updateRoute);
-  const updateNCities = useStore(state => state.updateNCities);
-  const updateHoveredCity = useStore(state => state.updateHoveredCity);
-  const nRenderedCities = useStore(state => state.nRenderedCities);
-  const route = useStore(state => state.route);
-  const citiesRef = useStore(state => state.citiesRef);
-
-  const nCities = useStore(state => state.nCities);
-  useLayoutEffect(() => {
-    updateRoute('plane');
-    updateNCities(4);
-  }, [updateNCities, updateRoute]);
-
-  useEffect(() => {
-    if (nRenderedCities === nCities && route === 'plane') {
-      updateHoveredCity('atlanta');
-    }
-  }, [nCities, citiesRef, nRenderedCities, updateHoveredCity, route]);
-
+  useSetupSection(4, 'plane');
   return (
     <>
       <CustomCanvas className="bg-black">

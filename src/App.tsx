@@ -13,7 +13,8 @@ import About from "./routes/About";
 import Plane from "./routes/Plane";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
-  'sphere' | 'plane' | 'survey';
+  'globe' | 'plane' | 'survey';
+
 
 const router = createBrowserRouter([
   {
