@@ -247,7 +247,7 @@ const createMainSlice = (set, get) => ({
     }
     if (nextIndex === currIndex + 1) {
       set({ progression: route });
-      Cookies.set('progression', route, { expires: 0.25 });
+      Cookies.set('progression', route, { expires: 1 / 1400 }); // TODO: Change to reasonable value
       return true;
     }
     return true;

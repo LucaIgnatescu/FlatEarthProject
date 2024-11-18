@@ -12,6 +12,7 @@ import { Distances } from "../components/Distances.tsx";
 import { CityName } from "../coordinates.ts";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
+import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 
 export function Tutorial3() {
   useSetupSection(3, 'tutorial3');
@@ -38,6 +39,7 @@ export function Tutorial3() {
         <Prompt />
         <DynamicContinueButton dest="/tutorial/4" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
       </div>
+      <ProgressOverlay />progressoverlay
     </div>
   );
 }

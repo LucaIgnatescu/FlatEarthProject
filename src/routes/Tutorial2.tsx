@@ -12,6 +12,7 @@ import { Distances } from "../components/Distances.tsx";
 import { BLUE, getColor, RED } from "../utils.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
+import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 
 export function Tutorial2() {
   useSetupSection(2, 'tutorial2');
@@ -38,6 +39,7 @@ export function Tutorial2() {
         <Prompt />
         <DynamicContinueButton dest="/tutorial/3" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
       </div>
+      <ProgressOverlay />
     </div>
   );
 }

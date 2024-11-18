@@ -12,6 +12,7 @@ import { ContextMenu } from "../components/ContextMenu.tsx";
 import { Distances } from "../components/Distances.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
+import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 
 export function Tutorial5() {
   useSetupSection(3, 'tutorial5');
@@ -42,6 +43,7 @@ export function Tutorial5() {
           dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
         />
       </div>
+      <ProgressOverlay />
     </div>
   );
 }

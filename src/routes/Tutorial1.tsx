@@ -1,6 +1,5 @@
 import { EarthWrapper } from "../components/Earth";
 import { useStore } from "../state";
-import { useEffect, useLayoutEffect } from "react";
 import { Cities } from "../components/Cities";
 import { alphabeticLabelStrategy, Sprites } from "../components/TextSprite";
 import { UIContainer } from "../components/UI";
@@ -11,6 +10,7 @@ import { computeTotalError, getDistancesFast } from "../distances.tsx";
 import { getColor, GREEN } from "../utils.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
+import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 
 export function Tutorial1() {
   useSetupSection(2, 'tutorial1');
@@ -35,6 +35,7 @@ export function Tutorial1() {
         <Prompt />
         <DynamicContinueButton dest="/tutorial/2" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
       </div>
+      <ProgressOverlay />
     </div>
   );
 }
