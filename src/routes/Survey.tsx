@@ -21,41 +21,116 @@ export default function Survey() {
 }
 
 type Status = 'selected' | 'hovering' | 'default';
-type Answer = { label: string, value: number };
-type UpdateAnswerFunc = (value: number) => void;
+type MCQAnswer = { label: string, value: number };
+type Textbox = 'textbox'
+type Intbox = 'intbox';
+type Answer = MCQAnswer | Textbox | Intbox;
+
+type UpdateAnswerFunc = (value: object) => void;
+type Question = {
+  title: string;
+  answers: Answer[];
+}
+
+const agreeScale = [
+  {
+    label: "Strongly disagree",
+    value: 0
+  },
+  {
+    label: "Moderately disagree",
+    value: 1
+  },
+  {
+    label: "Neither agree nor disagree",
+    value: 2
+  },
+  {
+    label: "Moderately Agree",
+    value: 3
+  },
+  {
+    label: "Strongly Agree",
+    value: 4
+  }
+];
+
+const questions = [
+  {
+    title: "What is your age",
+    answers: ['intbox']
+  },
+  {
+    title: "What is your gender",
+    answers: [
+      {
+        label: 'Female',
+        value: 0
+      },
+      {
+        label: 'Male',
+        value: 1
+      },
+      {
+        label: 'Prefer to self describe:',
+        value: 2
+      },
+      {
+        label: 'Prefer to not disclose',
+        value: 3
+      },
+
+    ]
+  },
+  {
+    title: "What is your race/ethnicity?",
+    answers: [
+      {
+        label: 'White',
+        value: 0
+      },
+      {
+        label: 'Male',
+        value: 1
+      },
+      {
+        label: 'Prefer to not disclose',
+        value: 2
+      },
+      {
+        label: 'Prefer to self describe',
+        value: 3
+      },
+      'textbox'
+    ]
+  },
+  {
+    title: "I see myself as extroverted and enthusiastic",
+    answers: agreeScale
+  },
+  {
+    title: "I see myself as sympathetic and warm",
+    answers: agreeScale
+  },
+  {
+    title: "I see myself as organized and self-disciplined",
+    answers: agreeScale
+  },
+  {
+    title: "I see myself as calm and emotionally stable",
+    answers: agreeScale
+  },
+  {
+    title: "I see myself as open to new experiences and unconventional",
+    answers: agreeScale
+  },
+];
+
 
 function Questions() {
-  const questions: { title: string, answers: Answer[] }[] = [
-    {
-      title: "Lorem ipsum 1",
-      answers: [
-        {
-          label: "Answer 1",
-          value: 1
-        }, {
-          label: "Answer 2",
-          value: 2
-        }
-      ]
-    },
-    {
-      title: "Lorem ipsum 2",
-      answers: [
-        {
-          label: "Answer 1",
-          value: 0
-        }, {
-          label: "Answer 2",
-          value: 1
-        }
-      ]
-    },
-  ];
-
   const [answers, setAnswers] = useState(Array(questions.length).fill(null));
-
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
-    return (value: number) => {
+    return (value: object) => {
       const newAnswers = answers.slice();
       newAnswers[i] = value;
       setAnswers(newAnswers);
@@ -65,7 +140,7 @@ function Questions() {
   const active = answers.find(x => x === null) === undefined;
   return (
     <>
-      <div >
+      <div>
         {questions.map((question, i) =>
           <div className={"py-5 " + (i !== 0 ? "border-t-gray-300 border-t" : "")}>
             <MultipleChoiceQuestion  {...question} updateAnswer={updateAnswerFactory(i)} key={question.title} />
@@ -77,6 +152,17 @@ function Questions() {
         onClick={() => console.log(answers)}
       />
     </>
+  );
+}
+
+function GenderQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
+  return (
+    <div>
+      <h2>What is your gender?</h2>
+      <div>
+        ``
+      </div>
+    </div>
   );
 }
 
@@ -94,7 +180,7 @@ function SubmitButton({ active, onClick }: { active: boolean, onClick: () => voi
   );
 }
 
-function AnswerOption({ status, answer, updateChoice }: { status: Status, answer: Answer, updateChoice: UpdateAnswerFunc }) {
+function AnswerOption({ status, answer, updateChoice }: { status: Status, answer: MCQAnswer, updateChoice: UpdateAnswerFunc }) {
   return (
     <div
       className={`flex flex-row justify-start items-center ${status === 'hovering' ? 'cursor-pointer' : 'cursor-default'}`}

@@ -7,7 +7,7 @@ import { Tutorial5 } from "./routes/Tutorial5";
 import Globe from "./routes/Globe";
 import { useMouseTracker } from "./metrics/mouseTracker";
 import { useGlobalEvents, useRouteTracker } from "./metrics/useEvents";
-import Survey from "./routes/Survey";
+import Survey from "./routes/Survey1";
 import BugReport from "./routes/BugReport";
 import About from "./routes/About";
 import Plane from "./routes/Plane";
@@ -62,6 +62,7 @@ const router = createBrowserRouter([
     element: <About />
   }
 ])
+
 export default function App() {
   useMouseTracker();
   useGlobalEvents();
