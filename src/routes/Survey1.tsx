@@ -6,7 +6,7 @@ type UpdateAnswerFunc = (value: unknown) => void;
 type Status = 'selected' | 'hovering' | 'default';
 type MCQAnswer = { label: string, value: number };
 
-const NQUESTIONS = 2;
+const NQUESTIONS = 10;
 
 export default function Survey() {
   const updateRoute = useStore(state => state.updateRoute);
@@ -28,6 +28,7 @@ export default function Survey() {
 }
 
 
+
 function Questions() {
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
 
@@ -40,11 +41,60 @@ function Questions() {
   };
 
   const active = answers.find(x => x === null) === undefined;
+
+  const agreeScale = [
+    'Disagree Strongly',
+    'Disagree Moderately',
+    'Disagree a little',
+    'Neither Agree nor Disagree',
+    'Agree a little',
+    'Agree Moderately',
+    'Agree Strongly'
+  ];
+
   return (
     <>
       <div>
         <AgeQuestion updateAnswer={updateAnswerFactory(0)} />
         <GenderQuestion updateAnswer={updateAnswerFactory(1)} />
+        <StandardMCQ updateAnswer={updateAnswerFactory(2)}
+          title="What is your race?"
+          answers={['white', 'black', 'hispanic', 'asian', 'other/multiple']}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(3)}
+          title="I see myself as extroverted and enthusiastic"
+          answers={agreeScale}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(4)}
+          title="I see myself as sympathetic and warm"
+          answers={agreeScale}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(5)}
+          title="I see myself as organized and self-disciplined"
+          answers={agreeScale}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(6)}
+          title="I see myself as calm and emotionally stable"
+          answers={agreeScale}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(7)}
+          title="I see myself as open to new experiences and unconventional"
+          answers={agreeScale}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(8)}
+          title="Formal Education (pick highest)"
+          answers={['Some High School', 'Completed High School', 'Some College', 'Advanced Degree (e.g. Masters, MBA, JD)']}
+        />
+        <StandardMCQ updateAnswer={updateAnswerFactory(9)}
+          title="Family Income Level (pick hightest)"
+          answers={[
+            'Receiving government assistance for poverty',
+            'Lower middle class (below average income)',
+            'Middle class (about average income)',
+            'Upper middle class (higher than average income)',
+            'Upper class (far above average income / generational wealth)'
+          ]}
+        />
       </div>
       <SubmitButton
         active={active}
@@ -55,10 +105,9 @@ function Questions() {
 }
 
 function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
-  const [age, setAge] = useState("");
+  const [, setAge] = useState("");
   const [err, setErr] = useState(0);
 
-  console.log(age, err);
   const updateAge = (age: string) => {
     setAge(age);
     if (isNaN(+age)) {
@@ -81,7 +130,7 @@ function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
 
   return (
     <div>
-      <h2>
+      <h2 className="text-xl font-semibold">
         What is your age?
       </h2>
       <ErrorMessage type={err} />
@@ -171,8 +220,8 @@ function GenderQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
 
 
   return (
-    <div>
-      <h2>What is your gender?</h2>
+    <div onMouseLeave={() => setChoice(choice => ({ ...choice, hovering: null }))}>
+      <h2 className="font-semibold text-xl">What is your gender?</h2>
       <div>
         {
           answers.map((answer, i) =>
@@ -238,6 +287,65 @@ function AnswerOption({ status, answer, updateChoice }: { status: Status, answer
         {answer}
       </div>
     </div >
+  );
+}
+
+function StandardMCQ(
+  { title, answers, updateAnswer }:
+    { answers: string[], updateAnswer: UpdateAnswerFunc, title: string }
+) {
+  const choices = answers.map((answer, i) => ({
+    label: answer,
+    value: i
+  }));
+
+  return (<MultipleChoiceQuestion title={title} answers={choices} updateAnswer={updateAnswer} />);
+}
+
+function MultipleChoiceQuestion(
+  { title, answers, updateAnswer }:
+    { title: string, answers: MCQAnswer[], updateAnswer: UpdateAnswerFunc }
+) {
+  const [hovering, setHovering] = useState<null | number>(null);
+  const [selected, setSelected] = useState<null | number>(null);
+
+
+  const updateChoiceFactory = (i: number) => {
+    return () => {
+      setSelected(i);
+      updateAnswer({ value: answers[i].value, text: null })
+    }
+  }
+
+  const manageStatus = (i: number): Status => {
+    if (i === selected) {
+      return 'selected';
+    }
+    if (i === hovering) {
+      return 'hovering';
+    }
+    return 'default';
+  }
+
+  return (
+    <div
+      onPointerLeave={() => setHovering(null)}
+    >
+      <h2 className="font-semibold text-xl">{title}</h2>
+      {
+        answers.map((answer, i) => {
+          return (
+            <div onPointerEnter={() => setHovering(i)} key={answer.label}>
+              <AnswerOption
+                status={manageStatus(i)}
+                answer={answer.label}
+                updateChoice={updateChoiceFactory(i)}
+              />
+            </div>
+          );
+        })
+      }
+    </div>
   );
 }
 
