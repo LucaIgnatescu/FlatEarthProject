@@ -28,7 +28,7 @@ export default function ProgressBar() {
 
 export function ProgressOverlay() {
   return (
-    <div className="top-0 left-0 fixed w-full h-full z-10">
+    <div className="top-0 left-0 fixed w-full h-full z-10 pointer-events-none">
       <div className="flex flex-col justify-end w-full h-full">
         <div className="flex flex-row justify-end w-full h-fit">
           <ProgressBar />

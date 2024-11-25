@@ -32,7 +32,7 @@ export default function Globe() {
         <div className="w-full flex justify-center z-0">
           <TotalError />
         </div>
-        <div className="top-0 left-0 fixed w-full h-full z-10">
+        <div className="top-0 left-0 fixed w-full h-full z-10 pointer-events-none">
           <div className="flex w-full h-full flex-col justify-end">
             <div className="flex justify-end w-full">
               <AboutMenu />
