@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function BugReport() {
-  const [subject, setSubject] = useState("");
   const [report, setReport] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
+  const disabled = report === "";
   return (
     <div className="flex w-full min-h-screen h-fit justify-center ">
       <div className="w-2/3 mt-20">
@@ -22,19 +23,13 @@ export default function BugReport() {
           className="my-5"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log(subject, report);
+            const payload = {
+              report,
+              email
+            };
+            console.log(payload);
           }}
         >
-          <label htmlFor='subject' className="my-1 font-semibold block">
-            Subject
-          </label>
-          <input
-            type='text'
-            id='subject'
-            onChange={(e) => setSubject(e.target.value)}
-            className="my-2 block border-gray-500 border rounded p-0.5 w-2/5 font-normal"
-          >
-          </input>
           <label htmlFor='report' className="my-1 font-semibold block">
             What is the issue?
           </label>
@@ -44,15 +39,29 @@ export default function BugReport() {
             className="my-2 block border-gray-500 border rounded p-0.5 w-full font-normal min-h-32 h-fit"
           >
           </textarea>
-          <div className="flex w-full justify-between">
-            <input
-              type='submit'
-              className=" bg-blue-500 p-3 text-white w-fit rounded"
-            />
+          <p className="my-1">If you would like to be kelp updated with the progress on this issue, you can include your email below. </p>
+
+          <label htmlFor="email" className="my-1 font-semibold block">
+            Email (optional)
+          </label>
+
+          <input type="text"
+            id="email"
+            onChange={(e) => setEmail(e.target.value)}
+            className="my-2 block border-gray-500 border rounded p-0.5 font-normal w-1/3"
+          />
+
+          <div className="flex w-full justify-between mt-3">
             <button className="bg-blue-500 p-3 text-white w-fit rounded "
               onClick={() => navigate(-1)}>
               Back
             </button>
+            <input
+              type='submit'
+              className={
+                `p-3 text-white w-fit rounded ${disabled ? "bg-gray-500" : "bg-blue-500 transition-all hover:bg-blue-800 hover:cursor-pointer"}`}
+              disabled={disabled}
+            />
           </div>
         </form>
       </div >

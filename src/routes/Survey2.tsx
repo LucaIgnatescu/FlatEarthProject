@@ -54,6 +54,16 @@ function Questions() {
     'None at all'
   ];
 
+  const onClick = () => {
+    const values = answers.slice(0, -1).map(answer => answer.value);
+    const text = answers.at(-1)?.text;
+    const payload = {
+      answers: values,
+      text: text || null
+    };
+    console.log(payload);
+  };
+
   return (
     <>
       <div>
@@ -77,7 +87,7 @@ function Questions() {
       </div>
       <SubmitButton
         active={active}
-        onClick={() => console.log(answers)}
+        onClick={onClick}
       />
     </>
   );

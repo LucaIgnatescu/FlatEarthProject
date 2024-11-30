@@ -48,6 +48,16 @@ function Questions() {
     'Agree Strongly'
   ];
 
+  const onClick = () => {
+    const values = answers.map(answer => answer.value)
+    const genderText = answers[1].text;
+    const payload = {
+      answers: values,
+      gender_detail: genderText || null
+    };
+    console.log(payload);
+  }
+
   return (
     <>
       <div>
@@ -94,7 +104,7 @@ function Questions() {
       </div>
       <SubmitButton
         active={active}
-        onClick={() => console.log(answers)}
+        onClick={onClick}
       />
     </>
   );
