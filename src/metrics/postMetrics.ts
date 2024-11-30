@@ -77,7 +77,7 @@ async function postEvent(token: string, type: InteractionType, payload: object |
     body.payload = payload;
   }
   try {
-    const res = await fetch(API_ENDPOINT + '/log',
+    const res = await fetch(API_ENDPOINT + '/log/event',
       {
         method: 'POST',
         headers: {
@@ -121,7 +121,7 @@ async function postGeneric(path: string, token: string | null, payload: object) 
 }
 
 export function postBug(token: string | null, payload: object) {
-  return postGeneric('/log/bug', token, payload);
+  return postGeneric('/log/report', token, payload);
 }
 
 export function postSurvey1(token: string | null, payload: object) {

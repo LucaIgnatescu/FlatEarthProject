@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from "react";
 import { useStore } from "../state";
 import { StandardMCQ, SubmitButton, UpdateAnswerFunc } from "../components/Survey";
+import { postSurvey2 } from "../metrics/postMetrics";
 
 const NQUESTIONS = 5;
 
@@ -62,7 +63,7 @@ function Questions() {
       answers: values,
       text: text || null
     };
-    postSurvey1(token, payload);
+    postSurvey2(token, payload);
   };
 
   return (
