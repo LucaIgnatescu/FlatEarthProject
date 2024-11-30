@@ -44,7 +44,6 @@ export async function postDrag(token: string, path: PathPoint[], cityName: CityN
     }
   }
   path.reverse();
-  console.log(path);
   const payload = { path, city_name: cityName };
   postEvent(token, 'drag', payload);
 }
@@ -97,4 +96,39 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   console.log(`logged type:${type}, body:${JSON.stringify(body)}`);
 }
 
+async function postGeneric(path: string, token: string | null, payload: object) {
+  if (token === null) {
+    throw Error(`Endpoint ${path} requires authorization`);
+  }
+  try {
+    const res = await fetch(API_ENDPOINT + path,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+    if (!res.ok) {
+      throw Error(`Received error code: ${res.status}`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  console.log(`sent payload to ${path}`);
+}
+
+export function postBug(token: string | null, payload: object) {
+  return postGeneric('/log/bug', token, payload);
+}
+
+export function postSurvey1(token: string | null, payload: object) {
+  return postGeneric('/log/survey1', token, payload);
+}
+
+export function postSurvey2(token: string | null, payload: object) {
+  return postGeneric('/log/survey2', token, payload);
+}
 

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from "react";
 import { useStore } from "../state";
 import { AnswerOption, ErrorMessage, StandardMCQ, Status, SubmitButton, UpdateAnswerFunc } from "../components/Survey";
+import { postSurvey1 } from "../metrics/postMetrics";
 
 const NQUESTIONS = 10;
 
@@ -26,6 +27,7 @@ export function Survey1() {
 
 
 function Questions() {
+  const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
 
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
@@ -55,7 +57,7 @@ function Questions() {
       answers: values,
       gender_detail: genderText || null
     };
-    console.log(payload);
+    postSurvey1(token, payload);
   }
 
   return (

@@ -26,6 +26,7 @@ export function Survey2() {
 
 
 function Questions() {
+  const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
     return (value: unknown) => {
@@ -61,7 +62,7 @@ function Questions() {
       answers: values,
       text: text || null
     };
-    console.log(payload);
+    postSurvey1(token, payload);
   };
 
   return (

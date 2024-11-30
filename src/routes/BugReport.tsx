@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useStore } from "../state";
+import { postBug } from "../metrics/postMetrics";
 
 export default function BugReport() {
   const [report, setReport] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const token = useStore(state => state.jwt);
 
   const disabled = report === "";
   return (
@@ -27,7 +30,7 @@ export default function BugReport() {
               report,
               email
             };
-            console.log(payload);
+            postBug(token, payload);
           }}
         >
           <label htmlFor='report' className="my-1 font-semibold block">
