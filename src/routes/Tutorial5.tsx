@@ -13,6 +13,7 @@ import { Distances } from "../components/Distances.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
+import { useEffect, useState } from "react";
 
 export function Tutorial5() {
   useSetupSection(3, 'tutorial5');
@@ -41,6 +42,7 @@ export function Tutorial5() {
         <Prompt />
         <DynamicContinueButton
           dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
+          text="Proceed to Challenge"
         />
       </div>
       <ProgressOverlay />
@@ -51,6 +53,14 @@ export function Tutorial5() {
 
 
 function Prompt() {
+  const { visible } = useStore(state => state.contextMenu);
+  const [everVisible, setEverVisible] = useState(visible);
+
+  useEffect(() => {
+    if (visible === true) {
+      setEverVisible(true);
+    }
+  }, [visible])
   return (
     <div className="*:my-2 text-xl">
       <p>
@@ -60,12 +70,19 @@ function Prompt() {
         Therefore, to assist you, we provide two kinds of solvers.
       </p>
       <p>
-        The first, indicated by the <span className="font-bold">Solve City</span> button, ensures that all distances to the selected city are matched.<br />
-        The second, indicated by the <span className="font-bold">Solve Globally</span> button, constructs the configuration that will ensure the smallest possible discrepancy. Note that this is not necessarily 0.
+        Right click on a point to continue.
       </p>
-      <p>
-        Try right-clicking on a point to see how they work.
-      </p>
+      <div className={`transition duration-500 ${everVisible ? "opacity-100" : "opacity-0"}`}>
+        <p>
+          The first, indicated by the <span className="font-bold">Solve City</span> button, ensures that all distances to the selected city are matched.</p>
+        <p className="my-2">
+          The second, indicated by the <span className="font-bold">Solve Globally</span> button, constructs the configuration that will ensure the smallest possible discrepancy. Note that this is not necessarily 0.
+        </p>
+
+        <p className="mt-2">
+          Try using both to see how they work.
+        </p>
+      </div>
     </div>
   );
 }
