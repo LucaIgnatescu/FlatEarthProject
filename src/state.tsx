@@ -5,6 +5,7 @@ import { Mesh, Vector3 } from 'three';
 import { Route } from './App';
 import { ObjectType } from './utils';
 import Cookies from 'js-cookie';
+import { postRouteChange } from './metrics/postMetrics';
 
 export type Distances = {
   [key in CityName]?: {
@@ -231,7 +232,8 @@ const createMainSlice = (set, get) => ({
     ];
 
     if (!sequence.includes(route)) {
-      throw Error(`Route ${route} should not be considered in the progression sequence`);
+      postRouteChange(get().jwt, route);
+      return true;
     }
 
     const currProgression = get().progression as Route;
@@ -243,13 +245,17 @@ const createMainSlice = (set, get) => ({
     }
 
     if (nextIndex > currIndex + 1) {
+      postRouteChange(get().jwt, route, false);
       return false;
     }
+
     if (nextIndex === currIndex + 1) {
       set({ progression: route });
       Cookies.set('progression', route, { expires: 1 }); // TODO: Change to reasonable value
+      postRouteChange(get().jwt, route);
       return true;
     }
+    postRouteChange(get().jwt, route);
     return true;
   }
 });

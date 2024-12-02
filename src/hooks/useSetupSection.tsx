@@ -18,13 +18,13 @@ export default function useSetupSection(nCities: number, routeName: Route) {
   useLayoutEffect(() => {
     updateRoute(routeName);
     updateNCities(nCities);
-    const ok = updateProgression(routeName);
-    if (ok === false) { // TODO: Log this
-      if (window.history.length === 1) {
-        return navigate('/');
-      }
-      navigate(-1);
-    }
+    //const ok = updateProgression(routeName);
+    //if (ok === false) {
+    //  if (window.history.length === 1) {
+    //    return navigate('/');
+    //  }
+    //  navigate(-1);
+    //}
   }, [nCities, navigate, routeName, updateRoute, updateNCities, updateProgression]);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useRegisterDragHandlers, useRegisterUIHandlers } from './handlers';
 import { useDragDispatcher } from './dispatchers';
 import { postHandshake, postRouteChange } from './postMetrics';
 import { Route } from '../App';
-
+import { useNavigate } from 'react-router-dom';
 
 export function useGlobalEvents() {
   useHandshake();
@@ -15,7 +15,6 @@ export function useCanvasEvents() {
   useRegisterDragHandlers();
   useDragDispatcher();
 }
-
 
 export function useHandshake() {
   const setJwt = useStore(state => state.setJwt);
@@ -36,16 +35,21 @@ export function useHandshake() {
 }
 
 
-export function useRouteTracker() {
+export function useProgressionTracker() {
   const route = useStore(state => state.route);
-  const [seen, setSeen] = useState<Route[]>([]);
   const jwt = useStore(state => state.jwt);
+  const updateProgression = useStore(state => state.updateProgression);
+  const navigate = useNavigate();
   useEffect(() => {
-    if (route === null || seen.includes(route) || jwt === null) {
+    if (jwt === null || route === null) {
       return;
     }
-    postRouteChange(jwt, route);
-    setSeen([...seen, route]);
-    console.log("updating and sending route", route);
-  }, [seen, jwt, route]);
+    const ok = updateProgression(route);
+    if (ok === false) {
+      if (window.history.length === 1) {
+        return navigate('/');
+      }
+      navigate(-1);
+    }
+  }, [jwt, route, updateProgression, navigate]);
 }

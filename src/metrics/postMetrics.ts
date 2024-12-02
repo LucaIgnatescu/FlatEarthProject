@@ -62,12 +62,15 @@ export async function postSolve(token: string, type: 'global' | 'fixed', cityNam
   postEvent(token, 'solve', payload);
 }
 
-export async function postRouteChange(token: string, route: Route) {
+export async function postRouteChange(token: string, route: Route, ok: boolean = true) {
   const payload = {
-    route_change: route
+    destination: route,
+    success: ok
   };
+  console.log("Posting route_change with", payload, token);
   postEvent(token, 'route_change', payload);
 }
+
 
 async function postEvent(token: string, type: InteractionType, payload: object | null) {
   const body: InteractionBody = {
