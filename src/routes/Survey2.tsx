@@ -99,11 +99,8 @@ function FinalTextArea({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
   const LIMIT = 100;
   const [text, setText] = useState("");
   const updateText = (newText: string) => {
-    console.log(text);
     if (newText.length > LIMIT) {
-      console.log(newText.slice(0, LIMIT))
-      setText(newText.slice(0, LIMIT))
-      return;
+      newText = newText.slice(0, LIMIT);
     }
     setText(newText);
     updateAnswer({ text: newText });
@@ -117,8 +114,8 @@ function FinalTextArea({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
         onChange={(e) => updateText(e.target.value)}
         value={text}
       />
-      <div className={`w-full flex justify-end ${text.length !== LIMIT ? "text-gray-500" : "text-red"}`}>
-        <div>Characters: {text.length}/{LIMIT}</div>
+      <div className={`w-full flex justify-end text-sm ${text.length !== LIMIT ? "text-gray-900" : "text-red"}`}>
+        <div>Characters left: {LIMIT - text.length}</div>
       </div>
     </div >
   );

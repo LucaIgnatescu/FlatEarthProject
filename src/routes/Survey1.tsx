@@ -132,6 +132,10 @@ function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
       setErr(0);
       return;
     }
+    if (+age > 100) {
+      setErr(3);
+      return;
+    }
     setErr(0);
     updateAnswer({ value: +age });
   }
@@ -143,7 +147,7 @@ function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
       </h2>
       <ErrorMessage type={err} />
       <textarea
-        className="border border-black rounded"
+        className="border border-black rounded mt-1 h-fit"
         onChange={(e) => updateAge(e.target.value)}
       />
     </div>
@@ -245,15 +249,19 @@ function GenderTextArea(
   { enabled, updateChoice }:
     { enabled: boolean, updateChoice: (value: string) => void }
 ) {
-  const [, setTextInput] = useState("");
+  const LIMIT = 50;
+  const [text, setTextInput] = useState("");
 
   if (!enabled) {
     return null;
   }
 
-  const updateTextInput = (newVal: string) => {
-    setTextInput(newVal);
-    updateChoice(newVal);
+  const updateTextInput = (newText: string) => {
+    if (newText.length > LIMIT) {
+      newText = newText.slice(0, LIMIT);
+    }
+    setTextInput(newText);
+    updateChoice(newText);
   };
 
   return (
@@ -261,9 +269,13 @@ function GenderTextArea(
       <h2>If so, indicate:</h2>
       <textarea
         onChange={e => updateTextInput(e.target.value)}
-        className="border border-black rounded p-1"
+        className="border border-black rounded p-1 w-1/3"
+        value={text}
       >
       </textarea>
+      <div className={`w-1/3 flex justify-end text-sm ${text.length !== LIMIT ? "text-gray-900" : "text-red"}`}>
+        <div>Characters left: {LIMIT - text.length}</div>
+      </div>
     </div>
   );
 }

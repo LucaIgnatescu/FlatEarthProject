@@ -16,6 +16,9 @@ export function ErrorMessage({ type }: { type: number }) {
   if (type === 2) {
     return (<p className="text-red">Please enter a number.</p>);
   }
+  if (type === 3) {
+    return (<p className="text-red">Please enter an age below 100.</p>);
+  }
 }
 
 export function AnswerOption({ status, answer, updateChoice }: { status: Status, answer: string, updateChoice: () => void }) {
