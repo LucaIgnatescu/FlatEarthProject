@@ -22,6 +22,7 @@ export function useHandshake() {
   const jwt = useStore(state => state.jwt);
   useEffect(() => {
     if (jwt !== null) {
+      console.log("jwt already set");
       return;
     }
     postHandshake().then(token => {

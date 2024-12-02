@@ -259,7 +259,7 @@ const mouseX = 0;
 const mouseY = 0;
 const mouseRef = createRef() as MutableRefObject<{ mouseX: number, mouseY: number }>;
 mouseRef.current = { mouseX, mouseY };
-const jwt = null;
+const jwt = Cookies.get('jwt') || null;
 
 //@ts-expect-error: not very ts friendly
 const createMetricsSlice = (set, get) => ({
@@ -267,7 +267,10 @@ const createMetricsSlice = (set, get) => ({
   mouseRef,
   updateMousePosition:
     (mouseX: number, mouseY: number) => get().mouseRef.current = { mouseX, mouseY },
-  setJwt: (jwt: string) => set({ jwt })
+  setJwt: (jwt: string) => {
+    Cookies.set('jwt', jwt, { expires: 1 / 24 }); // NOTE: 1h seems reasonable
+    set({ jwt });
+  }
 });
 
 export const useStore = create<MainSlice & MetricsSlice>((...a) => ({
