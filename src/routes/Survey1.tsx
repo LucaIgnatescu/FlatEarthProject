@@ -9,13 +9,13 @@ export function Survey1() {
   const updateRoute = useStore(state => state.updateRoute);
 
   useLayoutEffect(() => {
-    updateRoute('survey');
+    updateRoute('survey1');
   }, [updateRoute]);
 
   return (
     <div className="flex w-full h-fit min-h-screen justify-center  py-10 ">
       <div className="w-3/5 rounded-xl p-5 bg-white h-fit">
-        <h1 className="text-2xl font-bold w-full border-b border-gray-300">
+        <h1 className="text-2xl font-bold w-full border-b border-gray-300 my-2">
           Intake Survey
         </h1>
         <Questions />
@@ -62,7 +62,7 @@ function Questions() {
 
   return (
     <>
-      <div>
+      <div className="*:my-2">
         <AgeQuestion updateAnswer={updateAnswerFactory(0)} />
         <GenderQuestion updateAnswer={updateAnswerFactory(1)} />
         <StandardMCQ updateAnswer={updateAnswerFactory(2)}
@@ -143,7 +143,7 @@ function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
       </h2>
       <ErrorMessage type={err} />
       <textarea
-        className="border border-black"
+        className="border border-black rounded"
         onChange={(e) => updateAge(e.target.value)}
       />
     </div>

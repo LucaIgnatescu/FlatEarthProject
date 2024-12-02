@@ -9,13 +9,13 @@ export function Survey2() {
   const updateRoute = useStore(state => state.updateRoute);
 
   useLayoutEffect(() => {
-    updateRoute('survey');
+    updateRoute('survey2');
   }, [updateRoute]);
 
   return (
-    <div className="flex w-full h-fit min-h-screen justify-center  py-10 ">
+    <div className="flex w-full h-fit min-h-screen justify-center py-10 ">
       <div className="w-3/5 rounded-xl p-5 bg-white h-fit">
-        <h1 className="text-2xl font-bold w-full border-b border-gray-300">
+        <h1 className="text-2xl font-bold w-full border-b border-gray-300 my-2">
           Intake Survey
         </h1>
         <Questions />
@@ -68,7 +68,7 @@ function Questions() {
 
   return (
     <>
-      <div>
+      <div className="*:my-2">
         <StandardMCQ updateAnswer={updateAnswerFactory(0)}
           title="Before visiting this site, you believe in flat earth about (pick highest)"
           answers={convincedScale}
@@ -96,8 +96,15 @@ function Questions() {
 }
 
 function FinalTextArea({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
-  const [, setText] = useState("");
+  const LIMIT = 100;
+  const [text, setText] = useState("");
   const updateText = (newText: string) => {
+    console.log(text);
+    if (newText.length > LIMIT) {
+      console.log(newText.slice(0, LIMIT))
+      setText(newText.slice(0, LIMIT))
+      return;
+    }
     setText(newText);
     updateAnswer({ text: newText });
   }
@@ -106,10 +113,14 @@ function FinalTextArea({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
     <div>
       <h2 className="text-xl font-semibold">(Optional) If you want to, tell us a bit about your belief in a flat earth. Where does it come from? How did it get started? Why does it persist? What could convince you otherwise?</h2>
       <textarea
-        className="border border-black"
+        className="border border-black rounded w-full min-h-20"
         onChange={(e) => updateText(e.target.value)}
+        value={text}
       />
-    </div>
+      <div className={`w-full flex justify-end ${text.length !== LIMIT ? "text-gray-500" : "text-red"}`}>
+        <div>Characters: {text.length}/{LIMIT}</div>
+      </div>
+    </div >
   );
 }
 

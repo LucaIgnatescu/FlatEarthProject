@@ -39,7 +39,6 @@ export type ContextMenu = {
 export type Positions = { [key in CityName]?: PolarCoords };
 export type CurrPositions = { [key in CityName]?: Vector3 };
 export type CityPair = `${CityName}_${CityName}`;
-//export type Progression = null | 1 | 2 | 3 | 4 | 5 | 'plane' | 'globe';
 
 export type MainSlice = {
   route: null | Route
@@ -228,7 +227,8 @@ const createMainSlice = (set, get) => ({
       'tutorial5',
       'plane',
       'globe',
-      'survey'
+      'survey1',
+      'survey2'
     ];
 
     if (!sequence.includes(route)) {
