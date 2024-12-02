@@ -96,7 +96,7 @@ function Questions() {
 }
 
 function FinalTextArea({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
-  const LIMIT = 100;
+  const LIMIT = 1000;
   const [text, setText] = useState("");
   const updateText = (newText: string) => {
     if (newText.length > LIMIT) {

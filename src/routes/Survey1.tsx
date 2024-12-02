@@ -249,7 +249,7 @@ function GenderTextArea(
   { enabled, updateChoice }:
     { enabled: boolean, updateChoice: (value: string) => void }
 ) {
-  const LIMIT = 50;
+  const LIMIT = 30;
   const [text, setTextInput] = useState("");
 
   if (!enabled) {

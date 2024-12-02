@@ -9,6 +9,9 @@ export default function BugReport() {
   const navigate = useNavigate();
   const token = useStore(state => state.jwt);
 
+  const EMAILLIMIT = 30;
+  const REPORTLIMIT = 2000;
+
   const disabled = report === "";
   return (
     <div className="flex w-full min-h-screen h-fit justify-center ">
@@ -38,10 +41,19 @@ export default function BugReport() {
           </label>
           <textarea
             id='report'
-            onChange={(e) => setReport(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length > REPORTLIMIT) {
+                setReport(e.target.value.slice(0, REPORTLIMIT));
+              } else {
+                setReport(e.target.value);
+              }
+            }}
             className="my-2 block border-gray-500 border rounded p-0.5 w-full font-normal min-h-32 h-fit"
-          >
-          </textarea>
+            value={report}
+          />
+          <div className={`w-full flex justify-end text-sm ${report.length !== REPORTLIMIT ? "text-gray-900" : "text-red"}`}>
+            <div>Characters left: {REPORTLIMIT - report.length}</div>
+          </div>
           <p className="my-1">If you would like to be kelp updated with the progress on this issue, you can include your email below. </p>
 
           <label htmlFor="email" className="my-1 font-semibold block">
@@ -50,8 +62,15 @@ export default function BugReport() {
 
           <input type="text"
             id="email"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length > EMAILLIMIT) {
+                setEmail(e.target.value.slice(0, EMAILLIMIT));
+              } else {
+                setEmail(e.target.value);
+              }
+            }}
             className="my-2 block border-gray-500 border rounded p-0.5 font-normal w-1/3"
+            value={email}
           />
 
           <div className="flex w-full justify-between mt-3">
