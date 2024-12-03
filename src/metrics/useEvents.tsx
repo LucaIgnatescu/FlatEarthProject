@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useStore } from '../state';
 import { useRegisterDragHandlers, useRegisterUIHandlers } from './handlers';
 import { useDragDispatcher } from './dispatchers';
-import { postHandshake, postRouteChange } from './postMetrics';
-import { Route } from '../App';
+import { postHandshake } from './postMetrics';
 import { useNavigate } from 'react-router-dom';
 
 export function useGlobalEvents() {

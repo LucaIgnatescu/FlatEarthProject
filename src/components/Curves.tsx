@@ -1,7 +1,7 @@
 import { Size, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, Raycaster, TubeGeometry, Vector2, Vector3 } from "three";
-import { getColor, GREEN, ObjectType, RED, slerp, SPHERE_RADIUS, YELLOW } from "../utils";
+import { Camera, CatmullRomCurve3, Material, Mesh, MeshBasicMaterial, TubeGeometry, Vector2, Vector3 } from "three";
+import { getColor, ObjectType, slerp, SPHERE_RADIUS } from "../utils";
 import { CityName } from "../coordinates"; // NOTE: This used to be an array in the original implementation
 import { CityInfo, useStore } from "../state";
 import { getDistancesLazy } from "../distances";
@@ -34,10 +34,10 @@ function getMidpoint(type: ObjectType, base: Vector3, dest: Vector3) {
   return midpoint.multiplyScalar(SPHERE_RADIUS + OFFSET);
 }
 
-function getRealMidpoint(type: ObjectType, base: Vector3, dest: Vector3) {
-  if (type === 'plane') return new Vector3().lerpVectors(base, dest, 1 / 2);
-  return slerp(new Vector3().copy(base).normalize(), new Vector3().copy(dest).normalize(), 1 / 2).multiplyScalar(SPHERE_RADIUS)
-}
+//function getRealMidpoint(type: ObjectType, base: Vector3, dest: Vector3) {
+//  if (type === 'plane') return new Vector3().lerpVectors(base, dest, 1 / 2);
+//  return slerp(new Vector3().copy(base).normalize(), new Vector3().copy(dest).normalize(), 1 / 2).multiplyScalar(SPHERE_RADIUS)
+//}
 
 function project(p: Vector3, camera: Camera, size: Size) {
   const proj = p.clone().project(camera);

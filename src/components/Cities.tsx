@@ -2,7 +2,7 @@ import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { forwardRef, MutableRefObject, useEffect, useRef, useState } from "react";
 import { Mesh, MeshBasicMaterial, Vector2, Vector3 } from "three";
 import { CityName, positions } from "../coordinates";
-import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR, GREEN } from "../utils";
+import { polarToCartesian, sca, ObjectType, SPHERE_RADIUS, CIRCLE_RADIUS, SCALE_FACTOR } from "../utils";
 import { useStore } from "../state";
 import { useAnimation } from "../animation";
 import { calculateDistancesPlane, getDistancesLazy } from "../distances";
@@ -33,7 +33,7 @@ function CityWrapper({ cityName, CityMesh }: { cityName: CityName, CityMesh: Cit
   const isDragging = useStore(state => state.isDragging);
   useAnimation(type, cityName, meshRef);
   useSetupPosition(type, cityName, meshRef);
-  useSnapping(type, cityName, meshRef);
+  useSnapping(type, cityName);
 
   useFrame(() => {
     const pos = meshRef.current.position;
@@ -113,7 +113,7 @@ function useCreateHandlers(cityName: CityName, meshRef: MutableRefObject<Mesh>):
   return { onPointerMove, onPointerDown, onPointerLeave, onContextMenu };
 }
 
-function useSnapping(type: ObjectType, cityName: CityName, meshRef: MutableRefObject<Mesh>) {
+function useSnapping(type: ObjectType, cityName: CityName) {
   const hoveredCity = useStore(state => state.hoveredCity);
   const truePositions = useStore(state => state.truePositions);
   const citiesRef = useStore(state => state.citiesRef);
