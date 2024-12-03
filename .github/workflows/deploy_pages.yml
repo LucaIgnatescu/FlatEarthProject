@@ -3,33 +3,43 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # Change to your default branch if different
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # 2. Setup Node.js environment
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'  
-          cache: 'npm'         
+          node-version: '18'  # Specify your Node.js version
+          cache: 'npm'         # Enable caching for faster builds
 
+      # 3. Install dependencies
       - name: Install Dependencies
         run: npm install
 
+      # 4. Create .env.production with the correct base path
       - name: Setup .env.production
         run: |
           echo "VITE_BASE_URL=/FlatEarthProject/" > .env.production
 
+      # 5. Build the application
       - name: Build Application
         run: npm run build
 
+      # 6. Deploy to GitHub Pages using peaceiris/actions-gh-pages
       - name: Deploy to GitHub Pages
-        env:
-          GH_TOKEN: ${{ secrets.TOKEN }} 
-        run: npm run deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          publish_dir: ./dist
+          # Optionally, specify the branch and folder:
+          # publish_branch: gh-pages
+          # publish_dir: ./dist
