@@ -1,10 +1,10 @@
 import { Vector3 } from "three";
 import { CityName, PolarCoords, positions } from "./coordinates";
-import { CurrPositions, Distances, Positions, MainSlice } from "./state";
+import { CurrPositions, Distances, Positions, MainStore } from "./state";
 import { cartesianToPolar, EARTH_RADIUS, ObjectType, planarDistance, SCALE_FACTOR, SPHERE_RADIUS, sphericalDistance } from "./utils";
 
 
-export function getDistancesLazy(city1: CityName, city2: CityName, type: ObjectType, citiesRef: MainSlice['citiesRef']) {
+export function getDistancesLazy(city1: CityName, city2: CityName, type: ObjectType, citiesRef: MainStore['citiesRef']) {
   const trueDistance = sphericalDistance(positions[city1], positions[city2], EARTH_RADIUS);
   const mesh1 = citiesRef.current[city1];
   const mesh2 = citiesRef.current[city2];

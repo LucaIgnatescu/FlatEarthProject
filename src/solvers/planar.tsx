@@ -2,7 +2,7 @@ import { dotMultiply, eigs, identity, Matrix, matrix, multiply, ones, sqrt, subt
 import { SCALE_FACTOR } from "./../utils";
 import { CityName } from "./../coordinates";
 import { Vector2, Vector3 } from "three";
-import { AnimationType, Positions, MainSlice } from "../state";
+import { AnimationType, Positions, MainStore } from "../state";
 import { computeRealDistances, getDistancesLazy } from "../distances";
 
 const rotate = (theta: number) => matrix(
@@ -115,7 +115,7 @@ const getPositionMDS = (cityName: CityName, params: ConfigParams) => {
   return singleton.solution[cityName];
 };
 
-const getPosition = (cityName: CityName, citiesRef: MainSlice['citiesRef'], hoveredCity: MainSlice['hoveredCity']) => {
+const getPosition = (cityName: CityName, citiesRef: MainStore['citiesRef'], hoveredCity: MainStore['hoveredCity']) => {
   const destMesh = citiesRef.current[cityName];
   if (destMesh === undefined || hoveredCity === null) throw new Error("Base or dest should not be undefined");
   const baseMesh = hoveredCity.mesh;
@@ -129,8 +129,8 @@ const getPosition = (cityName: CityName, citiesRef: MainSlice['citiesRef'], hove
 export const getFinalPositionPlane = (
   animation: AnimationType,
   cityName: CityName,
-  citiesRef: MainSlice['citiesRef'],
-  hoveredCity: MainSlice['hoveredCity'],
+  citiesRef: MainStore['citiesRef'],
+  hoveredCity: MainStore['hoveredCity'],
   positions: Positions,
   anchors: [CityName | null, CityName | null]
 ) => {

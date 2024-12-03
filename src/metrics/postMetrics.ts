@@ -62,7 +62,11 @@ export async function postSolve(token: string, type: 'global' | 'fixed', cityNam
   postEvent(token, 'solve', payload);
 }
 
-export async function postRouteChange(token: string, route: Route, ok: boolean = true) {
+export async function postRouteChange(token: string | null, route: Route, ok: boolean = true) {
+  if (token === null) {
+    return;
+  }
+
   const payload = {
     destination: route,
     success: ok
