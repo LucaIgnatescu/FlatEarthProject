@@ -11,7 +11,8 @@ import { EarthProps } from "./Earth";
 
 export const TutorialEarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
   const ROTATION: [number, number, number] = [-Math.PI / 2, 0, -Math.PI / 2];
-  const texture = useLoader(TextureLoader, "/img/grid.jpg");
+  const base = import.meta.env.BASE_URL || "/";
+  const texture = useLoader(TextureLoader, `${base}/img/grid.jpg`);
   texture.repeat.set(1, 1);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;

@@ -48,7 +48,8 @@ export default function Globe() {
 }
 
 const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
-  const texture = useLoader(TextureLoader, '/img/globe1.jpg');
+  const base = import.meta.env.BASE_URL || "/";
+  const texture = useLoader(TextureLoader, `${base}img/globe1.jpg`);
   return (
     <mesh onPointerUp={onPointerUp}
       onPointerMove={onPointerMove}

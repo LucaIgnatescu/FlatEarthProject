@@ -53,7 +53,8 @@ export default function Plane() {
 
 
 const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
-  const texture = useLoader(TextureLoader, '/img/disk.png');
+  const base = import.meta.env.BASE_URL || "/";
+  const texture = useLoader(TextureLoader, `${base}img/disk.png`);
   return (
     <mesh rotation={ROTATION} receiveShadow={true} position={[0, -0.05, 0]}
       onPointerUp={onPointerUp}
