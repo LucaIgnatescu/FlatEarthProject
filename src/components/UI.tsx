@@ -74,7 +74,7 @@ export function RealDistancesContainer() {
         <div className={`pointer-events-auto align-middle inline-block leading-none hover:cursor-pointer text-center w-fit px-1 py-2 transition-all ease-linear duration-500 rounded-r ${isOpen ?
           "rotate-180 " :
           "rotate-0"}`}>
-          <img src="../../static/icons/arrow.svg" />
+          <img src="/icons/arrow.svg" />
         </div>
       </div>
     </div>

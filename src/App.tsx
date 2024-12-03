@@ -17,6 +17,7 @@ export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tut
   'globe' | 'plane' | 'survey1' | 'survey2';
 
 
+
 function Root() {
   useMouseTracker();
   useGlobalEvents();
@@ -25,6 +26,7 @@ function Root() {
   return <Outlet />;
 }
 
+const base = import.meta.env.BASE_URL || "/";
 
 const router = createBrowserRouter([
   {
@@ -81,7 +83,7 @@ const router = createBrowserRouter([
       }
     ]
   },
-])
+], { basename: base })
 
 export default function App() {
   return (
