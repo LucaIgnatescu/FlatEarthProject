@@ -12,6 +12,7 @@ import { Survey2 } from "./routes/Survey2";
 import BugReport from "./routes/BugReport";
 import About from "./routes/About";
 import Plane from "./routes/Plane";
+import Home from "./routes/Home";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
   'globe' | 'plane' | 'survey1' | 'survey2';
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/tutorial/1" replace />
+        element: <Home />
       },
       {
         path: "/tutorial/1",
