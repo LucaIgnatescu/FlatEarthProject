@@ -16,7 +16,7 @@ export function Stars() {
   }, [])
 
   useFrame((_, delta) => {
-    const speed = 0.01;
+    const speed = 0.005;
     ref.current.rotation.x += delta * speed;
     ref.current.rotation.y += delta * speed;
   })

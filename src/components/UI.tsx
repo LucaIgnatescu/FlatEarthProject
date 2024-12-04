@@ -47,7 +47,7 @@ export function RealDistances() {
           const city1 = capitalize(cityName);
           const city2 = capitalize(city);
           const distance = Math.round((distances[city] ?? 0) / 10) * 10;
-          return <div key={city} className="">{city1} → {city2}: {distance}km</div>
+          return <div key={city} className="">{city1} ↔   {city2}: {distance}km</div>
         })}
       </div>
     </div>

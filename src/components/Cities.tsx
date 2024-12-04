@@ -126,9 +126,10 @@ function useSnapping(type: ObjectType, cityName: CityName) {
   const scene = useThree(state => state.scene);
   const earthUUID = useStore(state => state.earthUUID);
   const [fixTarget, setFixTarget] = useState<CityName | null>(null);
+  const route = useStore(state => state.route);
 
-  const THRESH_CLOSE = 200;
-  const THRESH_FAR = 500;
+  const THRESH_CLOSE = route === 'plane' ? 100 : 200;
+  const THRESH_FAR = route === 'plane' ? 200 : 500;
   const THRESH_CLOSE_GLOBE = .5;
   const THRESH_FAR_GLOBE = 1.2;
 

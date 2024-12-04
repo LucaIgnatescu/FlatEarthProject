@@ -3,12 +3,12 @@ import { useLoader } from "@react-three/fiber";
 import { forwardRef, useMemo } from "react";
 import { Mesh, TextureLoader, Vector3 } from "three";
 import { CIRCLE_RADIUS } from "../utils";
-import { Cities } from "../components/Cities";
+import { Cities, CityProps } from "../components/Cities";
 import { Curves } from "../components/Curves";
 import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
-import { Sprites } from "../components/TextSprite";
+import { Sprites, TextSpriteFactory } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
 import { AboutMenu, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
@@ -25,12 +25,12 @@ export default function Plane() {
         <PerspectiveCamera makeDefault position={[10, 10, 0]} />
         <Controls />
         <ambientLight color={0xffffff} intensity={2} />
-        <Cities />
+        <Cities CityMesh={CityMesh} />
         <EarthWrapper EarthMesh={EarthMesh} />
         <EarthWireframe />
         <Stars />
         <Curves />
-        <Sprites />
+        <Sprites TextSprite={TextSprite} />
       </CustomCanvas>
       <UIContainer>
         <div className="w-full flex justify-center z-0">
@@ -94,3 +94,14 @@ function CircleWire({ amplitude = CIRCLE_RADIUS, resolution = 90 }: { amplitude?
     <Line points={points} color={"grey"} linewidth={1} />
   );
 }
+
+const TextSprite = TextSpriteFactory({ fontsize: 30, scale: [20, 10, 1] });
+const CityMesh = forwardRef<Mesh, CityProps>((props, meshRef) => {
+  const radius = 1;
+  return (
+    <mesh ref={meshRef} position={[0, 0, 0]} {...props} >
+      <sphereGeometry args={[radius]} />
+      <meshBasicMaterial color={"red"} />
+    </mesh >);
+})
+
