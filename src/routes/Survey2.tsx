@@ -2,6 +2,7 @@ import { useLayoutEffect, useState } from "react";
 import { useStore } from "../state";
 import { StandardMCQ, SubmitButton, UpdateAnswerFunc } from "../components/Survey";
 import { postSurvey2 } from "../metrics/postMetrics";
+import { useNavigate } from "react-router-dom";
 
 const NQUESTIONS = 5;
 
@@ -29,6 +30,8 @@ export function Survey2() {
 function Questions() {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
+  const navigate = useNavigate();
+
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
     return (value: unknown) => {
       const newAnswers = answers.slice();
@@ -64,6 +67,7 @@ function Questions() {
       text: text || null
     };
     postSurvey2(token, payload);
+    navigate('/');
   };
 
   return (

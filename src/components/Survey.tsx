@@ -99,7 +99,7 @@ export function SubmitButton({ active, onClick }: { active: boolean, onClick: ()
   return (
     <div
       className={
-        "bg-blue-500 p-5 text-white w-fit rounded transition-opacity duration-500 " +
+        "bg-blue-500 px-4 py-2 text-white w-fit rounded transition-opacity duration-500 " +
         (active ? "opacity-100 hover:cursor-pointer" : "opacity-50 disabled")
       }
       onClick={!active ? () => { } : onClick}

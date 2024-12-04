@@ -47,7 +47,7 @@ export function Distance({ baseName, destName, position, rotation }: { baseName:
         transform: `rotate(${rotation}rad)`,
         color: color
       }}
-      className="absolute"
+      className="absolute z-0"
     >
       {Math.round(Math.abs(delta))}
     </p>

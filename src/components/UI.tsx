@@ -4,6 +4,7 @@ import { computeTotalError, getDistancesLazy } from "../distances";
 import { capitalize } from "../utils";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Route } from "../App";
 
 export function TotalError() {
   const nCities = useStore(state => state.nCities);
@@ -123,7 +124,10 @@ export function AboutMenu() {
   );
 }
 
-export function ContinueGlobe({ text, time }: { text: string, time: number }) {
+export function ContinueTimeout(
+  { text, time, dest }:
+    { text: string, time: number, dest: Route }
+) {
   const navigate = useNavigate();
   const [timer, setTimer] = useState<number>(-1);
   const done = timer === 0;
@@ -142,15 +146,15 @@ export function ContinueGlobe({ text, time }: { text: string, time: number }) {
   if (done) {
     return (
       <div
-        className="pointer-events-auto bg-green p-2 text-white hover:cursor-pointer rounded-t-xl"
-        onClick={() => navigate('/globe')}
+        className="pointer-events-auto bg-green p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
+        onClick={() => navigate(dest)}
       >
         {text}
       </div>
     )
   }
   return (
-    <div className="pointer-events-auto bg-gray-600 p-2 text-white hover:cursor-pointer rounded-t-xl">
+    <div className="pointer-events-auto bg-gray-600 p-2 px-4 text-white hover:cursor-pointer rounded-t-xl">
       {text}: {timer}s left
     </div>
   );

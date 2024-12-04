@@ -10,7 +10,7 @@ import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites, TextSpriteFactory } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
-import { AboutMenu, ContinueGlobe as ContinueTimeout, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
+import { AboutMenu, ContinueTimeout, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
 import useSetupSection from "../hooks/useSetupSection";
@@ -46,7 +46,7 @@ export default function Plane() {
         <div className="top-0 left-0 fixed w-full h-full z-200 pointer-events-none">
           <div className="flex w-full h-full flex-col justify-end">
             <div className="flex w-full justify-center">
-              <ContinueTimeout time={10} text={"Continue"} />
+              <ContinueTimeout time={10} text={"Continue"} dest={"/globe"} />
             </div>
           </div>
         </div>

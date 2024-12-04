@@ -67,11 +67,11 @@ const router = createBrowserRouter([
         element: <Plane />
       },
       {
-        path: "/survey/1",
+        path: "/survey1",
         element: <Survey1 />
       },
       {
-        path: "/survey/2",
+        path: "/survey2",
         element: <Survey2 />
       },
       {
