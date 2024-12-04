@@ -10,7 +10,7 @@ import { Controls } from "../components/Controls";
 import { Stars } from "../components/Stars";
 import { Sprites, TextSpriteFactory } from "../components/TextSprite";
 import { ContextMenu } from "../components/ContextMenu";
-import { AboutMenu, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
+import { AboutMenu, ContinueGlobe as ContinueTimeout, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
 import useSetupSection from "../hooks/useSetupSection";
@@ -22,7 +22,7 @@ export default function Plane() {
   return (
     <>
       <CustomCanvas className="bg-black">
-        <PerspectiveCamera makeDefault position={[10, 10, 0]} />
+        <PerspectiveCamera makeDefault position={[100, 100, 100]} ref={(node) => node?.lookAt(0, 0, 0)} />
         <Controls />
         <ambientLight color={0xffffff} intensity={2} />
         <Cities CityMesh={CityMesh} />
@@ -40,6 +40,13 @@ export default function Plane() {
           <div className="flex w-full h-full flex-col justify-end">
             <div className="flex justify-end w-full">
               <AboutMenu />
+            </div>
+          </div>
+        </div>
+        <div className="top-0 left-0 fixed w-full h-full z-200 pointer-events-none">
+          <div className="flex w-full h-full flex-col justify-end">
+            <div className="flex w-full justify-center">
+              <ContinueTimeout time={10} text={"Continue"} />
             </div>
           </div>
         </div>

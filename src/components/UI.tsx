@@ -2,7 +2,7 @@ import { useStore } from "../state";
 import { CityName, positions } from "../coordinates";
 import { computeTotalError, getDistancesLazy } from "../distances";
 import { capitalize } from "../utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function TotalError() {
@@ -123,3 +123,35 @@ export function AboutMenu() {
   );
 }
 
+export function ContinueGlobe({ text, time }: { text: string, time: number }) {
+  const navigate = useNavigate();
+  const [timer, setTimer] = useState<number>(-1);
+  const done = timer === 0;
+
+  useEffect(() => {
+    if (timer === 0) {
+      return;
+    }
+    if (timer === -1) {
+      setTimer(time);
+    } else {
+      setTimeout(() => setTimer(timer - 1), 1000);
+    }
+  }, [timer, time]);
+
+  if (done) {
+    return (
+      <div
+        className="pointer-events-auto bg-green p-2 text-white hover:cursor-pointer rounded-t-xl"
+        onClick={() => navigate('/globe')}
+      >
+        {text}
+      </div>
+    )
+  }
+  return (
+    <div className="pointer-events-auto bg-gray-600 p-2 text-white hover:cursor-pointer rounded-t-xl">
+      {text}: {timer}s left
+    </div>
+  );
+}
