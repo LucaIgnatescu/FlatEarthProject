@@ -147,7 +147,7 @@ export function ContinueTimeout(
     return (
       <div
         className="pointer-events-auto bg-green p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
-        onClick={() => navigate(dest)}
+        onClick={() => navigate(`/${dest}`)}
       >
         {text}
       </div>

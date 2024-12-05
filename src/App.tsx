@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { Tutorial1 } from "./routes/Tutorial1";
 import { Tutorial2 } from "./routes/Tutorial2";
 import { Tutorial3 } from "./routes/Tutorial3";

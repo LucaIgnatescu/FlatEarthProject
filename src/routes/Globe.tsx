@@ -42,7 +42,7 @@ export default function Globe() {
         <div className="top-0 left-0 fixed w-full h-full z-200 pointer-events-none">
           <div className="flex w-full h-full flex-col justify-end">
             <div className="flex w-full justify-center">
-              <ContinueTimeout time={10} text={"Continue"} dest={"/survey1"} />
+              <ContinueTimeout time={10} text={"Continue"} dest={"survey1"} />
             </div>
           </div>
         </div>
