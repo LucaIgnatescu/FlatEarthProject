@@ -1,11 +1,22 @@
 # Flat Earth Challenge
 
-This is the repository for the frontend part of the Flat Earth Challenge. 
-As the app is still in the final stages of development, the full project is not yet deployed.
+The app is currently in the final stages of deployment. 
 
-However, a frontend only version of the app is available on [Github Pages](https://lucaignatescu.github.io/FlatEarthProject).
+A demo of the app can be found at [flatearthtest.com]. 
 
-The repository for the backend can be found [here](https://github.com/LucaIgnatescu/FlatEarthBackend).
+## Hosting
+
+The frontend is hosted on S3 and served with CloudFront. 
+
+The backend is hosted with ECS in Fargate mode, behind an Application Load Balancer. It is currently setup for a 2AZ deployment in us-east-2, with private subnets for the containers and public ones for the containers.
+
+The database is an RDS Postgres cluster. 
+
+
+
+
+
+
 
 
 
