@@ -2,8 +2,8 @@ import { Route } from "../App";
 import { CityName } from "../coordinates";
 import { PathPoint } from "./dispatchers";
 
-const API_ENDPOINT = "http://localhost:8080";
-
+console.log(import.meta.env.VITE_API);
+const API_ENDPOINT = import.meta.env.VITE_API || "http://localhost:8080";
 
 export type InteractionType = 'drag' | 'click' | 'solve' | 'route_change';
 
