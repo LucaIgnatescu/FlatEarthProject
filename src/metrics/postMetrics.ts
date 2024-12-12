@@ -5,7 +5,7 @@ import { PathPoint } from "./dispatchers";
 console.log(import.meta.env.VITE_API);
 const API_ENDPOINT = import.meta.env.VITE_API || "http://localhost:8080";
 
-export type InteractionType = 'drag' | 'click' | 'solve' | 'route_change';
+export type InteractionType = 'drag' | 'click' | 'solve' | 'route_change' | 'exit';
 
 export type InteractionBody = {
   event_type: InteractionType;
@@ -75,6 +75,16 @@ export async function postRouteChange(token: string | null, route: Route, ok: bo
   postEvent(token, 'route_change', payload);
 }
 
+export async function postExit(token: string | null, route: Route | null) {
+  if (token === null) {
+    return;
+  }
+  const payload = {
+    current_route: route
+  };
+  postEvent(token, 'exit', payload);
+}
+
 
 async function postEvent(token: string, type: InteractionType, payload: object | null) {
   const body: InteractionBody = {
@@ -139,4 +149,5 @@ export function postSurvey1(token: string | null, payload: object) {
 export function postSurvey2(token: string | null, payload: object) {
   return postGeneric('/log/survey2', token, payload);
 }
+
 

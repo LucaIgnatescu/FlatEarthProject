@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStore } from '../state';
-import { postClick, postDrag } from './postMetrics';
+import { postClick, postDrag, postExit } from './postMetrics';
 import { PathPoint } from './dispatchers';
 
 export function useRegisterUIHandlers() {
   const token = useStore(state => state.jwt);
+  const route = useStore(state => state.route);
   const handleClick = useCallback((event: MouseEvent) => {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -16,12 +17,18 @@ export function useRegisterUIHandlers() {
     if (token === null) return;
   }, [token]);
 
+  const handleExit = () => {
+    postExit(token, route);
+  }
+
   useEffect(() => {
     window.addEventListener('click', handleClick);
     window.addEventListener('solver', handleSolver);
+    window.addEventListener('unload', handleExit);
     return () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('solver', handleSolver);
+      window.removeEventListener('unload', handleExit);
     };
   });
 }
