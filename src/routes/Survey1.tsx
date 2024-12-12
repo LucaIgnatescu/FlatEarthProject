@@ -6,28 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 const NQUESTIONS = 10;
 
-export function Survey1() {
-  const updateRoute = useStore(state => state.updateRoute);
-
-  useLayoutEffect(() => {
-    updateRoute('survey1');
-  }, [updateRoute]);
-
-  return (
-    <div className="flex w-full h-fit min-h-screen justify-center  py-10 ">
-      <div className="w-3/5 rounded-xl p-5 bg-white h-fit">
-        <h1 className="text-2xl font-bold w-full border-b border-gray-300 my-2">
-          Intake Survey
-        </h1>
-        <QuestionSet1 />
-      </div>
-    </div>
-  );
-}
 
 
-
-export function QuestionSet1() {
+export function IntakeSurvey({ action }: { action: () => void }) {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
   const navigate = useNavigate();
@@ -60,7 +41,7 @@ export function QuestionSet1() {
       gender_detail: genderText || null
     };
     postSurvey1(token, payload);
-    navigate('/survey2');
+    action();
   }
 
   return (

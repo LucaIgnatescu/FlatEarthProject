@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";
 import { Cities, } from "../components/Cities";
@@ -14,6 +14,9 @@ import { ContextMenu } from "../components/ContextMenu";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
 import useSetupSection from "../hooks/useSetupSection";
+import { useStore } from "../state";
+import { computeTotalError } from "../distances";
+import { ExitQuestions } from "./Survey2";
 
 export default function Globe() {
   useSetupSection(8, 'globe');
@@ -39,18 +42,37 @@ export default function Globe() {
             </div>
           </div>
         </div>
-        <div className="top-0 left-0 fixed w-full h-full z-200 pointer-events-none">
-          <div className="flex w-full h-full flex-col justify-end">
-            <div className="flex w-full justify-center">
-              <ContinueTimeout time={10} text={"Continue"} dest={"survey1"} />
-            </div>
-          </div>
-        </div>
         <RealDistancesContainer />
         <Distances />
         <ContextMenu />
       </UIContainer>
+      <ExitSurvey />
     </>
+  );
+}
+function ExitSurvey() {
+  const [completed, setCompleted] = useState(false);
+  const currPositions = useStore(state => state.currPositions);
+  const nCities = useStore(state => state.nCities);
+  const nRenderedCities = useStore(state => state.nRenderedCities);
+
+  if (nCities !== nRenderedCities) {
+    return null;
+  }
+  const enabled = !completed && Math.round(computeTotalError('sphere', currPositions)) === 0;
+  return (
+    <div className={`bg-white bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
+${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+      <div className="w-full h-full flex justify-center flex-col">
+        <div className="h-4/5 flex w-full justify-center">
+          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black overflow-scroll">
+            <p className="w-full text-xl text-center mb-5 font-bold">Congratulations!</p>
+            <p>You have sucessfully completed the challenge! In order to continue playing, please fill this short survey.</p>
+            <ExitQuestions action={() => setCompleted(true)} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

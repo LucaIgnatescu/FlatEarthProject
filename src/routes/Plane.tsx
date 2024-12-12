@@ -58,7 +58,6 @@ export default function Plane() {
   );
 }
 
-
 const EarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, onPointerUp }, ref) => {
   const base = import.meta.env.BASE_URL || "/";
   const texture = useLoader(TextureLoader, `${base}img/disk.png`);

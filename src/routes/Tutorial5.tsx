@@ -15,11 +15,9 @@ import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { QuestionSet1 } from "./Survey1.tsx";
-import { ClearPass } from "three/examples/jsm/Addons.js";
+import { IntakeSurvey } from "./Survey1.tsx";
 
 export function Tutorial5() {
-  const navigate = useNavigate();
   useSetupSection(3, 'tutorial5');
   const [done, setDone] = useState(false);
 
@@ -58,15 +56,15 @@ export function Tutorial5() {
 }
 
 function Questions({ enabled }: { enabled: boolean }) {
-
+  const navigate = useNavigate();
   return (
-    <div className={`fixed top-0 w-full h-full z-10 transition-all ease-in 
-${enabled ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+    <div className={`bg-white bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
+${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
       <div className="w-full h-full flex justify-center flex-col">
         <div className="h-4/5 flex w-full justify-center">
-          <div className="p-10 bg-white w-1/2 rounded-xl border border-black overflow-scroll">
+          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black overflow-scroll">
             <p className="">Before continuing, please fill in this short survey.</p>
-            <QuestionSet1 />
+            <IntakeSurvey action={() => navigate('/plane')} />
           </div>
         </div>
       </div>
@@ -94,7 +92,7 @@ function Prompt() {
       <p>
         Right click on a point to continue.
       </p>
-      <div className={`transition duration-500 ${everVisible ? "opacity-100" : "opacity-0"}`}>
+      <div className={`transition duration-1000 ${everVisible ? "opacity-100" : "opacity-0"}`}>
         <p>
           The first, indicated by the <span className="font-bold">Solve City</span> button, ensures that all distances to the selected city are matched.</p>
         <p className="my-2">

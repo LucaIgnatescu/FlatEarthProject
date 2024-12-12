@@ -1,36 +1,16 @@
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import { useStore } from "../state";
 import { StandardMCQ, SubmitButton, UpdateAnswerFunc } from "../components/Survey";
 import { postSurvey2 } from "../metrics/postMetrics";
-import { useNavigate } from "react-router-dom";
 
 const NQUESTIONS = 5;
 
-export function Survey2() {
-  const updateRoute = useStore(state => state.updateRoute);
-
-  useLayoutEffect(() => {
-    updateRoute('survey2');
-  }, [updateRoute]);
-
-  return (
-    <div className="flex w-full h-fit min-h-screen justify-center py-10 ">
-      <div className="w-3/5 rounded-xl p-5 bg-white h-fit">
-        <h1 className="text-2xl font-bold w-full border-b border-gray-300 my-2">
-          Intake Survey
-        </h1>
-        <Questions />
-      </div>
-    </div>
-  );
-}
 
 
 
-function Questions() {
+export function ExitQuestions({ action }: { action: () => void }) {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
-  const navigate = useNavigate();
 
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
     return (value: unknown) => {
@@ -67,7 +47,7 @@ function Questions() {
       text: text || null
     };
     postSurvey2(token, payload);
-    navigate('/');
+    action();
   };
 
   return (
