@@ -11,20 +11,10 @@ export default function useSetupSection(nCities: number, routeName: Route) {
   const route = useStore(state => state.route);
   const updateProgression = useStore(state => state.updateProgression);
   const navigate = useNavigate();
-  const progresion = useStore(state => state.progression);
-
-  console.log(progresion);
 
   useLayoutEffect(() => {
     updateRoute(routeName);
     updateNCities(nCities);
-    //const ok = updateProgression(routeName);
-    //if (ok === false) {
-    //  if (window.history.length === 1) {
-    //    return navigate('/');
-    //  }
-    //  navigate(-1);
-    //}
   }, [nCities, navigate, routeName, updateRoute, updateNCities, updateProgression]);
 
   useEffect(() => {

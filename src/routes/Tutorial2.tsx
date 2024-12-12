@@ -13,9 +13,11 @@ import { BLUE, getColor, RED } from "../utils.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
+import { useNavigate } from "react-router-dom";
 
 export function Tutorial2() {
   useSetupSection(2, 'tutorial2');
+  const navigate = useNavigate();
   return (
     <div className="flex h-full ">
       <div className="w-3/5 relative">
@@ -37,7 +39,7 @@ export function Tutorial2() {
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
         <Prompt />
-        <DynamicContinueButton dest="/tutorial/3" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
+        <DynamicContinueButton onClick={() => navigate("/tutorial/3")} useSnapshot={useSnapshot} compareSnapshot={compareSnapshot} />
       </div>
       <ProgressOverlay />
     </div>

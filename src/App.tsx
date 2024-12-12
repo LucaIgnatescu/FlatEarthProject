@@ -22,7 +22,7 @@ export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tut
 function Root() {
   useMouseTracker();
   useGlobalEvents();
-  useProgressionTracker();
+  //useProgressionTracker();
 
   return <Outlet />;
 }

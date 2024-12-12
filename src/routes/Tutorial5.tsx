@@ -14,9 +14,16 @@ import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { QuestionSet1 } from "./Survey1.tsx";
+import { ClearPass } from "three/examples/jsm/Addons.js";
 
 export function Tutorial5() {
+  const navigate = useNavigate();
   useSetupSection(3, 'tutorial5');
+  const [done, setDone] = useState(false);
+
+  const onClick = () => setDone(true);
   return (
     <div className="flex h-full">
       <div className="w-3/5 relative">
@@ -40,17 +47,32 @@ export function Tutorial5() {
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
         <Prompt />
-        <DynamicContinueButton
-          dest="/plane" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
+        <DynamicContinueButton onClick={onClick} useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
           text="Proceed to Challenge"
         />
       </div>
       <ProgressOverlay />
+      <Questions enabled={done} />
     </div>
   );
 }
 
+function Questions({ enabled }: { enabled: boolean }) {
 
+  return (
+    <div className={`fixed top-0 w-full h-full z-10 transition-all ease-in 
+${enabled ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+      <div className="w-full h-full flex justify-center flex-col">
+        <div className="h-4/5 flex w-full justify-center">
+          <div className="p-10 bg-white w-1/2 rounded-xl border border-black overflow-scroll">
+            <p className="">Before continuing, please fill in this short survey.</p>
+            <QuestionSet1 />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Prompt() {
   const { visible } = useStore(state => state.contextMenu);

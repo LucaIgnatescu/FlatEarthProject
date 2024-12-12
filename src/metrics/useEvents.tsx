@@ -40,7 +40,7 @@ export function useProgressionTracker() {
   const updateProgression = useStore(state => state.updateProgression);
   const navigate = useNavigate();
   useEffect(() => {
-    if (jwt === null || route === null) {
+    if (route === null) {
       return;
     }
     const ok = updateProgression(route);

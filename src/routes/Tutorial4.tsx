@@ -13,8 +13,10 @@ import { Distances } from "../components/Distances.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
+import { useNavigate } from "react-router-dom";
 
 export function Tutorial4() {
+  const navigate = useNavigate();
   useSetupSection(3, 'tutorial4');
   return (
     <div className="flex h-full">
@@ -41,7 +43,7 @@ export function Tutorial4() {
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">
         <Prompt />
         <DynamicContinueButton
-          dest="/tutorial/5" useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
+          onClick={() => navigate("/tutorial/5")} useSnapshot={useSnapshot} compareSnapshot={compareSnapshot}
         />
       </div>
       <ProgressOverlay />

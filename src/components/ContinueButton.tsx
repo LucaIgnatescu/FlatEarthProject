@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction } from "react-router-dom";
 import { useStore } from "../state";
 
-export function ContinueButton({ dest, text, disabled }: { dest: string, text?: string, disabled?: boolean }) {
-  const navigate = useNavigate();
+export function ContinueButton({ onClick, text, disabled }: { onClick: () => void, text?: string, disabled?: boolean }) {
   if (text === undefined) text = 'Continue'
   if (disabled === undefined) disabled = false;
 
   return (
-    <button onClick={() => navigate(dest)} disabled={disabled}
+    <button onClick={onClick} disabled={disabled}
       className={"bg-blue-500 p-5 text-white w-fit rounded " + (disabled ? "opacity-0" : "animate-fade")}>
       {text}
     </button>
@@ -16,7 +15,7 @@ export function ContinueButton({ dest, text, disabled }: { dest: string, text?: 
 }
 
 export type ButtonProps<T> = {
-  dest: string;
+  onClick: () => void;
   text?: string;
   useSnapshot: () => T | null;
   compareSnapshot?: (current: T | null, saved: T | null) => boolean;
@@ -27,7 +26,7 @@ function defaultCompareSnapshot<T>(current: T | null, saved: T | null) {
   return JSON.stringify(current) === JSON.stringify(saved);
 }
 
-export function DynamicContinueButton<T>({ dest, text, useSnapshot, compareSnapshot }: ButtonProps<T>) {
+export function DynamicContinueButton<T>({ onClick, text, useSnapshot, compareSnapshot }: ButtonProps<T>) {
   if (compareSnapshot === undefined) compareSnapshot = defaultCompareSnapshot;
   const snapshotRef = useRef<T | null>(null);
   const data = useSnapshot();
@@ -42,7 +41,10 @@ export function DynamicContinueButton<T>({ dest, text, useSnapshot, compareSnaps
   }, [data, nCities, nRenderedCities]);
 
 
-  return <ContinueButton dest={dest} disabled={disabled} text={text} />
+  return <ContinueButton onClick={onClick} disabled={disabled} text={text} />
 }
 
+export function DestinationFactory(dest: string, navigate: NavigateFunction) {
+  return () => navigate(dest);
+}
 

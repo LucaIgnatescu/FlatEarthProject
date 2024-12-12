@@ -19,7 +19,7 @@ export function Survey1() {
         <h1 className="text-2xl font-bold w-full border-b border-gray-300 my-2">
           Intake Survey
         </h1>
-        <Questions />
+        <QuestionSet1 />
       </div>
     </div>
   );
@@ -27,7 +27,7 @@ export function Survey1() {
 
 
 
-function Questions() {
+export function QuestionSet1() {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
   const navigate = useNavigate();
