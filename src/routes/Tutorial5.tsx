@@ -58,12 +58,13 @@ export function Tutorial5() {
 function Questions({ enabled }: { enabled: boolean }) {
   const navigate = useNavigate();
   return (
-    <div className={`bg-white bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
+    <div className={`bg-gray-400 bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
 ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
       <div className="w-full h-full flex justify-center flex-col">
         <div className="h-4/5 flex w-full justify-center">
-          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black overflow-scroll">
-            <p className="">Before continuing, please fill in this short survey.</p>
+          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border-2 border-black overflow-scroll">
+            <p className="w-full text-xl text-center mb-5 font-bold">Intake Survey</p>
+            <p className="mt-5 w-full border-b border-gray-400 mb-5 text-blue">Before continuing, please fill in this short survey.</p>
             <IntakeSurvey action={() => navigate('/plane')} />
           </div>
         </div>

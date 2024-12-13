@@ -115,7 +115,7 @@ export function AboutMenu() {
         About
       </span>
       <span
-        className="bg-green p-2 text-white hover:cursor-pointer"
+        className="bg-gray-500 p-2 text-white hover:cursor-pointer"
         onClick={() => navigate('/bug-report')}
       >
         Report an Issue
@@ -146,7 +146,7 @@ export function ContinueTimeout(
   if (done) {
     return (
       <div
-        className="pointer-events-auto bg-green p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
+        className="pointer-events-auto bg-[#43CF30] p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
         onClick={() => navigate(`/${dest}`)}
       >
         {text}
