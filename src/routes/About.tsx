@@ -9,8 +9,20 @@ export default function About() {
         <h1 className="border-b border-gray-300 text-2xl font-bold py-1">
           Our Mission
         </h1>
-        <div className="py-10">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nobis possimus facere adipisci perspiciatis natus dolorum, dolorem nostrum voluptatibus minus officia magni ducimus quod quis eum voluptatem earum quisquam et distinctio, ab quidem alias at. Illum aspernatur fugiat nesciunt est accusantium corrupti voluptas consequuntur quidem obcaecati quaerat! Iusto omnis cupiditate quas.
+        <div className="py-2 *:mb-3">
+          <p>
+            Many people believe that the earth is flat, and there is good reason for this belief. Primarily, lived experience strongly suggests that this is the case. To any observer standing on the surface, the appearance of the Earth is clearly flat. But of course, appearances can be deceiving.
+
+          </p>
+          <p>
+            As members of society, we inevitably must outsource facts about reality to others. Most of us are not astronauts or pilots, but these pilots and astronauts can provide us with information we do not have first hand access to. For this system to work smoothly, however, there is a presumption of trust. Unfortunately, trust in the integrity of institutions has collapsed, and it is not at historic lows. There are many reasons for this. Institutions are not immune to mission drift, ideological capture, and blatant self interest.
+          </p>
+          <p>
+            We cannot solve these problems here, but what we can do is introduce a trustless method where you can verify for yourself whether the earth is flat. You're smart, and it is through your own reasoning that you must convince yourself whether the earth is flat or not. Specifically, the only information we rely on is the distances between known major cities, which you could measure and confirm for yourself. Our claim is that nobody, not even you, will be able to fit the distances between the world’s cities in a planar configuration. We are putting up a million dollar reward to anyone that manages to do this.
+          </p>
+          <p>
+            Let’s see if you can do it!
+          </p>
         </div>
         <div className="flex w-full justify-end">
           <button className="bg-blue-500 py-2 px-4 text-white w-fit rounded "
