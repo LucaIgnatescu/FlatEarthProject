@@ -14,6 +14,7 @@ import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 import { useNavigate } from "react-router-dom";
+import { getColor } from "../utils.tsx";
 
 export function Tutorial3() {
   useSetupSection(3, 'tutorial3');
@@ -76,7 +77,12 @@ function useDelta(city1: CityName, city2: CityName) {
   const type = useStore(state => state.objectType);
   const currPositions = useStore(state => state.currPositions);
   const { currDistance, trueDistance } = getDistancesFast(city1, city2, type, currPositions);
-  return Math.round(Math.abs(currDistance - trueDistance));
+  const delta = currDistance - trueDistance;
+  const color = getColor(delta);
+  return {
+    d: Math.round(Math.abs(delta)),
+    color
+  };
 }
 
 function TotalErrorWrapper() {
@@ -85,17 +91,26 @@ function TotalErrorWrapper() {
   return <TotalErrorExplanation />
 }
 function TotalErrorExplanation() {
-  const d1 = useDelta('atlanta', 'beijing');
-  const d2 = useDelta('atlanta', 'cape');
-  const d3 = useDelta('beijing', 'cape');
+  const distance1 = useDelta('atlanta', 'beijing');
+  const distance2 = useDelta('atlanta', 'cape');
+  const distance3 = useDelta('beijing', 'cape');
+  const d1 = distance1.d;
+  const d2 = distance2.d;
+  const d3 = distance3.d;
+
+  const color1 = distance1.color;
+  const color2 = distance2.color;
+  const color3 = distance3.color;
   const totalError = d1 + d2 + d3;
   return (
     <>
       <p>
         More explicitly, the current total discrepancy is computed as
       </p>
-      <p className="text-center text-black font-semibold">
-        {totalError} = {d1} + {d2} + {d3}
+      <p className="text-center text-black">
+        <span className="font-semibold">{totalError}</span> = <span style={{ color: color1 }}>{d1}</span>
+        + <span style={{ color: color2 }}> {d2}</span>
+        + <span style={{ color: color3 }}> {d3}</span>
       </p>
     </>
   );

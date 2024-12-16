@@ -6,10 +6,10 @@ export const SPHERE_RADIUS = 30;
 export const CIRCLE_RADIUS = 80;
 export const SCALE_FACTOR = 225;
 
-export const RED = 0xf60836;
-export const GREEN = 0x36f808;
-export const BLUE = 0x3479f3;
-export const YELLOW = 0xfaff00;
+export const RED = "#f60836";
+export const GREEN = "#36f808";
+export const BLUE = "#3479f3";
+export const YELLOW = "#faff00";
 
 export type ObjectType = 'plane' | 'sphere';
 

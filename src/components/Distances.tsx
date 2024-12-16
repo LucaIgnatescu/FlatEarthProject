@@ -38,7 +38,7 @@ export function Distance({ baseName, destName, position, rotation }: { baseName:
 
   const { currDistance, trueDistance } = getDistancesLazy(baseName, destName, type, citiesRef);
   const delta = currDistance - trueDistance;
-  const color = "#" + getColor(delta).toString(16);
+  const color = getColor(delta);
   return (
     <p
       style={{ // NOTE: Cannot use tailwind here because pixel values are dynamic
