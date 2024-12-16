@@ -1,17 +1,13 @@
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import { useStore } from "../state";
 import { AnswerOption, ErrorMessage, StandardMCQ, Status, SubmitButton, UpdateAnswerFunc } from "../components/Survey";
 import { postSurvey1 } from "../metrics/postMetrics";
-import { useNavigate } from "react-router-dom";
 
 const NQUESTIONS = 10;
-
-
 
 export function IntakeSurvey({ action }: { action: () => void }) {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
-  const navigate = useNavigate();
 
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
     return (value: unknown) => {

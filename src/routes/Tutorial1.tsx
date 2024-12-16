@@ -81,13 +81,13 @@ function Prompt() {
         They are 11550 km apart in reality.
       </p>
       <p>
-        In the representation on the left, these cities are now <span style={{ color: `#${color.toString(16)}` }} className="text-2xl">{Math.round(Math.abs(currDistance) / 10) * 10}</span> km apart. You can click and drag to move them around.
+        In the representation on the left, these cities are now <span style={{ color: color }} className="text-2xl">{Math.round(Math.abs(currDistance) / 10) * 10}</span> km apart. You can click and drag to move them around.
       </p>
       <p>
         Can you make the representation match reality?
       </p>
       <p>
-        The <span style={{ color: `#${color.toString(16)}` }} className="text-2xl">
+        The <span style={{ color: color }} className="text-2xl">
           number
         </span> above
         changes as you move the dots.

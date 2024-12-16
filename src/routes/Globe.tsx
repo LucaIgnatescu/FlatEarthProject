@@ -9,7 +9,7 @@ import { EarthProps, EarthWrapper } from "../components/Earth";
 import { Stars } from "../components/Stars";
 import { Controls } from "../components/Controls";
 import { Sprites } from "../components/TextSprite";
-import { AboutMenu, ContinueTimeout, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
+import { AboutMenu, RealDistancesContainer, TotalError, UIContainer } from "../components/UI";
 import { ContextMenu } from "../components/ContextMenu";
 import { Distances } from "../components/Distances";
 import CustomCanvas from "../components/CustomCanvas";
