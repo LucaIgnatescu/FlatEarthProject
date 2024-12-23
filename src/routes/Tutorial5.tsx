@@ -62,7 +62,7 @@ function Questions({ enabled }: { enabled: boolean }) {
 ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
       <div className="w-full h-full flex justify-center flex-col">
         <div className="h-4/5 flex w-full justify-center">
-          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border-2 border-black overflow-scroll">
+          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border-2 border-black">
             <p className="w-full text-xl text-center mb-5 font-bold">Intake Survey</p>
             <p className="mt-5 w-full border-b border-gray-400 mb-5 text-blue">Before continuing, please fill in this short survey.</p>
             <IntakeSurvey action={() => navigate('/plane')} />
