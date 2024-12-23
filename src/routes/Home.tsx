@@ -13,7 +13,7 @@ export default function Home() {
             </div>
             <h1 className="text-center text-white text-2xl font-semibold "> The Flat Earth Challenge</h1>
             <button
-              className="text-xl text-gray-400 mt-20 border rounded-xl border-gray-400 px-2 py-1 hover:border-white hover:text-white"
+              className="text-xl text-gray-400 mt-20 border-2 rounded-lg border-gray-400 px-2 py-1 hover:border-white hover:text-white"
               onClick={() => navigate('/tutorial/1')}
             >Tutorial</button>
           </div>

@@ -94,11 +94,17 @@ export function UIContainer({ children }: { children: React.ReactNode }) {
 
 
 export function CitySlider() {
-  const updateNCities = useStore(state => state.updateNCities)
+  const updateNCities = useStore(state => state.updateNCities);
+  const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const nCities = useStore(state => state.nCities);
+  console.log(nCities)
+  console.log(Object.keys(positions).length)
   return (
-    <input type='range' min='1' max={Object.keys(positions).length} value={nCities}
-      onChange={(event) => updateNCities(+event.target.value)}
+    <input className="pointer-events-auto bg-green" type='range' min='4' max={8} value={nCities}
+      onChange={(event) => {
+        updateNCities(Math.floor(+event.target.value / 2) * 2);
+        updateHoveredCity('atlanta');
+      }}
     />
   );
 }
@@ -131,7 +137,7 @@ export function ContinueTimeout(
   const navigate = useNavigate();
   const [timer, setTimer] = useState<number>(-1);
   const done = timer === 0;
-
+  const TICK = 1000;
   useEffect(() => {
     if (timer === 0) {
       return;
@@ -139,7 +145,7 @@ export function ContinueTimeout(
     if (timer === -1) {
       setTimer(time);
     } else {
-      setTimeout(() => setTimer(timer - 1), 1000);
+      setTimeout(() => setTimer(timer - 1), TICK);
     }
   }, [timer, time]);
 
