@@ -70,7 +70,7 @@ export function ExitQuestions({ action }: { action: () => void }) {
           answers={confidenceScale}
         />
         <FinalTextArea updateAnswer={updateAnswerFactory(4)} />
-      </div >
+      </div>
       <SubmitButton
         active={active}
         onClick={onClick}

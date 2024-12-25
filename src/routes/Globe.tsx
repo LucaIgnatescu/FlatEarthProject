@@ -59,13 +59,14 @@ function ExitSurvey() {
   if (nCities !== nRenderedCities) {
     return null;
   }
-  const enabled = !completed && Math.round(computeTotalError('sphere', currPositions)) === 0;
+  //const enabled = !completed && Math.round(computeTotalError('sphere', currPositions)) === 0;
+  const enabled = true;
   return (
     <div className={`bg-gray-400 bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
 ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
       <div className="w-full h-full flex justify-center flex-col">
         <div className="h-4/5 flex w-full justify-center">
-          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black">
+          <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black overflow-hidden">
             <p className="w-full text-xl text-center mb-5 font-bold">Congratulations!</p>
             <p className="w-full border-b border-gray-400 mb-5 text-blue">You have sucessfully completed the challenge! In order to continue playing, please fill out this short survey.</p>
             <ExitQuestions action={() => setCompleted(true)} />
