@@ -11,6 +11,7 @@ import BugReport from "./routes/BugReport";
 import About from "./routes/About";
 import Plane from "./routes/Plane";
 import Home from "./routes/Home";
+import NotFound from "./routes/NotFound";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
   'globe' | 'plane' | 'survey1' | 'survey2';
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+    errorElement: <NotFound />,
     children: [
       {
         index: true,

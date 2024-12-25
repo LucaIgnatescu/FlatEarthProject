@@ -4,13 +4,20 @@ import { loadFull } from "tsparticles";
 
 export default function ParticlesWrapper() {
   const [init, setInit] = useState(false);
-
+  const [showParticles, setShowParticles] = useState(true);
+  console.log(showParticles);
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadFull(engine);
     }).then(() => {
       setInit(true);
     });
+
+    const timer = setTimeout(() => {
+      setShowParticles(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const options = useMemo(() => ({
@@ -146,6 +153,7 @@ export default function ParticlesWrapper() {
         particlesLoaded={async (container) => console.log(container)}
         // @ts-expect-error: bug
         options={options}
+        className={`transition-all duration-1000 ease-linear ${showParticles ? "opacity-100" : "opacity-0"}`}
       />
     );
   }
