@@ -16,13 +16,15 @@ import CustomCanvas from "../components/CustomCanvas";
 import useSetupSection from "../hooks/useSetupSection";
 import { useStore } from "../state";
 import { ExitQuestions } from "./Survey2";
+import ParticlesWrapper from "../components/ParticlesWrapper";
+import { computeTotalError } from "../distances";
 
 export default function Globe() {
   useSetupSection(8, 'globe');
   return (
     <>
       <CustomCanvas className="bg-black">
-        <PerspectiveCamera makeDefault position={[20, 20, 20]} ref={(node) => node?.lookAt(0, 0, 0)} />
+        <PerspectiveCamera makeDefault position={[50, 50, 50]} ref={(node) => node?.lookAt(0, 0, 0)} />
         <Controls />
         <EarthWrapper EarthMesh={EarthMesh} />
         <Stars />
@@ -58,8 +60,8 @@ function ExitSurvey() {
   if (nCities !== nRenderedCities) {
     return null;
   }
-  //const enabled = !completed && Math.round(computeTotalError('sphere', currPositions)) === 0;
-  const enabled = true;
+  const enabled = !completed && Math.round(computeTotalError('sphere', currPositions)) === 0;
+  //const enabled = true;
   return (
     <div className={`bg-gray-400 bg-opacity-80 fixed top-0 w-full h-full z-10 transition-all ease-in duration-1000
 ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
@@ -70,6 +72,7 @@ ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
             <p className="w-full border-b border-gray-400 mb-5 text-blue">You have sucessfully completed the challenge! In order to continue playing, please fill out this short survey.</p>
             <ExitQuestions action={() => setCompleted(true)} />
           </div>
+          <ParticlesWrapper />
         </div>
       </div>
     </div>
