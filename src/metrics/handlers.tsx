@@ -17,18 +17,18 @@ export function useRegisterUIHandlers() {
     if (token === null) return;
   }, [token]);
 
-  const handleExit = () => {
-    postExit(token, route);
+  const handleExit = async () => {
+    await postExit(token, route);
   }
 
   useEffect(() => {
     window.addEventListener('click', handleClick);
     window.addEventListener('solver', handleSolver);
-    window.addEventListener('unload', handleExit);
+    window.addEventListener('beforeunload', handleExit);
     return () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('solver', handleSolver);
-      window.removeEventListener('unload', handleExit);
+      window.removeEventListener('beforeunload', handleExit);
     };
   });
 }

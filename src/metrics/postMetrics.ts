@@ -80,11 +80,11 @@ export async function postExit(token: string | null, route: Route | null) {
   const payload = {
     current_route: route
   };
-  postEvent(token, 'exit', payload);
+  return await postEvent(token, 'exit', payload, 500);
 }
 
 
-async function postEvent(token: string, type: InteractionType, payload: object | null) {
+async function postEvent(token: string, type: InteractionType, payload: object | null, timeout: number = 1000) {
   const body: InteractionBody = {
     event_type: type,
   };
@@ -99,12 +99,14 @@ async function postEvent(token: string, type: InteractionType, payload: object |
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(timeout)
       }
     );
     if (!res.ok) {
       throw Error(`Received error code: ${res.status}`);
     }
+    return res;
   } catch (err) {
     console.error(err);
   }
