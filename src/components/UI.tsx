@@ -1,5 +1,5 @@
 import { useStore } from "../state";
-import { CityName, positions } from "../coordinates";
+import { CityName } from "../coordinates";
 import { computeTotalError, getDistancesLazy } from "../distances";
 import { capitalize } from "../utils";
 import { useEffect, useState } from "react";
