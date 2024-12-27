@@ -148,7 +148,7 @@ export function Curves({ radius }: { radius?: number }) {
   const hoveredCity = useStore(state => state.hoveredCity);
   const clearHoverPositions = useStore(state => state.clearHoverPositions);
   useEffect(() =>
-    clearHoverPositions() // TODO: Change this
+    clearHoverPositions()
   );
   if (nCities !== nRenderedCities || hoveredCity === null) return null;
   const curves = [];

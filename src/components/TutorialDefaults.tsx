@@ -29,7 +29,7 @@ export const TutorialEarthMesh = forwardRef<Mesh, EarthProps>(({ onPointerMove, 
 
 export function TutorialControls() {
   const controlsEnabled = useStore(state => state.controlsEnabled);
-  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={controlsEnabled} /> // TODO: Set a decent position
+  return <MapControls maxPolarAngle={1.5} minDistance={35} maxDistance={200} enabled={controlsEnabled} />
 }
 
 

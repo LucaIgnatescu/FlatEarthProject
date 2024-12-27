@@ -258,7 +258,7 @@ export const useStore = create<MainStore>((set, get) => (
 
       if (nextIndex === currIndex + 1) {
         set({ progression: route });
-        Cookies.set('progression', route, { expires: 1 }); // TODO: Change to reasonable value
+        Cookies.set('progression', route, { expires: 1 / 24 });
         postRouteChange(get().jwt, route);
         return true;
       }
