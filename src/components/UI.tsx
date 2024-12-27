@@ -97,8 +97,6 @@ export function CitySlider() {
   const updateNCities = useStore(state => state.updateNCities);
   const updateHoveredCity = useStore(state => state.updateHoveredCity);
   const nCities = useStore(state => state.nCities);
-  console.log(nCities)
-  console.log(Object.keys(positions).length)
   return (
     <input className="pointer-events-auto bg-green" type='range' min='4' max={8} value={nCities}
       onChange={(event) => {

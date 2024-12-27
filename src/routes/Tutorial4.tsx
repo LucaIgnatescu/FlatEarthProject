@@ -8,7 +8,6 @@ import { TutorialCityMesh, TutorialControls, TutorialEarthMesh, TutorialTextSpri
 import { PerspectiveCamera } from "@react-three/drei";
 import { DynamicContinueButton } from "../components/ContinueButton.tsx";
 import { computeTotalError } from "../distances.tsx";
-import { ContextMenu } from "../components/ContextMenu.tsx";
 import { Distances } from "../components/Distances.tsx";
 import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
@@ -37,7 +36,6 @@ export function Tutorial4() {
 
           <RealDistancesContainer />
           <Distances />
-          <ContextMenu />
         </UIContainer>
       </div>
       <div className="w-2/5 h-full flex flex-col justify-center p-12 *:my-5">

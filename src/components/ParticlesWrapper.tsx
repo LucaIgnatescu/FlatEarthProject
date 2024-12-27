@@ -5,7 +5,6 @@ import { loadFull } from "tsparticles";
 export default function ParticlesWrapper() {
   const [init, setInit] = useState(false);
   const [showParticles, setShowParticles] = useState(true);
-  console.log(showParticles);
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadFull(engine);

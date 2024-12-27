@@ -36,7 +36,6 @@ export function useDragDispatcher() {
     if (isDragging === true) {
       const intersection = computeIntersection();
       if (intersection === null) return;
-      console.log('dispatching startDrag')
       window.dispatchEvent(new CustomEvent<PathPoint>('startDrag', {
         detail: { ...intersection }
       }));
@@ -49,14 +48,12 @@ export function useDragDispatcher() {
         const dragEvent = new CustomEvent<PathPoint>('addPoint', {
           detail: { ...intersection }
         });
-        console.log('dispatching addPoint');
         window.dispatchEvent(dragEvent);
       }
     }, TIMEOUT);
 
     return () => {
       if (isDragging === true) {
-        console.log('dispatching startDrag');
         const intersection = computeIntersection();
         if (intersection === null) return;
         window.dispatchEvent(new CustomEvent('stopDrag', {

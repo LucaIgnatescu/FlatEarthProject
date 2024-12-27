@@ -2,7 +2,6 @@ import { Route } from "../App";
 import { CityName } from "../coordinates";
 import { PathPoint } from "./dispatchers";
 
-console.log(import.meta.env.VITE_API);
 const API_ENDPOINT = import.meta.env.VITE_API || "http://localhost:8080";
 
 export type InteractionType = 'drag' | 'click' | 'solve' | 'route_change' | 'exit';
@@ -71,7 +70,6 @@ export async function postRouteChange(token: string | null, route: Route, ok: bo
     destination: route,
     success: ok
   };
-  console.log("Posting route_change with", payload, token);
   postEvent(token, 'route_change', payload);
 }
 
@@ -110,7 +108,7 @@ async function postEvent(token: string, type: InteractionType, payload: object |
   } catch (err) {
     console.error(err);
   }
-  console.log(`logged type:${type}, body:${JSON.stringify(body)}`);
+  //console.log(`logged type:${type}, body:${JSON.stringify(body)}`);
 }
 
 async function postGeneric(path: string, token: string | null, payload: object) {
@@ -135,7 +133,7 @@ async function postGeneric(path: string, token: string | null, payload: object) 
   } catch (err) {
     console.error(err);
   }
-  console.log(`sent payload to ${path}`);
+  //console.log(`sent payload to ${path}`);
 }
 
 export function postBug(token: string | null, payload: object) {

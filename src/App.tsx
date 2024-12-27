@@ -6,7 +6,7 @@ import { Tutorial4 } from "./routes/Tutorial4";
 import { Tutorial5 } from "./routes/Tutorial5";
 import Globe from "./routes/Globe";
 import { useMouseTracker } from "./metrics/mouseTracker";
-import { useGlobalEvents } from "./metrics/useEvents";
+import { useGlobalEvents, useProgressionTracker } from "./metrics/useEvents";
 import BugReport from "./routes/BugReport";
 import About from "./routes/About";
 import Plane from "./routes/Plane";
@@ -21,7 +21,7 @@ export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tut
 function Root() {
   useMouseTracker();
   useGlobalEvents();
-  //useProgressionTracker();
+  useProgressionTracker();
 
   return <Outlet />;
 }
