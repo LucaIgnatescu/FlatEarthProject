@@ -1,8 +1,6 @@
 # Flat Earth Challenge
 
-The app is currently in the final stages of development. 
-
-A demo of the app can be found at [flatearthtest.com](https://flatearthtest.com). 
+The app is located at [flatearthchallenge.com](https://flatearthchallenge.com). 
 
 ## Our Mission
 Many people believe that the earth is flat, and there is good reason for this belief. Primarily, lived experience strongly suggests that this is the case. To any observer standing on the surface, the appearance of the Earth is clearly flat. But of course, appearances can be deceiving. 
@@ -14,13 +12,13 @@ We cannot solve these problems here, but what we can do is introduce a trustless
 Let’s see if you can do it!
 
 
-## Hosting
+## Architecture
 
-The frontend is hosted on S3 and served with CloudFront. 
-
-The backend is hosted with ECS in Fargate mode, behind an Application Load Balancer. It is currently setup for a 2AZ deployment in us-east-2, with private subnets for the containers and public ones for the load balancer. 
-
-The database is an RDS Postgres cluster. 
+- The frontend is hosted on S3 and served with CloudFront. 
+- The backend is ran serverless through API Gateway and AWS Lambda, and it is written in Go. The source code can be found in [this](https://github.com/LucaIgnatescu/FlatEarthBackend) repository. 
+- The database is an RDS Postgres cluster, and it is in a private subnet.
+- To provide internet connectivity for external apis, we use a custom NAT Instance hosted in a public subnet. 
+- DNS is managed through Route53. 
 
 
 
