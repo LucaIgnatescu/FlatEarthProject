@@ -4,7 +4,6 @@ import { computeTotalError, getDistancesLazy } from "../distances";
 import { capitalize } from "../utils";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Route } from "../App";
 
 export function TotalError() {
   const nCities = useStore(state => state.nCities);
