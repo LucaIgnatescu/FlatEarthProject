@@ -47,6 +47,7 @@ export default function Globe() {
         <Distances />
         <ContextMenu />
       </UIContainer>
+      <ExitSurvey />
     </>
   );
 }
