@@ -88,7 +88,7 @@ ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
           <div className="h-fit flex w-full justify-center">
             <div className="opacity-100 p-10 bg-white w-1/2 rounded-xl border border-black overflow-y-scroll no-scrollbar text-l *:my-3">
               <p>
-                As you may have noticed, by just adding the fourth city, the number at the top never seems to go to 0, no matter how hard you try.
+                As you may have noticed, by just adding a fourth city, the number at the top never seems to go to 0, no matter how hard you try.
                 However, if the Earth were flat and the real distances measured on a planar surface, it should be possible to create a perfect representation of reality by completely matching all distances.
               </p>
               <p>The only reason for this impossibility is that these distances were not in fact measured on a plane, but on some other type of surface.</p>

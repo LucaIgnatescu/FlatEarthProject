@@ -71,7 +71,7 @@ export function IntakeSurvey({ action }: { action: () => void }) {
         />
         <StandardMCQ updateAnswer={updateAnswerFactory(8)}
           title="Formal Education (pick highest)"
-          answers={['Some High School', 'Completed High School', 'Some College', 'Advanced Degree (e.g. Masters, MBA, JD)']}
+          answers={['Some High School', 'Completed High School', 'Some College', 'Completed College', 'Advanced Degree (e.g. Masters, MBA, JD)']}
         />
         <StandardMCQ updateAnswer={updateAnswerFactory(9)}
           title="Family Income Level (pick hightest)"
