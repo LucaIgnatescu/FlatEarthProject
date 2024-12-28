@@ -17,6 +17,9 @@ function getIntermediatePoint(source: Vector3, dest: Vector3, t: number, type: O
   if (type === 'sphere') {
     const sourceCopy = new Vector3().copy(source).normalize();
     const destCopy = new Vector3().copy(dest).normalize();
+    if (sourceCopy.distanceTo(destCopy) < 0.01) {
+      return dest;
+    }
     const pos = slerp(sourceCopy, destCopy, t).multiplyScalar(SPHERE_RADIUS);
     return pos;
   }
