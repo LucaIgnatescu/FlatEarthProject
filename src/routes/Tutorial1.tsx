@@ -84,7 +84,7 @@ function Prompt() {
         In the representation on the left, these cities are now <span style={{ color: color }} className="text-2xl">{Math.round(Math.abs(currDistance) / 10) * 10}</span> km apart. You can click and drag to move them around.
       </p>
       <p>
-        Can you make the representation match reality?
+        Make the representation match reality.
       </p>
       <p>
         The <span style={{ color: color }} className="text-2xl">

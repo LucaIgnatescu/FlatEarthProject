@@ -14,7 +14,7 @@ export default function NotFound() {
         <button
           className="p-1 w-fit rounded bg-gray-400 hover:bg-blue-400"
           onClick={() => navigate(-1)}>
-          Take me Back</button>
+          Take me back!</button>
       </div>
     </div>
   );

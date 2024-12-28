@@ -89,7 +89,7 @@ function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        There are many ways to do this.
+        There are many ways to place these dots correctly.
       </p>
       <p>
         To help you align the cities to reality, there is a line connecting them.

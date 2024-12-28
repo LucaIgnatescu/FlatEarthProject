@@ -129,10 +129,9 @@ export function AboutMenu() {
 }
 
 export function ContinueTimeout(
-  { text, time, dest }:
-    { text: string, time: number, dest: Route }
+  { text, time, onClick }:
+    { text: string, time: number, onClick: () => void }
 ) {
-  const navigate = useNavigate();
   const [timer, setTimer] = useState<number>(-1);
   const done = timer === 0;
   const TICK = 1000;
@@ -151,7 +150,7 @@ export function ContinueTimeout(
     return (
       <div
         className="pointer-events-auto bg-[#43CF30] p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
-        onClick={() => navigate(`/${dest}`)}
+        onClick={onClick}
       >
         {text}
       </div>
