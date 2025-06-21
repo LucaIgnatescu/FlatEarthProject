@@ -11,7 +11,7 @@ export default function About() {
         </h1>
         <div className="py-2 *:mb-3">
           <p>
-            Many people believe that the earth is flat, and there is a good reason for this belief. Lived experience strongly suggests that this is the case. To any observer standing on the surface, the appearance of the Earth is clearly flat. But of course, appearances can be deceiving.
+            Many people believe that the earth is flat, and there is a good reason for this belief. Primarily, lived experience strongly suggests that this is the case. To any observer standing on the surface, the appearance of the Earth is clearly flat. But of course, appearances can be deceiving.
 
           </p>
           <p>
