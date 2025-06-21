@@ -72,16 +72,16 @@ function DynamicDistanceExplanation() {
   }
   if (color === RED) {
     return (<p>
-      More concretely, the line now indicates that the cities are <span className="text-[#f30836]">{rounded}km too far apart</span>.
+      Specifically, the line now indicates that the cities are <span className="text-[#f30836]">{rounded}km too far apart</span>.
     </p>);
   }
   if (color === BLUE) {
     return (<p>
-      More concretely, the line now indicates that the cities are <span className="text-[#3479f3]">{rounded}km too close together</span>.
+      Specifically, the line now indicates that the cities are <span className="text-[#3479f3]">{rounded}km too close together</span>.
     </p>);
   }
   return (<p>
-    More concretely, the line now indicates that the cities are <span className="text-[#36f808]">correctly spaced</span>.
+    Specifically, the line now indicates that the cities are <span className="text-[#36f808]">correctly spaced</span>.
   </p>);
 }
 
@@ -92,10 +92,10 @@ function Prompt() {
         There are many ways to place these dots correctly.
       </p>
       <p>
-        To help you align the cities to reality, there is a line connecting them.
+        To help you align the cities to reality, there is now a line connecting them.
         It is <span className="text-[#36f808]">green</span> when the distance is correct,
-        <span className="text-[#3479f3]"> blue</span>  if too short,
-        and <span className="text-[#f30836]"> red</span> if too long.
+        <span className="text-[#3479f3]"> blue</span>  if it's too short,
+        and <span className="text-[#f30836]"> red</span> if it's too long.
       </p>
       <p>
         The number above the line indicates how far off you are from matching the real distance.

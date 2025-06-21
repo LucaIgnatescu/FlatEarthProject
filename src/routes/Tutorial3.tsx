@@ -105,7 +105,7 @@ function TotalErrorExplanation() {
   return (
     <>
       <p>
-        More explicitly, the current total discrepancy is computed as
+        The current total discrepancy is computed as
       </p>
       <p className="text-center text-black">
         <span className="font-semibold">{totalError}</span> = <span style={{ color: color1 }}>{d1}</span>

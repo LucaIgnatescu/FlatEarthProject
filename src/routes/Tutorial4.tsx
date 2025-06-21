@@ -55,10 +55,10 @@ function Prompt() {
   return (
     <div className="*:my-2 text-xl">
       <p>
-        From now on, to reduce clutter, only the lines originating from the hovered city will be shown.
+        From now on, to reduce clutter, only the lines originating from the selected city will be shown.
       </p>
       <p>
-        Additionally, for your reference, the menu in the top left shows the real distances between the hovered city and the rest. It can be toggled on or off by clicking the arrow.
+        Additionally, for your reference, the menu in the top left shows the real distances between the selected city and the rest. It can be toggled on or off by clicking the arrow.
       </p>
       <p>
         Match the cities again, just as you did in the previous section.
