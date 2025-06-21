@@ -25,7 +25,7 @@ export const positions = {
     lon: 77.216721
   },
 
-  easter: {
+  "easter Island": {
     lat: -27.104671,
     lon: -109.360481
   },
