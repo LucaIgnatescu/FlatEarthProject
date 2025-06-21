@@ -14,7 +14,7 @@ import CustomCanvas from "../components/CustomCanvas.tsx";
 import useSetupSection from "../hooks/useSetupSection.tsx";
 import { ProgressOverlay } from "../components/ProgressOverlay.tsx";
 import { useNavigate } from "react-router-dom";
-import { getColor } from "../utils.tsx";
+import { getColor, GREEN } from "../utils.tsx";
 
 export function Tutorial3() {
   useSetupSection(3, 'tutorial3');
@@ -97,10 +97,10 @@ function TotalErrorExplanation() {
   const d1 = distance1.d;
   const d2 = distance2.d;
   const d3 = distance3.d;
-
-  const color1 = distance1.color;
-  const color2 = distance2.color;
-  const color3 = distance3.color;
+  const TEMPGREEN = "#006400";
+  const color1 = distance1.color !== GREEN ? distance1.color : TEMPGREEN;
+  const color2 = distance2.color !== GREEN ? distance2.color : TEMPGREEN;
+  const color3 = distance3.color !== GREEN ? distance3.color : TEMPGREEN;
   const totalError = d1 + d2 + d3;
   return (
     <>

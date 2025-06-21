@@ -81,7 +81,7 @@ function DynamicDistanceExplanation() {
     </p>);
   }
   return (<p>
-    Specifically, the line now indicates that the cities are <span className="text-[#36f808]">correctly spaced</span>.
+    Specifically, the line now indicates that the cities are <span className="text-[#006400]">correctly spaced</span>.
   </p>);
 }
 
@@ -93,7 +93,7 @@ function Prompt() {
       </p>
       <p>
         To help you align the cities to reality, there is now a line connecting them.
-        It is <span className="text-[#36f808]">green</span> when the distance is correct,
+        It is <span className="text-[#006400]">green</span> when the distance is correct,
         <span className="text-[#3479f3]"> blue</span>  if it's too short,
         and <span className="text-[#f30836]"> red</span> if it's too long.
       </p>

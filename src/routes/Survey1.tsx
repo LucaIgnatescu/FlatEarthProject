@@ -47,7 +47,7 @@ export function IntakeSurvey({ action }: { action: () => void }) {
         <GenderQuestion updateAnswer={updateAnswerFactory(1)} />
         <StandardMCQ updateAnswer={updateAnswerFactory(2)}
           title="What is your race?"
-          answers={['white', 'black', 'hispanic', 'asian', 'other/multiple']}
+          answers={['White', 'Black', 'Hispanic', 'Asian', 'Other/Multiple']}
         />
         <StandardMCQ updateAnswer={updateAnswerFactory(3)}
           title="I see myself as extroverted and enthusiastic"
