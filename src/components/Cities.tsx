@@ -148,6 +148,7 @@ function useSnapping(type: ObjectType, cityName: CityName) {
   }
 
   useFrame(() => {
+    if (route === 'planepost') return;
     if (
       hoveredCity?.name !== cityName || !isDragging ||
       truePositions[cityName] === undefined ||

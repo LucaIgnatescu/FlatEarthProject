@@ -39,11 +39,13 @@ export function useProgressionTracker() {
   const jwt = useStore(state => state.jwt);
   const updateProgression = useStore(state => state.updateProgression);
   const navigate = useNavigate();
+  console.log(route);
   useEffect(() => {
     if (route === null) {
       return;
     }
     const ok = updateProgression(route);
+    console.log(ok);
     if (ok === false) {
       if (window.history.length === 1) {
         return navigate('/');

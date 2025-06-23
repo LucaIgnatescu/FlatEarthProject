@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import { Mesh, TextureLoader, } from "three";
 import { SPHERE_RADIUS } from "../utils";
 import { Cities, } from "../components/Cities";
@@ -18,9 +18,13 @@ import { useStore } from "../state";
 import { ExitQuestions } from "./Survey2";
 import ParticlesWrapper from "../components/ParticlesWrapper";
 import { computeTotalError } from "../distances";
+import { useNavigate } from "react-router-dom";
 
 export default function Globe() {
   useSetupSection(8, 'globe');
+  const completed = useStore(state => state.completed);
+  const updateCompleted = useStore(state => state.updateCompleted);
+  const navigate = useNavigate();
   return (
     <>
       <CustomCanvas className="bg-black">
@@ -43,16 +47,29 @@ export default function Globe() {
             </div>
           </div>
         </div>
+        {completed &&
+          <div className="top-0 left-0 fixed w-full h-full z-200 pointer-events-none">
+            <div className="flex w-full h-full flex-col justify-end">
+              <div className="flex w-full justify-center">
+                <div
+                  className="pointer-events-auto bg-[#43CF30] p-2 px-4 text-white hover:cursor-pointer rounded-t-xl"
+                  onClick={() => navigate('/planepost')}
+                >
+                  2D
+                </div>
+              </div>
+            </div>
+          </div>
+        }
         <RealDistancesContainer />
         <Distances />
         <ContextMenu />
       </UIContainer>
-      <ExitSurvey />
+      <ExitSurvey completed={completed} onClick={() => updateCompleted(true)} />
     </>
   );
 }
-function ExitSurvey() {
-  const [completed, setCompleted] = useState(false);
+function ExitSurvey({ completed, onClick: onClick }: { completed: boolean, onClick: VoidFunction }) {
   const currPositions = useStore(state => state.currPositions);
   const nCities = useStore(state => state.nCities);
   const nRenderedCities = useStore(state => state.nRenderedCities);
@@ -74,7 +91,7 @@ ${enabled ? "opacity-100" : "pointer-events-none opacity-0"}`}>
                 If you would like to continue playing, please fill out this short survey.
               </p>
 
-              <ExitQuestions action={() => setCompleted(true)} />
+              <ExitQuestions action={onClick} />
             </div>
             <ParticlesWrapper />
           </div>

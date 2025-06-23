@@ -60,6 +60,7 @@ export type MainStore = {
   progression: Route | null;
   mouseRef: MutableRefObject<{ mouseX: number, mouseY: number }>
   jwt: string | null;
+  completed: boolean;
   updateRoute: (route: Route) => void;
   updateCities: (name: CityName, city: Mesh, remove?: boolean) => void;
   updateHoveredCity: (name: CityName | null) => void;
@@ -78,6 +79,7 @@ export type MainStore = {
   updateProgression: (route: Route) => boolean;
   updateMousePosition: (x: number, y: number) => void;
   setJwt: (jwt: string) => void;
+  updateCompleted: (completed: boolean) => void;
 }
 
 
@@ -102,6 +104,7 @@ const currPositions = {};
 const hoverPositions = {};
 const earthUUID = null;
 const progression = Cookies.get('progression') as Route ?? null;
+const completed = false;
 citiesRef.current = {};
 
 
@@ -133,6 +136,7 @@ export const useStore = create<MainStore>((set, get) => (
     progression,
     jwt,
     mouseRef,
+    completed,
     updateMoveLock: (moveLock: boolean) => set({ moveLock }),
     updateRoute: (route: Route) => {
       get().hoveredCity = null;
@@ -140,7 +144,8 @@ export const useStore = create<MainStore>((set, get) => (
       get().updateAnimationState(null);
       get().citiesRef.current = {};
 
-      const objectType: ObjectType = route === 'globe' ? 'sphere' : 'plane';
+      let objectType: ObjectType = route === 'globe' ? 'sphere' : 'plane';
+
       set({ route, nRenderedCities, isAnimating, isDragging, contextMenu, nCities, truePositions, objectType, earthUUID, hoverPositions });
     },
     updateCities: (name: CityName, city: Mesh, remove: boolean = false) => {
@@ -234,8 +239,7 @@ export const useStore = create<MainStore>((set, get) => (
         'tutorial5',
         'plane',
         'globe',
-        'survey1',
-        'survey2'
+        'planepost'
       ];
 
       if (!sequence.includes(route)) {
@@ -270,7 +274,8 @@ export const useStore = create<MainStore>((set, get) => (
     setJwt: (jwt: string) => {
       Cookies.set('jwt', jwt, { expires: 1 / 24 }); // NOTE: 1h seems reasonable
       set({ jwt });
-    }
+    },
+    updateCompleted: (completed: boolean) => set({ completed })
   }
 ));
 

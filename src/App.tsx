@@ -12,16 +12,17 @@ import About from "./routes/About";
 import Plane from "./routes/Plane";
 import Home from "./routes/Home";
 import NotFound from "./routes/NotFound";
+import PlanePost from "./routes/PlanePost";
 
 export type Route = 'tutorial1' | 'tutorial2' | 'tutorial3' | 'tutorial4' | 'tutorial5' |
-  'globe' | 'plane' | 'survey1' | 'survey2';
+  'globe' | 'plane' | 'planepost';
 
 
 
 function Root() {
   useMouseTracker();
   useGlobalEvents();
-  // useProgressionTracker();
+  useProgressionTracker();
 
   return <Outlet />;
 }
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: "/about",
         element: <About />
+      },
+      {
+        path: "/planepost",
+        element: <PlanePost />
       }
     ]
   },
