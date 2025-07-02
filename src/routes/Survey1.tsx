@@ -8,7 +8,6 @@ const NQUESTIONS = 10;
 export function IntakeSurvey({ action }: { action: () => void }) {
   const token = useStore(state => state.jwt);
   const [answers, setAnswers] = useState(Array(NQUESTIONS).fill(null));
-
   const updateAnswerFactory = (i: number): UpdateAnswerFunc => {
     return (value: unknown) => {
       const newAnswers = answers.slice();
@@ -100,20 +99,24 @@ function AgeQuestion({ updateAnswer }: { updateAnswer: UpdateAnswerFunc }) {
     setAge(age);
     if (isNaN(+age)) {
       setErr(2);
+      updateAnswer(null);
       return;
     }
 
     if (+age <= 10) {
       setErr(1);
+      updateAnswer(null);
       return;
     }
 
     if (age === "") {
       setErr(0);
+      updateAnswer(null);
       return;
     }
     if (+age > 100) {
       setErr(3);
+      updateAnswer(null);
       return;
     }
     setErr(0);

@@ -115,7 +115,7 @@ async function postEvent(token: string, type: InteractionType, payload: object |
 
 async function postGeneric(path: string, token: string | null, payload: object) {
   if (token === null) {
-    console.log(`Endpoint ${path} requires authorization`);
+    console.error(`Endpoint ${path} requires authorization`);
     return;
   }
   try {
